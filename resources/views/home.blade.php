@@ -1,23 +1,45 @@
-@extends('layouts.app')
+@extends('layouts.global')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">Dashboard</div>
 
-                <div class="card-body">
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
+@push('list-ijin-kerja-css')
+    <!-- DataTables -->
+    <link rel="stylesheet" href="{{ asset('startui/css/lib/datatables-net/datatables.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('startui/css/separate/vendor/datatables-net.min.css') }}">
+@endpush
+
+@section('content')
+    <div class="page-content">
+    </div>
+    
+    <div class="container-fluid">
+        <header class="section-header">
+            <div class="tbl">
+                <div class="tbl-row">
+                    <div class="tbl-cell">
+                        <h3>Welcome</h3>
+                        <div class="subtitle">
                         </div>
-                    @endif
-
-                    You are logged in!
+                        <div class="pull-right">
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </header>
+    </div> <!--container-fluid -->
+
+    <div class="row">
     </div>
-</div>
+@endsection
+
+@push('list-ijin-kerja-js')
+    <!-- DataTables -->
+    <script src="{{ asset('startui/js/lib/datatables-net/datatables.min.js') }}"></script>
+    <script>
+		$(function() {
+			$('#example').DataTable();
+		});
+	</script>
+@endpush
+
 @endsection

@@ -57,10 +57,19 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => true,
-            'engine' => null,
+            'engine' => 'InnoDB',
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
+        ],
+
+        'mysql_main' => [
+            'driver'    => env('DB_CONNECTION_MAIN'),
+            'host'      => env('DB_HOST_MAIN'),
+            'port'      => env('DB_PORT_MAIN'),
+            'database'  => env('DB_DATABASE_MAIN'),
+            'username'  => env('DB_USERNAME'),
+            'password'  => env('DB_PASSWORD'),
         ],
 
         'pgsql' => [
