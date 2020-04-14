@@ -45,64 +45,7 @@
                             </div>
                         @endif
                         
-                        @if(Auth::guard('admin')->check())
-                        <table id="example" class="display table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>No.</th>
-                                    <th>Tanggal Pengajuan</th>
-                                    <th>Perihal</th>
-                                    <th>Nama Pemohon</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php $i = 1; @endphp
-                                @foreach($list_ijin_admin as $ijin)
-                                    <tr> 
-                                        <td>{{ $i++ }}</td>
-                                        <td>{{ $ijin->created_at }}</td>
-                                        @if($ijin->perihal == null)
-                                        <td>-</td>
-                                        @else
-                                        <td>{{ $ijin->perihal }}</td>
-                                        @endif
-                                        <td>{{ $ijin->nama_pemohon }}</td>
-                                        <td>
-                                        @if($ijin->status == 2)
-                                            <span class="label label-pill label-primary">{{ $ijin->status_ijin_kerja }}</span>
-                                        @elseif($ijin->status == 4)
-                                            <span class="label label-pill label-danger">{{ $ijin->status_ijin_kerja }}</span>
-                                        @elseif($ijin->status == 5)
-                                            <span class="label label-pill label-info">{{ $ijin->status_ijin_kerja }}</span>
-                                        @elseif($ijin->status == 6)
-                                            <span class="label label-pill label-info">{{ $ijin->status_ijin_kerja }}</span>
-                                        @elseif($ijin->status == 7)
-                                            <span class="label label-pill label-info">{{ $ijin->status_ijin_kerja }}</span>
-                                        @elseif($ijin->status == 8)
-                                            <span class="label label-pill label-success">{{ $ijin->status_ijin_kerja }}</span>
-                                        @endif
-                                        </td>
-                                        <td>
-                                            <!-- <button type="button" class="btn btn-inline">Lihat</button> -->
-                                            <a class="btn btn-inline" href="{{ route('showIjinKerjaDiajukanAdmin', $ijin->id) }}" class="button">Lihat</a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th>No.</th>
-                                    <th>Tanggal Upload</th>
-                                    <th>Perihal</th>
-                                    <th>Nama Pemohon</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </tfoot>
-                        </table>
-                        @elseif(in_array("KADISK3LH", json_decode(Auth::user()->roles)))
+                        @if(Auth::guard('kbs')->check())
                         <table id="example" class="display table table-bordered table-striped">
                             <thead>
                                 <tr>
@@ -144,7 +87,7 @@
                                         </td>
                                         <td>
                                             <!-- <button type="button" class="btn btn-inline">Lihat</button> -->
-                                            <a class="btn btn-inline" href="{{ route('showIjinKerjaDiajukan', $ijin->id) }}" class="button">Lihat</a>
+                                            <a class="btn btn-inline" href="{{ route('showIjinKerjaDiajukanKbs', $ijin->id) }}" class="button">Lihat</a>
                                         </td>
                                     </tr>
                                     @endif

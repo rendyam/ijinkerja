@@ -17,14 +17,13 @@
             <div class="tbl">
                 <div class="tbl-row">
                     <div class="tbl-cell">
-                        <h3>Welcome User</h3>
+                        <h3>Welcome KBS</h3>
                         <div class="subtitle">
                         </div>
                         <div class="pull-right">
                         </div>
                         <div class="panel-body">
                         </div>
-                        
                     </div>
                 </div>
             </div>

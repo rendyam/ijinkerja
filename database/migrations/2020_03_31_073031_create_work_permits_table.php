@@ -32,7 +32,7 @@ class CreateWorkPermitsTable extends Migration
             $table->integer('status')->unsigned();
             $table->timestamps();
 
-            $table->foreign('pic_safety_officer')->references('id')->on('db_efile.users');
+            $table->foreign('pic_safety_officer')->references('id')->on('admins');
             $table->foreign('pic_pemohon')->references('id')->on('users');
             $table->foreign('status')->references('id')->on('work_permit_status');
         });

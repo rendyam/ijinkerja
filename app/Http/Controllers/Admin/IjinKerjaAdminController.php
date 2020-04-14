@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,14 +23,13 @@ use App\Mail\PersetujuanKadisK3LH;
 use App\Mail\PenerbitanIjinKerja;
 
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Arr;
 
 use Auth;
 use PDF;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 
-class IjinKerjaController extends Controller
+class IjinKerjaAdminController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -37,7 +38,7 @@ class IjinKerjaController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth:admin');
         $this->middleware(function ($request, $next){
             $this->user_id = Auth::user()->id;
             $this->name = Auth::user()->name;
@@ -136,7 +137,7 @@ class IjinKerjaController extends Controller
         $data['created_at'] = $new_upload_dokumen->created_at;
         $data['pemohon'] = $pemohon[0]->name;
         
-        $safety_officer_email = \App\Admin::select('email')->get();
+        $safety_officer_email = \App\User::select('email')->where('roles', '["ADMIN"]')->where('status', 'ACTIVE')->get();
         foreach($safety_officer_email as $emails){
             $get_emails[] = $emails->email;
         }
@@ -226,7 +227,7 @@ class IjinKerjaController extends Controller
 
         Mail::to($get_email)->send(new PersetujuanPemohon($persetujuan_pemohon));
 
-        return redirect()->route('indexIjinKerja')->with('status', 'Dokumen berhasil disimpan dan dikirimkan ke Pemohon untuk persetujuan Pemohon');
+        return redirect()->route('indexIjinKerjaAdmin')->with('status', 'Dokumen berhasil disimpan dan dikirimkan ke Pemohon untuk persetujuan Pemohon');
     }
 
     public function sendToSo(Request $request, $id) //send to safety officer
@@ -273,7 +274,7 @@ class IjinKerjaController extends Controller
 
         $kadis_email = $this->getKadisEmail();
         $pemohon = \App\User::where('id', $send_to_kadis->pic_pemohon)->get()->all();
-        $safety_officer = \App\User::where('id', $send_to_kadis->pic_safety_officer)->get()->all();
+        $safety_officer = \App\Admin::where('id', $send_to_kadis->pic_safety_officer)->get()->all();
 
         $data_send_email_kadis['id'] = $id;
         $data_send_email_kadis['perihal'] = $send_to_kadis->perihal;
@@ -284,7 +285,7 @@ class IjinKerjaController extends Controller
 
         Mail::to($kadis_email)->send(new PersetujuanKadisK3LH($data_send_email_kadis));
 
-        return redirect()->route('indexIjinKerja')->with('status', 'Dokumen Pemohon dengan perihal "' . $send_to_kadis->perihal . '" berhasil disetujui dan dikirimkan ke Kadis K3LH untuk persetujuan');
+        return redirect()->route('indexIjinKerjaAdmin')->with('status', 'Dokumen Pemohon dengan perihal "' . $send_to_kadis->perihal . '" berhasil disetujui dan dikirimkan ke Kadis K3LH untuk persetujuan');
     }
 
     public function publishIjinKerja(Request $request, $id)
@@ -331,7 +332,7 @@ class IjinKerjaController extends Controller
 
         Mail::to($pemohon_email)->send(new PenerbitanIjinKerja($data_publish_kerja));
 
-        return redirect()->route('indexIjinKerja')->with('status', 'Ijin Kerja yang dikirim Pemohon dengan perihal "' . $publish_ijin_kerja->perihal . '" berhasil disetujui dan diterbitkan ke Pemohon terkait');
+        return redirect()->route('indexIjinKerjaAdmin')->with('status', 'Ijin Kerja yang dikirim Pemohon dengan perihal "' . $publish_ijin_kerja->perihal . '" berhasil disetujui dan diterbitkan ke Pemohon terkait');
     }
 
     /**
@@ -369,37 +370,14 @@ class IjinKerjaController extends Controller
 
     public function download($id)
     {
-        $get_pemohon = DB::table('approvals as a')
+        $approval = DB::table('approvals as a')
                     ->select('u.name', 'wp.nomor_lik', 'a.created_at')
                     ->join('users as u', 'u.id', '=', 'a.user_id')
                     ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
                     ->where('a.work_permit_id', '=', $id)
-                    ->where('a.user_status', '=', '["PEMOHON"]')
                     ->orderBy('a.created_at')
                     ->get();
-        $get_pemohon = Arr::get($get_pemohon, 0);
-        
-        $get_safety_officer = DB::table('approvals as a')
-                                        ->select('ad.name', 'wp.nomor_lik', 'a.created_at')
-                                        ->join('admins as ad', 'ad.id', '=', 'a.user_id')
-                                        ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
-                                        ->where('a.work_permit_id', '=', $id)
-                                        ->where('a.user_status', '=', '["ADMIN"]')
-                                        ->orderBy('a.created_at')
-                                        ->get();
-        $get_safety_officer = Arr::get($get_safety_officer, 0);
-
-        $get_kadis = DB::table('approvals as a')
-                                ->select('dbeu.name', 'wp.nomor_lik', 'a.created_at')
-                                ->join('db_efile.users as dbeu', 'dbeu.id', '=', 'a.user_id')
-                                ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
-                                ->where('a.work_permit_id', '=', $id)
-                                ->where('a.user_status', '=', '["KADISK3LH"]')
-                                ->orderBy('a.created_at')
-                                ->get();
-        $get_kadis = Arr::get($get_kadis, 0);
-
-        // dd($get_approval_kadis->created_at);
+        // dd($approval);
         
         $ijin_kerja = IjinKerja::findOrFail($id);
         
@@ -434,8 +412,8 @@ class IjinKerjaController extends Controller
         $compare_dokumen = array_intersect($document_name_array, json_decode($ijin_kerja->list_dokumen)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
         $get_dokumen_lainnya = array_diff(json_decode($ijin_kerja->list_dokumen), $compare_dokumen);
         $get_dokumen_lainnya = (array_values($get_dokumen_lainnya));
-
-        $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor '. $get_pemohon->nomor_lik .' telah ditandatangani oleh Bapak/Ibu '. $get_pemohon->name . ' (pada tgl '. $get_pemohon->created_at .') sebagai Pemohon, '. $get_safety_officer->name . ' sebagai Safety Officer (ttd. tgl '. $get_safety_officer->created_at .') dan Bapak ' . $get_kadis->name . ' sebagai Kadis K3LH (ttd. tgl '. $get_kadis->created_at .')'));
+        
+        $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor '. $approval[0]->nomor_lik .' telah ditandatangani oleh Bapak/Ibu '. $approval[0]->name . ' (pada tgl '. $approval[0]->created_at .') sebagai Pemohon, '. $approval[1]->name . ' sebagai Safety Officer (ttd. tgl '. $approval[1]->created_at .') dan Bapak ' . $approval[2]->name . ' sebagai Kadis K3LH (ttd. tgl '. $approval[2]->created_at .')'));
         // dd($qrcode);
 
         $pdf = PDF::loadview('app.download-ijin-kerja', ['ijin_kerja' => $ijin_kerja, 'get_dokumen_lainnya' => $get_dokumen_lainnya, 'get_risk_lainnya' => $get_risk_lainnya, 'get_danger_lainnya' => $get_danger_lainnya, 'get_se_lainnya' => $get_se_lainnya, 'qrcode' => $qrcode]);
@@ -504,7 +482,7 @@ class IjinKerjaController extends Controller
 
     function getSafetyOfficerEmail()
     {
-        $safety_officer_email = \App\Admin::select('email')->get();
+        $safety_officer_email = \App\User::select('email')->where('roles', '["ADMIN"]')->where('status', 'ACTIVE')->get();
         foreach($safety_officer_email as $emails){
             $get_emails[] = $emails->email;
         }
@@ -513,7 +491,7 @@ class IjinKerjaController extends Controller
     
     function getKadisEmail()
     {
-        $kadis_email = \App\User::select('email')->where('roles', '["KADISK3LH"]')->where('status', 'ACTIVE')->get();
+        $kadis_email = DB::table('db_efile.users')->select('email')->where('role_ijinkerja', '["KADISK3LH"]')->get();
         foreach($kadis_email as $emails){
             $get_emails[] = $emails->email;
         }

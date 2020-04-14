@@ -46,6 +46,26 @@ return [
             'provider' => 'users',
             'hash' => false,
         ],
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
+
+        'api-admin' => [
+            'driver' => 'token',
+            'provider' => 'admins',
+            'hash' => false,
+        ],
+        'kbs' => [
+            'driver' => 'session',
+            'provider' => 'kbs',
+        ],
+
+        'api-kbs' => [
+            'driver' => 'token',
+            'provider' => 'kbs',
+            'hash' => false,
+        ],
     ],
 
     /*
@@ -66,15 +86,25 @@ return [
     */
 
     'providers' => [
-        // 'users' => [
-        //     'driver' => 'eloquent',
-        //     'model' => App\User::class,
-        // ],
-
         'users' => [
+            'driver' => 'eloquent',
+            'model' => App\User::class,
+        ],
+
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Admin::class,
+        ],
+
+        'kbs' => [
             'driver' => 'database',
             'table' => 'db_efile.users',
         ],
+
+        // 'users' => [
+        //     'driver' => 'database',
+        //     'table' => 'db_efile.users',
+        // ],
     ],
 
     /*
@@ -97,6 +127,18 @@ return [
             'provider' => 'users',
             'table' => 'password_resets',
             'expire' => 60,
+            'throttle' => 60,
+        ],
+        'admins' => [
+            'provider' => 'admins',
+            'table' => 'password_resets',
+            'expire' => 15,
+            'throttle' => 60,
+        ],
+        'kbs' => [
+            'provider' => 'kbs',
+            'table' => 'password_resets',
+            'expire' => 15,
             'throttle' => 60,
         ],
     ],
