@@ -107,7 +107,23 @@
                                 @csrf
                                 
                                 <input type="hidden" name="status" value="7">
-                                <input type="hidden" name="role" value= '["ADMIN"]' >
+                                <input type="hidden" name="role" value=" {{ Auth::user()->roles }} ">
+                                
+                                <div class="form-group row">
+                                    <div class="col-sm-12">
+                                        <div class="pull-right">
+                                            <input type="submit" class="btn btn-success swal-btn-submit-approve" name="submitDokumen" value="Setujui">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            @endif
+                            @if($lihat_ijin[0]->status == 7)
+                            <form action="{{route('publishIjinKerjaKbs', $id)}}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                
+                                <input type="hidden" name="status" value="8">
+                                <input type="hidden" name="role" value=" {{ Auth::user()->role_ijinkerja }} ">
                                 
                                 <div class="form-group row">
                                     <div class="col-sm-12">

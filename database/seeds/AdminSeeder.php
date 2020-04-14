@@ -12,10 +12,10 @@ class AdminSeeder extends Seeder
     public function run()
     {
         $admin = new \App\User;
-        $admin->name = "Rendy";
-        $admin->email = "auliarendy@gmail.com";
+        $admin->name = "Jack";
+        $admin->email = "jack@gmail.com";
         $admin->password = \Hash::make("12345678");
-        $admin->roles = json_encode(["ADMIN"]);
+        $admin->roles = json_encode(["PEMOHON"]);
         $admin->status = "ACTIVE";
 
         $admin->save();

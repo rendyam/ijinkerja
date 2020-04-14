@@ -76,35 +76,24 @@
                 </div>
             </div>
             <ul class="side-menu-list">
+
+                @if(Auth::guard('admin')->check())
                 <li class="grey">
-                    <a href="{{ route('home') }}">
+                    <a href="{{ route('admin.home') }}">
                         <span>
                             <i class="font-icon font-icon-dashboard"></i>
                             <span class="lbl">Beranda</span>
                         </span>
                     </a>
                 </li>
-                
-                @if(in_array("ADMIN", json_decode(Auth::user()->roles)) || in_array("KADISK3LH", json_decode(Auth::user()->roles)))
                 <li class="grey">
-                    <a href="{{ route('indexIjinKerja') }}">
+                    <a href="{{ route('indexIjinKerjaAdmin') }}">
                         <span>
                             <i class="font-icon font-icon-dashboard"></i>
                             <span class="lbl">Ijin Kerja</span>
                         </span>
                     </a>
                 </li>
-                @else
-                <li class="grey">
-                    <a href="{{ route('indexPemohon') }}">
-                        <span>
-                            <i class="font-icon font-icon-dashboard"></i>
-                            <span class="lbl">Ijin Kerja</span>
-                        </span>
-                    </a>
-                </li>
-                @endif
-
                 <li class="red">
                     <a href="{{ route('logout') }}"
                         onclick="event.preventDefault();
@@ -118,6 +107,68 @@
                         @csrf
                     </form>
                 </li>
+                @elseif(Auth::guard('web')->check())
+                <li class="grey">
+                    <a href="{{ route('home') }}">
+                        <span>
+                            <i class="font-icon font-icon-dashboard"></i>
+                            <span class="lbl">Beranda</span>
+                        </span>
+                    </a>
+                </li>
+                <li class="grey">
+                    <a href="{{ route('indexPemohon') }}">
+                        <span>
+                            <i class="font-icon font-icon-dashboard"></i>
+                            <span class="lbl">Ijin Kerja</span>
+                        </span>
+                    </a>
+                </li>
+                <li class="red">
+                    <a href="{{ route('logout') }}"
+                        onclick="event.preventDefault();
+                                        document.getElementById('logout-form').submit();">
+                        <span class="lbl">
+                            <i class="font-icon fa fa-sign-out"></i>
+                            {{ __('Logout') }}
+                        </span>
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                </li>
+                @elseif(Auth::guard('kbs')->check())
+                <li class="grey">
+                    <a href="{{ route('kbs.home') }}">
+                        <span>
+                            <i class="font-icon font-icon-dashboard"></i>
+                            <span class="lbl">Beranda</span>
+                        </span>
+                    </a>
+                </li>
+                <li class="grey">
+                    <a href="{{ route('indexIjinKerjaKbs') }}">
+                        <span>
+                            <i class="font-icon font-icon-dashboard"></i>
+                            <span class="lbl">Ijin Kerja</span>
+                        </span>
+                    </a>
+                </li>
+                <li class="red">
+                    <a href="{{ route('logout') }}"
+                        onclick="event.preventDefault();
+                                        document.getElementById('logout-form').submit();">
+                        <span class="lbl">
+                            <i class="font-icon fa fa-sign-out"></i>
+                            {{ __('Logout') }}
+                        </span>
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                </li>
+                @endif
+                
             </ul>
         </nav>
 

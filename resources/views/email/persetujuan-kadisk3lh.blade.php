@@ -298,7 +298,7 @@
                         <w:anchorlock/>
                         <center>
                       <![endif]-->
-                          <a href="{{ route('showIjinKerjaDiajukan', $id) }}"
+                          <a href="{{ route('showIjinKerjaDiajukanKbs', $id) }}"
                         style="background-color:#f5774e;color:#ffffff;display:inline-block;font-family:'Source Sans Pro', Helvetica, Arial, sans-serif;font-size:18px;font-weight:400;line-height:45px;text-align:center;text-decoration:none;width:180px;-webkit-text-size-adjust:none;">Klik Disini</a>
                           <!--[if mso]>
                         </center>
