@@ -41,8 +41,7 @@
         <header class="site-header">
             <div class="container-fluid">
                 <a href="#" class="site-logo">
-                    <img class="hidden-md-down" src="{{ asset('startui/img/logo-2.png') }}" alt="">
-                    <img class="hidden-lg-down" src="{{ asset('startui/img/logo-2-mob.png') }}" alt="">
+                    {{ config('app.name', 'Laravel') }}
                 </a>
 
                 <button id="show-hide-sidebar-toggle" class="show-hide-sidebar">

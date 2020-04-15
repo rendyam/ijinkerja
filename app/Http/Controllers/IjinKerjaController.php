@@ -374,7 +374,7 @@ class IjinKerjaController extends Controller
                     ->join('users as u', 'u.id', '=', 'a.user_id')
                     ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
                     ->where('a.work_permit_id', '=', $id)
-                    ->where('a.user_status', '=', '["PEMOHON"]')
+                    ->where('a.user_status', '=', 'PEMOHON')
                     ->orderBy('a.created_at')
                     ->get();
         $get_pemohon = Arr::get($get_pemohon, 0);
