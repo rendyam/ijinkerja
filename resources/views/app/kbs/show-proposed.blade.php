@@ -188,7 +188,7 @@
 
             swal({
                 title: "Setujui Ijin Kerja?",
-                text: "Anda akan menyetujui Ijin Kerja dan mengirimkan ke Kadis K3LH untuk disetujui.",
+                text: "Anda akan menyetujui Ijin Kerja dan menerbitkan Ijin Kerja.",
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonClass: "btn-success",
