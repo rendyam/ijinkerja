@@ -48,9 +48,9 @@ class LoginController extends Controller
         ];
 
         // Attempt to log the user in
-        if (Auth::guard('kbs')->attempt($credential, $request->member)){
+        if (Auth::guard('kbs')->attempt($credential, $request->member)) {
             // If login succesful, then redirect to their intended location
-            return redirect()->intended(route('kbs.home'));
+            return redirect()->route('indexIjinKerjaKbs');
         }
 
         // If Unsuccessful, then redirect back to the login with the form data
@@ -60,6 +60,8 @@ class LoginController extends Controller
     public function logout()
     {
         Auth::guard('kbs')->logout();
-        return redirect('/kbs');
+        // return redirect('kbs.login');
+        // return redirect()->intended(route('logoutKbs'));
+        return view('auth-kbs.login');
     }
 }

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    if(auth()->user()){
+    if (auth()->user()) {
         return redirect('home');
     }
     return view('auth.login');
@@ -25,14 +25,14 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::group(['prefix' => 'admin'], function(){
+Route::group(['prefix' => 'admin'], function () {
     Route::get('/', 'AdminController@index')->name('admin.home');
     Route::get('/login', 'AuthAdmin\LoginController@showLoginForm')->name('admin.login');
     Route::post('/login', 'AuthAdmin\LoginController@login')->name('admin.login.submit');
     Route::get('/ijin-kerja', 'Admin\IjinKerjaAdminController@index')->name('indexIjinKerjaAdmin');
     Route::get('/logout', 'AuthAdmin\LoginController@logoutAdmin')->name('logout');
 
-    Route::group(["prefix" => "/ijin-kerja"], function(){
+    Route::group(["prefix" => "/ijin-kerja"], function () {
         Route::get('/lihat/{id}', 'Admin\IjinKerjaAdminController@showIjinKerjaDiajukan')->name('showIjinKerjaDiajukanAdmin');
         Route::post('/reject/{id}', 'Admin\IjinKerjaAdminController@rejectIjinKerja')->name('rejectIjinKerja');
         Route::get('/buat-ijin-kerja/{id}', 'Admin\IjinKerjaAdminController@createIjinKerja')->name('createIjinKerja'); //buat ijin kerja setelah dokumen sudah lengkap
@@ -60,11 +60,13 @@ Route::post('/send-to-so/{id}', 'IjinKerjaController@sendToSo')->name('sendToSo'
 Route::get('/download-ijin-kerja/{id}', 'IjinKerjaController@download')->name('downloadIjinKerja');
 Route::get('/logout', 'Auth\LoginController@logoutUser')->name('logout');
 
-Route::group(['prefix' => 'kbs'], function(){
+Route::group(['prefix' => 'kbs'], function () {
     Route::get('/', 'KbsController@index')->name('kbs.home');
     Route::get('/login', 'AuthKbs\LoginController@showLoginForm')->name('kbs.login');
     Route::post('/login', 'AuthKbs\LoginController@login')->name('kbs.login.submit');
     Route::get('/ijin-kerja', 'Kbs\IjinKerjaAdminController@index')->name('indexIjinKerjaKbs');
     Route::get('/lihat/{id}', 'Kbs\IjinKerjaAdminController@showIjinKerjaDiajukan')->name('showIjinKerjaDiajukanKbs');
     Route::post('/publish-ijin-kerja/{id}', 'Kbs\IjinKerjaAdminController@publishIjinKerja')->name('publishIjinKerjaKbs'); //Kadis tandatangan dan publish Ijin Kerja untuk Pemohon
+
+    Route::get('/logout', 'AuthKbs\LoginController@logout')->name('logoutKbs');
 });
