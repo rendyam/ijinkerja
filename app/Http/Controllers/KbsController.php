@@ -39,12 +39,12 @@ class KbsController extends Controller
         $bulan_romawi = $this->KonDecRomawi($bulan);
 
         $get_ijin_kerja_no = IjinKerja::whereRaw("DATE_FORMAT(created_at, '%m') = DATE_FORMAT(now(), '%m')")->get();
-        $nomor_surat = (int)count($get_ijin_kerja_no)+1;
-        
-        if($nomor_surat != null || $nomor_surat > 0){
+        $nomor_surat = (int) count($get_ijin_kerja_no) + 1;
+
+        if ($nomor_surat != null || $nomor_surat > 0) {
             $nomor_surat_formatted = str_pad($nomor_surat, 2, "0", STR_PAD_LEFT);
         }
-        $no_surat_final = $nomor_surat_formatted."/"."LIK-K3LH"."/".$bulan_romawi."/".$tahun;
+        $no_surat_final = $nomor_surat_formatted . "/" . "LIK-K3LH" . "/" . $bulan_romawi . "/" . $tahun;
 
         $publish_ijin_kerja = \App\IjinKerja::findOrFail($id);
         $publish_ijin_kerja->status = $request->status;
@@ -55,11 +55,11 @@ class KbsController extends Controller
         $publish_ijin_kerja->save();
 
         // $email_pemohon_safety_officer = $this->getSafetyOfficerEmail(); //awalnya safety officer dulu
-        $pemohon_email = $this->getEmailPemohon($id); 
+        $pemohon_email = $this->getEmailPemohon($id);
         // array_push($email_pemohon_safety_officer, $pemohon); //baru ditambahin jadi dengan pemohon juga
         $pemohon = \App\User::where('id', $publish_ijin_kerja->pic_pemohon)->get()->all();
         $safety_officer = \App\User::where('id', $publish_ijin_kerja->pic_safety_officer)->get()->all();
-        
+
         $data_publish_kerja['id'] = $id;
         $data_publish_kerja['perihal'] = $publish_ijin_kerja->perihal;
         $data_publish_kerja['nomor_lik'] = $publish_ijin_kerja->nomor_lik;
