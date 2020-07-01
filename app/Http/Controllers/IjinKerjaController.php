@@ -38,7 +38,7 @@ class IjinKerjaController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware(function ($request, $next){
+        $this->middleware(function ($request, $next) {
             $this->user_id = Auth::user()->id;
             $this->name = Auth::user()->name;
 
@@ -49,11 +49,11 @@ class IjinKerjaController extends Controller
     public function index()
     {
         $list_ijin_admin = DB::table('work_permits as wp')
-                            ->select('wp.id', 'wp.created_at', 'wp.perihal', 'u.name as nama_pemohon', 'wps.name as status_ijin_kerja', 'wp.status')
-                            ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
-                            ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
-                            ->orderBy('wp.created_at', 'desc')
-                            ->get();
+            ->select('wp.id', 'wp.created_at', 'wp.perihal', 'u.name as nama_pemohon', 'wps.name as status_ijin_kerja', 'wp.status')
+            ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
+            ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
+            ->orderBy('wp.created_at', 'desc')
+            ->get();
         // dd($list_ijin);
         return view('app.admin.index', compact(['list_ijin_admin']));
     }
@@ -61,12 +61,12 @@ class IjinKerjaController extends Controller
     public function indexPemohon()
     {
         $list_ijin = DB::table('work_permits as wp')
-                    ->select('wp.id as id_ijin_kerja', 'wp.perihal', 'wp.created_at', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status')
-                    ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
-                    ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
-                    ->where('pic_pemohon', $this->user_id)
-                    ->orderBy('wp.created_at', 'desc')
-                    ->get();
+            ->select('wp.id as id_ijin_kerja', 'wp.perihal', 'wp.created_at', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status')
+            ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
+            ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
+            ->where('pic_pemohon', $this->user_id)
+            ->orderBy('wp.created_at', 'desc')
+            ->get();
         // dd($list_ijin);
         return view('app.pemohon.index', compact(['list_ijin']));
     }
@@ -84,12 +84,12 @@ class IjinKerjaController extends Controller
     public function createIjinKerja($id)
     {
         $collect_ijin = DB::table('work_permits as wp')
-                        ->select('wp.created_at', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject', 'wp.pic_pemohon')
-                        ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
-                        ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
-                        ->where('wp.id', $id)
-                        ->get();
-        
+            ->select('wp.created_at', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject', 'wp.pic_pemohon')
+            ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
+            ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
+            ->where('wp.id', $id)
+            ->get();
+
         $risks = \App\Risk::all();
 
         $dangers = \App\Danger::all();
@@ -116,9 +116,9 @@ class IjinKerjaController extends Controller
         $new_upload_dokumen->pic_pemohon = $this->user_id;
         $new_upload_dokumen->status = 2;
 
-        if($request->hasfile('dokumen_pendukung')){
+        if ($request->hasfile('dokumen_pendukung')) {
             $names = [];
-            foreach($request->file('dokumen_pendukung') as $doc){
+            foreach ($request->file('dokumen_pendukung') as $doc) {
                 $move = $doc->store('dokumen_pendukung', 'public');
                 $filename = $move;
 
@@ -126,7 +126,7 @@ class IjinKerjaController extends Controller
             }
             $new_upload_dokumen->dokumen_pendukung = json_encode($names);
         }
-        
+
         $new_upload_dokumen->save();
 
         $pemohon = \App\User::where('id', $this->user_id)->get()->all();
@@ -135,12 +135,12 @@ class IjinKerjaController extends Controller
         $data['perihal'] = $new_upload_dokumen->perihal;
         $data['created_at'] = $new_upload_dokumen->created_at;
         $data['pemohon'] = $pemohon[0]->name;
-        
+
         $safety_officer_email = \App\Admin::select('email')->get();
-        foreach($safety_officer_email as $emails){
+        foreach ($safety_officer_email as $emails) {
             $get_emails[] = $emails->email;
         }
-        
+
         Mail::to($get_emails)->send(new EmailUploadDokumen($data));
 
         return redirect()->route('indexPemohon')->with('status', 'Dokumen Pendukung berhasil diupload');
@@ -152,9 +152,9 @@ class IjinKerjaController extends Controller
 
         $update_uploaded_dok->status = 2;
 
-        if($request->hasfile('dokumen_pendukung')){
+        if ($request->hasfile('dokumen_pendukung')) {
             $names = [];
-            foreach($request->file('dokumen_pendukung') as $doc){
+            foreach ($request->file('dokumen_pendukung') as $doc) {
                 $move = $doc->store('dokumen_pendukung', 'public');
                 $filename = $move;
 
@@ -164,7 +164,7 @@ class IjinKerjaController extends Controller
         }
 
         $update_uploaded_dok->save();
-        
+
         $data_update['id'] = $id;
         $data_update['perihal'] = $update_uploaded_dok->perihal;
         $data_update['pemohon'] = $this->name;
@@ -173,7 +173,7 @@ class IjinKerjaController extends Controller
 
         Mail::to($safety_officer_email)->send(new DokumenTelahDiuploadKembali($data_update));
 
-        return redirect()->route('indexPemohon')->with('status', 'Dokumen Pendukung dengan perihal "'. $update_uploaded_dok['perihal'] .'" berhasil diperbaiki dan dikirim ke Safety Officer');;
+        return redirect()->route('indexPemohon')->with('status', 'Dokumen Pendukung dengan perihal "' . $update_uploaded_dok['perihal'] . '" berhasil diperbaiki dan dikirim ke Safety Officer');;
     }
 
     /**
@@ -193,7 +193,7 @@ class IjinKerjaController extends Controller
 
         $send_ijin_kerja->kategori = $request->kategori_ijin_kerja;
         $send_ijin_kerja->jenis_resiko = json_encode($request->get('risks'));
-        
+
         $izin_diberikan_kepada = (object) ['no_po' => $request->no_po, 'perusahaan' => $request->perusahaan, 'no_hp' => $request->no_hp, 'pic_pemohon' => $request->pic_pemohon];
         $send_ijin_kerja->izin_diberikan_kepada = json_encode($izin_diberikan_kepada);
 
@@ -300,12 +300,12 @@ class IjinKerjaController extends Controller
         $bulan_romawi = $this->KonDecRomawi($bulan);
 
         $get_ijin_kerja_no = IjinKerja::whereRaw("DATE_FORMAT(created_at, '%m') = DATE_FORMAT(now(), '%m')")->get();
-        $nomor_surat = (int)count($get_ijin_kerja_no)+1;
-        
-        if($nomor_surat != null || $nomor_surat > 0){
+        $nomor_surat = (int) count($get_ijin_kerja_no) + 1;
+
+        if ($nomor_surat != null || $nomor_surat > 0) {
             $nomor_surat_formatted = str_pad($nomor_surat, 2, "0", STR_PAD_LEFT);
         }
-        $no_surat_final = $nomor_surat_formatted."/"."LIK-K3LH"."/".$bulan_romawi."/".$tahun;
+        $no_surat_final = $nomor_surat_formatted . "/" . "LIK-K3LH" . "/" . $bulan_romawi . "/" . $tahun;
 
         $publish_ijin_kerja = \App\IjinKerja::findOrFail($id);
         $publish_ijin_kerja->status = $request->status;
@@ -316,11 +316,11 @@ class IjinKerjaController extends Controller
         $publish_ijin_kerja->save();
 
         // $email_pemohon_safety_officer = $this->getSafetyOfficerEmail(); //awalnya safety officer dulu
-        $pemohon_email = $this->getEmailPemohon($id); 
+        $pemohon_email = $this->getEmailPemohon($id);
         // array_push($email_pemohon_safety_officer, $pemohon); //baru ditambahin jadi dengan pemohon juga
         $pemohon = \App\User::where('id', $publish_ijin_kerja->pic_pemohon)->get()->all();
         $safety_officer = \App\User::where('id', $publish_ijin_kerja->pic_safety_officer)->get()->all();
-        
+
         $data_publish_kerja['id'] = $id;
         $data_publish_kerja['perihal'] = $publish_ijin_kerja->perihal;
         $data_publish_kerja['nomor_lik'] = $publish_ijin_kerja->nomor_lik;
@@ -348,71 +348,71 @@ class IjinKerjaController extends Controller
     public function showIjinKerjaDiajukan($id)
     {
         $lihat_ijin = DB::table('work_permits as wp')
-                        ->select('wp.created_at', 'wp.perihal', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject')
-                        ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
-                        ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
-                        ->where('wp.id', $id)
-                        ->get();
+            ->select('wp.created_at', 'wp.perihal', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject')
+            ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
+            ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
+            ->where('wp.id', $id)
+            ->get();
         return view('app.admin.show-proposed', compact(['lihat_ijin', 'id']));
     }
 
     public function showIjinKerjaPemohon($id)
     {
         $lihat_ijin_pemohon = DB::table('work_permits as wp')
-                                ->select('wp.created_at', 'wp.perihal', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject')
-                                ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
-                                ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
-                                ->where('wp.id', $id)
-                                ->get();
+            ->select('wp.created_at', 'wp.perihal', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject')
+            ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
+            ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
+            ->where('wp.id', $id)
+            ->get();
         return view('app.pemohon.show-proposed', compact(['lihat_ijin_pemohon', 'id']));
     }
 
     public function download($id)
     {
         $get_pemohon = DB::table('approvals as a')
-                    ->select('u.name', 'wp.nomor_lik', 'a.created_at')
-                    ->join('users as u', 'u.id', '=', 'a.user_id')
-                    ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
-                    ->where('a.work_permit_id', '=', $id)
-                    ->where('a.user_status', '=', 'PEMOHON')
-                    ->orderBy('a.created_at')
-                    ->get();
+            ->select('u.name', 'wp.nomor_lik', 'a.created_at')
+            ->join('users as u', 'u.id', '=', 'a.user_id')
+            ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
+            ->where('a.work_permit_id', '=', $id)
+            ->where('a.user_status', '=', 'PEMOHON')
+            ->orderBy('a.created_at')
+            ->get();
         $get_pemohon = Arr::get($get_pemohon, 0);
-        
+
         $get_safety_officer = DB::table('approvals as a')
-                                        ->select('ad.name', 'wp.nomor_lik', 'a.created_at')
-                                        ->join('admins as ad', 'ad.id', '=', 'a.user_id')
-                                        ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
-                                        ->where('a.work_permit_id', '=', $id)
-                                        ->where('a.user_status', '=', '["ADMIN"]')
-                                        ->orderBy('a.created_at')
-                                        ->get();
+            ->select('ad.name', 'wp.nomor_lik', 'a.created_at')
+            ->join('admins as ad', 'ad.id', '=', 'a.user_id')
+            ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
+            ->where('a.work_permit_id', '=', $id)
+            ->where('a.user_status', '=', '["ADMIN"]')
+            ->orderBy('a.created_at')
+            ->get();
         $get_safety_officer = Arr::get($get_safety_officer, 0);
 
         $get_kadis = DB::table('approvals as a')
-                                ->select('dbeu.name', 'wp.nomor_lik', 'a.created_at')
-                                ->join('db_efile.users as dbeu', 'dbeu.id', '=', 'a.user_id')
-                                ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
-                                ->where('a.work_permit_id', '=', $id)
-                                ->where('a.user_status', '=', '["KADISK3LH"]')
-                                ->orderBy('a.created_at')
-                                ->get();
+            ->select('dbeu.name', 'wp.nomor_lik', 'a.created_at')
+            ->join('db_efile.users as dbeu', 'dbeu.id', '=', 'a.user_id')
+            ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
+            ->where('a.work_permit_id', '=', $id)
+            ->where('a.user_status', '=', '["KADISK3LH"]')
+            ->orderBy('a.created_at')
+            ->get();
         $get_kadis = Arr::get($get_kadis, 0);
 
         // dd($get_approval_kadis->created_at);
-        
+
         $ijin_kerja = IjinKerja::findOrFail($id);
-        
+
         $risks = \App\Risk::get();
-        foreach($risks as $risk){
+        foreach ($risks as $risk) {
             $risk_name_array[] = $risk->name;
         }
         $compare_risk = array_intersect($risk_name_array, json_decode($ijin_kerja->jenis_resiko)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
         $get_risk_lainnya = array_diff(json_decode($ijin_kerja->jenis_resiko), $compare_risk);
         $get_risk_lainnya = (array_values($get_risk_lainnya));
-        
+
         $dangers = \App\Danger::all();
-        foreach($dangers as $danger){
+        foreach ($dangers as $danger) {
             $dangers_name_array[] = $danger->name;
         }
         $compare_dangers = array_intersect($dangers_name_array, json_decode($ijin_kerja->jenis_bahaya)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
@@ -420,7 +420,7 @@ class IjinKerjaController extends Controller
         $get_danger_lainnya = (array_values($get_danger_lainnya));
 
         $safety_equipments = \App\SafetyEquipment::all();
-        foreach($safety_equipments as $se){
+        foreach ($safety_equipments as $se) {
             $se_name_array[] = $se->name;
         }
         $compare_se = array_intersect($se_name_array, json_decode($ijin_kerja->apd)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
@@ -428,14 +428,14 @@ class IjinKerjaController extends Controller
         $get_se_lainnya = (array_values($get_se_lainnya));
 
         $documents = \App\Document::all();
-        foreach($documents as $document){
+        foreach ($documents as $document) {
             $document_name_array[] = $document->name;
         }
         $compare_dokumen = array_intersect($document_name_array, json_decode($ijin_kerja->list_dokumen)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
         $get_dokumen_lainnya = array_diff(json_decode($ijin_kerja->list_dokumen), $compare_dokumen);
         $get_dokumen_lainnya = (array_values($get_dokumen_lainnya));
 
-        $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor '. $get_pemohon->nomor_lik .' telah ditandatangani oleh Bapak/Ibu '. $get_pemohon->name . ' (pada tgl '. $get_pemohon->created_at .') sebagai Pemohon, '. $get_safety_officer->name . ' sebagai Safety Officer (ttd. tgl '. $get_safety_officer->created_at .') dan Bapak ' . $get_kadis->name . ' sebagai Kadis K3LH (ttd. tgl '. $get_kadis->created_at .')'));
+        $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $get_pemohon->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $get_pemohon->name . ' (pada tgl ' . $get_pemohon->created_at . ') sebagai Pemohon, ' . $get_safety_officer->name . ' sebagai Safety Officer (ttd. tgl ' . $get_safety_officer->created_at . ') dan Bapak ' . $get_kadis->name . ' sebagai Kadis K3LH (ttd. tgl ' . $get_kadis->created_at . ')'));
         // dd($qrcode);
 
         $pdf = PDF::loadview('app.download-ijin-kerja', ['ijin_kerja' => $ijin_kerja, 'get_dokumen_lainnya' => $get_dokumen_lainnya, 'get_risk_lainnya' => $get_risk_lainnya, 'get_danger_lainnya' => $get_danger_lainnya, 'get_se_lainnya' => $get_se_lainnya, 'qrcode' => $qrcode]);
@@ -499,22 +499,22 @@ class IjinKerjaController extends Controller
 
         $msg = "Success.";
 
-        return response()->json(array('msg'=> $msg), 200);
+        return response()->json(array('msg' => $msg), 200);
     }
 
     function getSafetyOfficerEmail()
     {
         $safety_officer_email = \App\Admin::select('email')->get();
-        foreach($safety_officer_email as $emails){
+        foreach ($safety_officer_email as $emails) {
             $get_emails[] = $emails->email;
         }
         return ($get_emails);
     }
-    
+
     function getKadisEmail()
     {
         $kadis_email = \App\User::select('email')->where('roles', '["KADISK3LH"]')->where('status', 'ACTIVE')->get();
-        foreach($kadis_email as $emails){
+        foreach ($kadis_email as $emails) {
             $get_emails[] = $emails->email;
         }
         return ($get_emails);
@@ -533,7 +533,7 @@ class IjinKerjaController extends Controller
     function KonDecRomawi($angka)
     {
         $hsl = "";
-        if ($angka < 1 || $angka > 5000) { 
+        if ($angka < 1 || $angka > 5000) {
             // Statement di atas buat nentuin angka ngga boleh dibawah 1 atau di atas 5000
             $hsl = "Batas Angka 1 s/d 5000";
         } else {
@@ -541,7 +541,7 @@ class IjinKerjaController extends Controller
                 // While itu termasuk kedalam statement perulangan
                 // Jadi misal variable angka lebih dari sama dengan 1000
                 // Kondisi ini akan di jalankan
-                $hsl .= "M"; 
+                $hsl .= "M";
                 // jadi pas di jalanin , kondisi ini akan menambahkan M ke dalam
                 // Varible hsl
                 $angka -= 1000;
@@ -560,25 +560,25 @@ class IjinKerjaController extends Controller
                     $angka -= 900;
                 } else {
                     $hsl .= "D";
-                    $angka-=500;
+                    $angka -= 500;
                 }
             }
         }
-        while ($angka>=100) {
-            if ($angka>=400) {
+        while ($angka >= 100) {
+            if ($angka >= 400) {
                 $hsl .= "CD";
                 $angka -= 400;
             } else {
                 $angka -= 100;
             }
         }
-        if ($angka>=50) {
-            if ($angka>=90) {
+        if ($angka >= 50) {
+            if ($angka >= 90) {
                 $hsl .= "XC";
                 $angka -= 90;
             } else {
                 $hsl .= "L";
-                $angka-=50;
+                $angka -= 50;
             }
         }
         while ($angka >= 10) {
@@ -593,7 +593,7 @@ class IjinKerjaController extends Controller
         if ($angka >= 5) {
             if ($angka == 9) {
                 $hsl .= "IX";
-                $angka-=9;
+                $angka -= 9;
             } else {
                 $hsl .= "V";
                 $angka -= 5;
@@ -601,7 +601,7 @@ class IjinKerjaController extends Controller
         }
         while ($angka >= 1) {
             if ($angka == 4) {
-                $hsl .= "IV"; 
+                $hsl .= "IV";
                 $angka -= 4;
             } else {
                 $hsl .= "I";
@@ -611,5 +611,4 @@ class IjinKerjaController extends Controller
 
         return ($hsl);
     }
-
 }
