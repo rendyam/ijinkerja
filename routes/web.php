@@ -38,6 +38,7 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('/buat-ijin-kerja/{id}', 'Admin\IjinKerjaAdminController@createIjinKerja')->name('createIjinKerja'); //buat ijin kerja setelah dokumen sudah lengkap
         Route::post('/kirim-ijin-kerja/{id}', 'Admin\IjinKerjaAdminController@sendIjinKerja')->name('sendIjinKerja'); //kirim Ijin Kerja untuk ditandatangan Pemohon
         Route::post('/send-to-kadis/{id}', 'Admin\IjinKerjaAdminController@sendToKadis')->name('sendToKadis'); //kirim Ijin Kerja untuk ditandatangan Kadis
+        Route::get('/download-ijin-kerja/{id}', 'Admin\IjinKerjaAdminController@download')->name('downloadIjinKerjaAdmin');
     });
 });
 
