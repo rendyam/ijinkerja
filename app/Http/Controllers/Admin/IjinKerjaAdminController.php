@@ -85,11 +85,18 @@ class IjinKerjaAdminController extends Controller
     public function createIjinKerja($id)
     {
         $collect_ijin = DB::table('work_permits as wp')
-            ->select('wp.created_at', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject', 'wp.pic_pemohon')
+            ->select('wp.created_at', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject', 'wp.pic_pemohon', 'wp.izin_diberikan_kepada')
             ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
             ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
             ->where('wp.id', $id)
             ->get();
+
+        $izin_diberikan_kepada = json_decode($collect_ijin[0]->izin_diberikan_kepada);
+        // dd($izin_diberikan_kepada);
+        $no_po = $izin_diberikan_kepada->no_po;
+        $perusahaan = $izin_diberikan_kepada->perusahaan;
+        $no_hp = $izin_diberikan_kepada->no_hp;
+        $pic_pemohon = $izin_diberikan_kepada->pic_pemohon;
 
         $risks = \App\Risk::all();
 
@@ -101,7 +108,22 @@ class IjinKerjaAdminController extends Controller
 
         $closing_work_permits = \App\ClosingWorkPermit::all();
 
-        return view('app.admin.create', compact(['collect_ijin', 'risks', 'dangers', 'documents', 'safety_equipments', 'closing_work_permits', 'id']));
+        return view('app.admin.create', compact(
+                [
+                    'collect_ijin', 
+                    'risks', 
+                    'dangers', 
+                    'documents', 
+                    'safety_equipments', 
+                    'closing_work_permits', 
+                    'id',
+                    'no_po',
+                    'perusahaan',
+                    'no_hp',
+                    'pic_pemohon'
+                ]
+            )
+        );
     }
 
     public function uploadDokumenPendukung()
@@ -190,13 +212,17 @@ class IjinKerjaAdminController extends Controller
 
     public function sendIjinKerja(Request $request, $id)
     {
+        // dd($request);
+        $this->sendToKadis($request, $id);
+
         $send_ijin_kerja = \App\IjinKerja::findOrFail($id);
 
-        $send_ijin_kerja->kategori = $request->kategori_ijin_kerja;
-        $send_ijin_kerja->jenis_resiko = json_encode($request->get('risks'));
+        $send_ijin_kerja->jenis_resiko = $request->jenis_resiko;
+        $send_ijin_kerja->kategori = json_encode($request->get('kategori_ijin_kerja'));
 
-        $izin_diberikan_kepada = (object) ['no_po' => $request->no_po, 'perusahaan' => $request->perusahaan, 'no_hp' => $request->no_hp, 'pic_pemohon' => $request->pic_pemohon];
-        $send_ijin_kerja->izin_diberikan_kepada = json_encode($izin_diberikan_kepada);
+        //edit perubahan alur 4 agustus 2020
+        // $izin_diberikan_kepada = (object) ['no_po' => $request->no_po, 'perusahaan' => $request->perusahaan, 'no_hp' => $request->no_hp, 'pic_pemohon' => $request->pic_pemohon];
+        // $send_ijin_kerja->izin_diberikan_kepada = json_encode($izin_diberikan_kepada);
 
         $send_ijin_kerja->pic_safety_officer = $this->user_id;
 
@@ -215,19 +241,21 @@ class IjinKerjaAdminController extends Controller
         $send_ijin_kerja->catatan_safety_officer = $request->get('catatan_safety_officer');
 
         $send_ijin_kerja->list_dokumen = json_encode($request->get('documents'));
-        $send_ijin_kerja->status = 5;
+
+        //edit perubahan alur 4 agustus 2020. sebelumnya status 5 = Menunggu Persetujuan Pemohon
+        $send_ijin_kerja->status = 7; // 7 = Menunggu Persetujuan Kadis K3LH
 
         // $send_ijin_kerja->jenis_resiko = $request->kategori_ijin_kerja;
         $send_ijin_kerja->save();
 
-        $get_email = $this->getEmailPemohon($id);
-        $persetujuan_pemohon['id'] = $id;
-        $persetujuan_pemohon['perihal'] = $send_ijin_kerja->perihal;
-        $persetujuan_pemohon['tanggal_dibuat'] = $send_ijin_kerja->created_at;
+        // $get_email = $this->getKadisEmail($id);
+        // $persetujuan_pemohon['id'] = $id;
+        // $persetujuan_pemohon['perihal'] = $send_ijin_kerja->perihal;
+        // $persetujuan_pemohon['tanggal_dibuat'] = $send_ijin_kerja->created_at;
 
-        Mail::to($get_email)->send(new PersetujuanPemohon($persetujuan_pemohon));
+        // Mail::to($get_email)->send(new PersetujuanPemohon($persetujuan_pemohon));
 
-        return redirect()->route('indexIjinKerjaAdmin')->with('status', 'Dokumen berhasil disimpan dan dikirimkan ke Pemohon untuk persetujuan Pemohon');
+        return redirect()->route('indexIjinKerjaAdmin')->with('status', 'Dokumen berhasil disimpan dan dikirimkan ke Kadis K3LH untuk persetujuan');
     }
 
     public function sendToSo(Request $request, $id) //send to safety officer
@@ -260,21 +288,31 @@ class IjinKerjaAdminController extends Controller
 
     public function sendToKadis(Request $request, $id)
     {
-        $insert_to_approval = new Approval();
-        $insert_to_approval->work_permit_id = $id;
-        $insert_to_approval->user_id = $this->user_id;
-        $insert_to_approval->user_status = $request->role;
-        $insert_to_approval->status = 3;
+        // dd($request);
+        $cek = \App\Approval::where('work_permit_id', $id)
+                            ->where('user_status', 'ADMIN')
+                            ->get();
+        // dd(count($cek));
+        if(count($cek) == 0){
+            $insert_to_approval = new Approval();
+            $insert_to_approval->work_permit_id = $id;
+            $insert_to_approval->user_id = $this->user_id;
+            $insert_to_approval->user_status = $request->role;
+            $insert_to_approval->status = 3;
 
-        $insert_to_approval->save();
+            $insert_to_approval->save();
+        }
 
         $send_to_kadis = \App\IjinKerja::findOrFail($id);
-        $send_to_kadis->status = $request->status;
+        // $send_to_kadis->status = $request->status;
+        $send_to_kadis->status = 7;
+        $send_to_kadis->pic_safety_officer = $request->pic_safety_officer;
         $send_to_kadis->save();
 
         $kadis_email = $this->getKadisEmail();
         $pemohon = \App\User::where('id', $send_to_kadis->pic_pemohon)->get()->all();
         $safety_officer = \App\Admin::where('id', $send_to_kadis->pic_safety_officer)->get()->all();
+        // dd($safety_officer);
 
         $data_send_email_kadis['id'] = $id;
         $data_send_email_kadis['perihal'] = $send_to_kadis->perihal;

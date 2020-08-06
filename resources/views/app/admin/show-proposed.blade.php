@@ -102,7 +102,18 @@
                                 </div>
                             </div>
                             @endif
+                            
                             @if($lihat_ijin[0]->status == 6)
+                            <div class="form-group row">
+                                <div class="col-sm-12">
+                                    <div class="pull-right">
+                                        <a class="btn btn-inline" href=" {{ route('createIjinKerja', $id) }} ">Buat Ijin Kerja</a>
+                                        <button class="btn btn-inline btn-danger swal-btn-input">Tolak Pengajuan</button>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                            <!-- @if($lihat_ijin[0]->status == 6)
                             <form action="{{route('sendToKadis', $id)}}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 
@@ -117,7 +128,7 @@
                                     </div>
                                 </div>
                             </form>
-                            @endif
+                            @endif -->
                             
                     </div>
                 </div><!--card -->

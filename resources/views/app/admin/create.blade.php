@@ -53,33 +53,33 @@
                             </div>
 
                             <div class="form-group row">
-                                <label class="col-sm-2 form-control-label">Kategori Ijin Kerja</label>
+                                <label class="col-sm-2 form-control-label">Jenis Resiko</label>
                                 <div class="col-sm-10">
                                     <div class="radio">
-                                        <input type="radio" name="kategori_ijin_kerja" id="radio-1" value="Resiko Rendah">
+                                        <input type="radio" name="jenis_resiko" id="radio-1" value="Resiko Rendah">
                                         <label for="radio-1">Resiko Rendah </label>
-                                        <input type="radio" name="kategori_ijin_kerja" id="radio-2" value="Resiko Tinggi">
+                                        <input type="radio" name="jenis_resiko" id="radio-2" value="Resiko Tinggi">
                                         <label for="radio-2">Resiko Tinggi </label>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-2 form-control-label">Jenis Resiko</label>
+                                <label class="col-sm-2 form-control-label">Kategori Ijin Kerja</label>
                                 <div class="col-md-10">
                                     @foreach($risks as $risk)
-                                    <label for="{{ $risk->name }}"><input type="checkbox" name="risks[]" value="{{$risk->name}}"> {{ $risk->name }}</label>
+                                    <label for="{{ $risk->name }}"><input type="checkbox" name="kategori_ijin_kerja[]" value="{{$risk->name}}"> {{ $risk->name }}</label>
                                     @endforeach
-                                    <input type="checkbox" name="risk" value="1" id="checkbox"/> Lainnya <div id="risk" style="display:inline"></div>
+                                    <input type="checkbox" name="risk" value="1" id="checkbox"/> Lainnya <div id="risk" style="display:inline"> <input name="kategori_ijin_kerja[]" id="TxtArea_1" disabled></div>
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-sm-2 form-control-label">Ijin Diberikan Kepada</label>
                                 <div class="col-10">
-                                    <p><label class="col-sm-4 form-control-label">No. PO/PPJ/KONTRAK</label> <input type="text" class="form-control" id="inputPassword" name="no_po" ></p>
-                                    <p><label class="col-sm-4 form-control-label">Perusahaan</label> <input type="text" class="form-control" id="inputPassword" name="perusahaan" ></p>
-                                    <p><label class="col-sm-4 form-control-label">Penanggung Jawab</label> <input type="text" class="form-control" id="inputPassword" value=" {{ $collect_ijin[0]->name }} " disabled></p>
-                                    <input type="hidden" name="pic_pemohon" value="{{ $collect_ijin[0]->name }}">
-                                    <p><label class="col-sm-4 form-control-label">No. HP</label> <input type="text" class="form-control" id="inputPassword" name="no_hp" ></p>
+                                    <p><label class="col-sm-4 form-control-label">No. PO/PPJ/KONTRAK</label> <input type="text" class="form-control" id="no_po" value=" {{ $no_po }} " disabled></p>
+                                    <p><label class="col-sm-4 form-control-label">Perusahaan</label> <input type="text" class="form-control" id="perusahaan" value=" {{ $perusahaan }} " disabled></p>
+                                    <p><label class="col-sm-4 form-control-label">Penanggung Jawab</label> <input type="text" class="form-control" id="inputPassword" value=" {{ $pic_pemohon }} " disabled></p>
+                                    <!-- <input type="hidden" name="pic_pemohon" value="{{ $collect_ijin[0]->name }}"> -->
+                                    <p><label class="col-sm-4 form-control-label">No. HP</label> <input type="text" class="form-control" id="inputPassword" value=" {{ $no_hp }} " disabled></p>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -118,7 +118,7 @@
                                     @foreach($dangers as $danger)
                                     <label for="{{ $danger->name }}"><input type="checkbox" name="dangers[]" value="{{$danger->name}}"> {{ $danger->name }}</label>
                                     @endforeach
-                                    <input type="checkbox" name="danger" value="1" id="checkbox"/> Lainnya <div id="danger" style="display:inline"></div>
+                                    <input type="checkbox" name="danger" value="1" id="checkbox"/> Lainnya <div id="danger" style="display:inline"><input name="dangers[]" id="TxtArea_2" disabled></div>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -127,7 +127,7 @@
                                     @foreach($safety_equipments as $se)
                                     <label for="{{ $se->name }}"><input type="checkbox" name="safety_equipments[]" value="{{$se->name}}"> {{ $se->name }}</label>
                                     @endforeach
-                                    <input type="checkbox" name="safety_equipment" value="1" id="checkbox"/> Lainnya <div id="safety_equipment" style="display:inline"></div>
+                                    <input type="checkbox" name="safety_equipment" value="1" id="checkbox"/> Lainnya <div id="safety_equipment" style="display:inline"><input name="safety_equipments[]" id="TxtArea_3" disabled></div>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -148,7 +148,8 @@
                                         @if(json_decode($collect_ijin[0]->dokumen_pendukung) != null)
                                             @foreach(json_decode($collect_ijin[0]->dokumen_pendukung) as $dokumen_pendukung)
                                             <a target="_blank" href="{{ asset('storage/'.$dokumen_pendukung) }}">
-                                                <embed src=" {{ asset('storage/'.$dokumen_pendukung) }} " width="20%" height="100%" />
+                                                <!-- <embed src=" {{ asset('storage/'.$dokumen_pendukung) }} " width="20%" height="100%" /> -->
+                                                {{$dokumen_pendukung}}
                                             </a>
                                             @endforeach
                                         @else
@@ -163,12 +164,13 @@
                                     @foreach($documents as $doc)
                                     <label for="{{ $doc->name }}"><input type="checkbox" name="documents[]" value="{{$doc->name}}"> {{ $doc->name }}</label>
                                     @endforeach
-                                    <input type="checkbox" name="document" value="1" id="checkbox"/> Lainnya <div id="document" style="display:inline"></div>
+                                    <input type="checkbox" name="document" value="1" id="checkbox"/> Lainnya <div id="document" style="display:inline"><input name="documents[]" id="TxtArea_4" disabled></div>
                                 </div>
                             </div>
 
                             @if($collect_ijin[0]->status == 6)
-                            <div class="form-group row">
+                            <!-- start 05 Agustus 2020 -->
+                            <!-- <div class="form-group row">
                                 <div class="col-sm-12">
                                     <h4> Bagian 4 - Perpanjangan Ijin Kerja </h4>
                                 </div>
@@ -199,19 +201,26 @@
                                     @endforeach
                                     <label for=""><input type="checkbox" name="closing_work_permits[]" value="" id=""> Lainnya</label>
                                 </div>
-                            </div>
+                            </div> -->
+
+                            <!-- end 05 Agustus 2020 -->
+
                             <!-- <div class="form-group row">
                                 <label class="col-sm-2 form-control-label">Paraf Safety Officer</label>
                                 <div class="col-sm-10">
                                     
                                 </div>
                             </div> -->
-                            <div class="form-group row">
+
+                            <!-- start 05 Agustus 2020 -->
+                            <!-- <div class="form-group row">
                                 <label class="col-sm-2 form-control-label">Catatan Lainnya</label>
                                 <div class="col-sm-10">
                                     <p class="form-control-static"><textarea class="form-control" name="catatan_lainnya" ></textarea></p>
                                 </div>
-                            </div>
+                            </div> -->
+                            <!-- end 05 Agustus 2020 -->
+
                             <!-- <div class="form-group row">
                                 <label class="col-sm-2 form-control-label">Tanggal Upload</label>
                                 <div class="col-sm-10">
@@ -231,6 +240,8 @@
                                 </div>
                             </div> -->
                             @endif
+                            <input type="hidden" name="role" value="ADMIN">
+                            <input type="hidden" name="pic_safety_officer" value="{{Auth::user()->id}}">
                             <div class="form-group row">
                                 <div class="col-sm-12">
                                     <div class="pull-right">
@@ -262,10 +273,13 @@
             $('input[name="risk"]').change(function () {
                 if ($(this).prop('checked')) {
                     if ($(this).val() == '1') {
-                        $("#risk").append('<input name="risks[]" id="TxtArea_1"></input>');
+                        // $("#risk").append('<input name="risks[]" id="TxtArea_1"></input>');
+                        $('#TxtArea_1').removeAttr("disabled");
+                        $('#TxtArea_1').focus();
                     } 
                 } else {
-                    $('#TxtArea_'+$(this).val()).remove();
+                    // $('#TxtArea_'+$(this).val()).remove();
+                    $('#TxtArea_1').attr("disabled", "disabled");
                 }
             })
         })
@@ -273,10 +287,13 @@
             $('input[name="danger"]').change(function () {
                 if ($(this).prop('checked')) {
                     if ($(this).val() == '1') {
-                        $("#danger").append('<input name="dangers[]" id="TxtArea_1"></input>');
+                        // $("#danger").append('<input name="dangers[]" id="TxtArea_1"></input>');
+                        $('#TxtArea_2').removeAttr("disabled");
+                        $('#TxtArea_2').focus();
                     } 
                 } else {
-                    $('#TxtArea_'+$(this).val()).remove();
+                    // $('#TxtArea_'+$(this).val()).remove();
+                    $('#TxtArea_2').attr("disabled", "disabled");
                 }
             })
         })
@@ -284,10 +301,13 @@
             $('input[name="safety_equipment"]').change(function () {
                 if ($(this).prop('checked')) {
                     if ($(this).val() == '1') {
-                        $("#safety_equipment").append('<input name="safety_equipments[]" id="TxtArea_1"></input>');
+                        // $("#safety_equipment").append('<input name="safety_equipments[]" id="TxtArea_1"></input>');
+                        $('#TxtArea_3').removeAttr("disabled");
+                        $('#TxtArea_3').focus();
                     } 
                 } else {
-                    $('#TxtArea_'+$(this).val()).remove();
+                    // $('#TxtArea_'+$(this).val()).remove();
+                    $('#TxtArea_3').attr("disabled", "disabled");
                 }
             })
         })
@@ -295,10 +315,13 @@
             $('input[name="document"]').change(function () {
                 if ($(this).prop('checked')) {
                     if ($(this).val() == '1') {
-                        $("#document").append('<input name="documents[]" id="TxtArea_1"></input>');
+                        // $("#document").append('<input name="documents[]" id="TxtArea_1"></input>');
+                        $('#TxtArea_4').removeAttr("disabled");
+                        $('#TxtArea_4').focus();
                     } 
                 } else {
-                    $('#TxtArea_'+$(this).val()).remove();
+                    // $('#TxtArea_'+$(this).val()).remove();
+                    $('#TxtArea_4').attr("disabled", "disabled");
                 }
             })
         })
@@ -320,7 +343,7 @@
             var form = $(this).parents('form')
             swal({
                 title: "Apakah Anda yakin dengan data yang telah diinput?",
-                text: "Setelah mengisi data, akan dikirimkan ke Pemohon.",
+                text: "Setelah mengisi data, akan dikirimkan ke Kadis K3LH.",
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonClass: "btn-success",
@@ -334,7 +357,7 @@
                     form.submit()
                     swal({
                         title: "Sukses!",
-                        text: "Ijin Kerja dikirim ke Pemohon untuk disetujui.",
+                        text: "Ijin Kerja dikirim ke Kadis K3LH untuk disetujui.",
                         type: "success",
                         confirmButtonClass: "btn-success"
                     })

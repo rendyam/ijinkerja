@@ -105,7 +105,19 @@ class IjinKerjaController extends Controller
 
     public function uploadDokumenPendukung()
     {
-        return view('app.pemohon.upload');
+        $nama_perusahaan = Auth::user()->nama_perusahaan;
+        $id = Auth::user()->id;
+        $name = Auth::user()->name;
+        $no_hp = Auth::user()->no_hp;
+
+        $data = array(
+            'nama_perusahaan' => $nama_perusahaan,
+            'id' => $id,
+            'name' => $name,
+            'no_hp' => $no_hp
+        );
+
+        return view('app.pemohon.upload', compact(['data']));
     }
 
     public function uploadingDokumen(Request $request)
@@ -114,7 +126,7 @@ class IjinKerjaController extends Controller
 
         $new_upload_dokumen->perihal = $request->perihal;
         $new_upload_dokumen->pic_pemohon = $this->user_id;
-        $new_upload_dokumen->status = 2;
+        $new_upload_dokumen->status = 6;
 
         if ($request->hasfile('dokumen_pendukung')) {
             $names = [];
@@ -127,21 +139,26 @@ class IjinKerjaController extends Controller
             $new_upload_dokumen->dokumen_pendukung = json_encode($names);
         }
 
+        $izin_diberikan_kepada = (object) ['no_po' => $request->no_po, 'perusahaan' => $request->nama_perusahaan, 'no_hp' => $request->no_hp, 'pic_pemohon' => $request->pic_pemohon];
+        $new_upload_dokumen->izin_diberikan_kepada = json_encode($izin_diberikan_kepada);
+
         $new_upload_dokumen->save();
 
-        $pemohon = \App\User::where('id', $this->user_id)->get()->all();
+        // $pemohon = \App\User::where('id', $this->user_id)->get()->all();
 
-        $data['id'] = $new_upload_dokumen->id;
-        $data['perihal'] = $new_upload_dokumen->perihal;
-        $data['created_at'] = $new_upload_dokumen->created_at;
-        $data['pemohon'] = $pemohon[0]->name;
+        $this->sendToSo($request, $new_upload_dokumen->id);
 
-        $safety_officer_email = \App\Admin::select('email')->get();
-        foreach ($safety_officer_email as $emails) {
-            $get_emails[] = $emails->email;
-        }
+        // $data['id'] = $new_upload_dokumen->id;
+        // $data['perihal'] = $new_upload_dokumen->perihal;
+        // $data['created_at'] = $new_upload_dokumen->created_at;
+        // $data['pemohon'] = $request->name;
 
-        Mail::to($get_emails)->send(new EmailUploadDokumen($data));
+        // $safety_officer_email = \App\Admin::select('email')->get();
+        // foreach ($safety_officer_email as $emails) {
+        //     $get_emails[] = $emails->email;
+        // }
+
+        // Mail::to($get_emails)->send(new EmailUploadDokumen($data));
 
         return redirect()->route('indexPemohon')->with('status', 'Dokumen Pendukung berhasil diupload');
     }
@@ -150,7 +167,7 @@ class IjinKerjaController extends Controller
     {
         $update_uploaded_dok = \App\IjinKerja::findOrFail($id);
 
-        $update_uploaded_dok->status = 2;
+        $update_uploaded_dok->status = 6;
 
         if ($request->hasfile('dokumen_pendukung')) {
             $names = [];
@@ -194,8 +211,8 @@ class IjinKerjaController extends Controller
         $send_ijin_kerja->kategori = $request->kategori_ijin_kerja;
         $send_ijin_kerja->jenis_resiko = json_encode($request->get('risks'));
 
-        $izin_diberikan_kepada = (object) ['no_po' => $request->no_po, 'perusahaan' => $request->perusahaan, 'no_hp' => $request->no_hp, 'pic_pemohon' => $request->pic_pemohon];
-        $send_ijin_kerja->izin_diberikan_kepada = json_encode($izin_diberikan_kepada);
+        // $izin_diberikan_kepada = (object) ['no_po' => $request->no_po, 'perusahaan' => $request->perusahaan, 'no_hp' => $request->no_hp, 'pic_pemohon' => $request->pic_pemohon];
+        // $send_ijin_kerja->izin_diberikan_kepada = json_encode($izin_diberikan_kepada);
 
         $send_ijin_kerja->pic_safety_officer = $this->user_id;
 
@@ -231,6 +248,7 @@ class IjinKerjaController extends Controller
 
     public function sendToSo(Request $request, $id) //send to safety officer
     {
+        // dd($request->role);
         $insert_to_approval = new Approval();
         $insert_to_approval->work_permit_id = $id;
         $insert_to_approval->user_id = $this->user_id;
@@ -240,8 +258,9 @@ class IjinKerjaController extends Controller
         $insert_to_approval->save();
 
         $send_to_so = \App\IjinKerja::findOrFail($id);
-        $send_to_so->status = $request->status;
-        $send_to_so->save();
+        // request perubahan alur 
+        // $send_to_so->status = $request->status;
+        // $send_to_so->save();
 
         $pemohon = \App\User::where('id', $this->user_id)->get()->all();
 
@@ -253,8 +272,9 @@ class IjinKerjaController extends Controller
         $data_send_email_safety_officer['status'] = "Menunggu Persetujuan Safety Officer";
 
         Mail::to($safety_officer_email)->send(new PersetujuanSafetyOfficer($data_send_email_safety_officer));
-
-        return redirect()->route('indexPemohon')->with('status', 'Dokumen Anda dengan perihal "' . $send_to_so->perihal . '" berhasil disetujui dan dikirimkan ke petugas Safety Officer untuk persetujuan');
+        
+        // request perubahan alur 
+        // return redirect()->route('indexPemohon')->with('status', 'Dokumen Anda dengan perihal "' . $send_to_so->perihal . '" berhasil disetujui dan dikirimkan ke petugas Safety Officer untuk persetujuan');
     }
 
     public function sendToKadis(Request $request, $id)
@@ -284,7 +304,8 @@ class IjinKerjaController extends Controller
 
         Mail::to($kadis_email)->send(new PersetujuanKadisK3LH($data_send_email_kadis));
 
-        return redirect()->route('indexIjinKerja')->with('status', 'Dokumen Pemohon dengan perihal "' . $send_to_kadis->perihal . '" berhasil disetujui dan dikirimkan ke Kadis K3LH untuk persetujuan');
+        // request perubahan alur 
+        // return redirect()->route('indexIjinKerja')->with('status', 'Dokumen Pemohon dengan perihal "' . $send_to_kadis->perihal . '" berhasil disetujui dan dikirimkan ke Kadis K3LH untuk persetujuan');
     }
 
     public function publishIjinKerja(Request $request, $id)
@@ -384,7 +405,7 @@ class IjinKerjaController extends Controller
             ->join('admins as ad', 'ad.id', '=', 'a.user_id')
             ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
             ->where('a.work_permit_id', '=', $id)
-            ->where('a.user_status', '=', '["ADMIN"]')
+            ->where('a.user_status', '=', 'ADMIN')
             ->orderBy('a.created_at')
             ->get();
         $get_safety_officer = Arr::get($get_safety_officer, 0);
@@ -407,8 +428,10 @@ class IjinKerjaController extends Controller
         foreach ($risks as $risk) {
             $risk_name_array[] = $risk->name;
         }
-        $compare_risk = array_intersect($risk_name_array, json_decode($ijin_kerja->jenis_resiko)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
-        $get_risk_lainnya = array_diff(json_decode($ijin_kerja->jenis_resiko), $compare_risk);
+        // dd($ijin_kerja->kategori);
+        //jenis_resiko diubah menjadi kategori
+        $compare_risk = array_intersect($risk_name_array, json_decode($ijin_kerja->kategori)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
+        $get_risk_lainnya = array_diff(json_decode($ijin_kerja->kategori), $compare_risk);
         $get_risk_lainnya = (array_values($get_risk_lainnya));
 
         $dangers = \App\Danger::all();

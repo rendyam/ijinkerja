@@ -92,7 +92,38 @@
                         <div class="form-group row">
                             <label class="col-sm-2 form-control-label">Perihal</label>
                             <div class="col-sm-10">
-                                <p class="form-control-static"><input type="text" class="form-control" id="perihal" name="perihal" placeholder="Tuliskan perihal pekerjaan Anda secara singkat. Cth.: Penarikan dan Penggalian Kabel Fiber Optik"></p>
+                                <p class="form-control-static"><input type="text" class="form-control" id="perihal" name="perihal" placeholder="Cth.: Penarikan dan Penggalian Kabel Fiber Optik"></p>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 form-control-label">No. PO/PPJ/Kontrak</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static"><input type="text" class="form-control" id="no_po" name="no_po" placeholder=""></p>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 form-control-label">Nama Perusahaan</label>
+                            <div class="col-sm-6">
+                                <p class="form-control-static"><input type="text" class="form-control" id="nama_perusahaan" name="nama_perusahaan" value="{{ $data['nama_perusahaan'] }}" disabled></p>
+                                <input type="hidden" name="nama_perusahaan" value="{{ $data['nama_perusahaan'] }}">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 form-control-label">Nama Penanggung Jawab</label>
+                            <div class="col-sm-6">
+                                <p class="form-control-static"><input type="text" class="form-control" id="name" name="name" value="{{ $data['name'] }}" disabled></p>
+                                <input type="hidden" name="pic_pemohon" value="{{ $data['name'] }}">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 form-control-label">No. HP</label>
+                            <div class="col-sm-6">
+                                <p class="form-control-static"><input type="text" class="form-control" id="no_hp" name="no_hp" value="{{ $data['no_hp'] }}" disabled></p>
+                                <input type="hidden" name="no_hp" value="{{ $data['no_hp'] }}">
                             </div>
                         </div>
 
@@ -109,6 +140,9 @@
                                 <p class="form-control-static"><input type="file" id="file-1" type="file" name="dokumen_pendukung[]" multiple class="file" data-msg-placeholder="Format file .jpg, .jpeg, .pdf, .zip"></p>
                             </div>
                         </div>
+
+                        <input type="hidden" name="id" value="{{ $data['id'] }}">
+                        <input type="hidden" name="role" value=" {{ Auth::user()->roles }} ">
 
                         <!-- <div id="dokumen_preview"></div> -->
                         <br>
