@@ -68,6 +68,7 @@ Route::group(['prefix' => 'kbs'], function () {
     Route::get('/ijin-kerja', 'Kbs\IjinKerjaAdminController@index')->name('indexIjinKerjaKbs');
     Route::get('/lihat/{id}', 'Kbs\IjinKerjaAdminController@showIjinKerjaDiajukan')->name('showIjinKerjaDiajukanKbs');
     Route::post('/publish-ijin-kerja/{id}', 'Kbs\IjinKerjaAdminController@publishIjinKerja')->name('publishIjinKerjaKbs'); //Kadis tandatangan dan publish Ijin Kerja untuk Pemohon
+    Route::post('/reject/{id}', 'Kbs\IjinKerjaAdminController@rejectIjinKerja')->name('rejectIjinKerjaKbs');
 
     Route::get('/logout', 'AuthKbs\LoginController@logout')->name('logoutKbs');
 });

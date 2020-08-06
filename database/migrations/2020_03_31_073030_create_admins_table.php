@@ -11,6 +11,7 @@ class CreateAdminsTable extends Migration
      *
      * @return void
      */
+    //awalnya 2020_04_13_213129_create_admins_table
     public function up()
     {
         Schema::create('admins', function (Blueprint $table) {

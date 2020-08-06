@@ -79,20 +79,20 @@
   </tr>
   <tr>
     <td class="tg-hl2d" rowspan="11"><span style="font-weight:bold"><p class="verticalTableHeader">Bagian 1 : Informasi Pekerjaan &nbsp;&nbsp;&nbsp;</p></span><br></td>
-    <td class="tg-rspx" colspan="2">Kategori Ijin Kerja<br></td>
-    <td class="tg-rspx" colspan="5">{{ $ijin_kerja->kategori}} </td>
+    <td class="tg-rspx" colspan="2">Jenis Resiko<br></td>
+    <td class="tg-rspx" colspan="5">{{ $ijin_kerja->jenis_resiko}} </td>
   </tr>
   <tr>
-    <td class="tg-rspx" colspan="7">Jenis Resiko (Beri tanda "X" pada kotak sesuai dengan jenis resiko)<br></td>
+    <td class="tg-rspx" colspan="7">Kategori Ijin Kerja (Beri tanda "X" pada kotak sesuai dengan jenis resiko)<br></td>
   </tr>
   <tr>
-    <td class="tg-rspx" colspan="2">(@if(in_array("Ketinggian", json_decode($ijin_kerja->jenis_resiko))) X @else ( ) @endif) Ketinggian</td>
-    <td class="tg-rspx" colspan="2">(@if(in_array("Penggalian", json_decode($ijin_kerja->jenis_resiko))) X @else ( ) @endif) Penggalian</td>
-    <td class="tg-rspx" colspan="3">(@if(in_array("Pekerjaan Bawah Air", json_decode($ijin_kerja->jenis_resiko))) X @else ( ) @endif) Pekerjaan di bawah air</td>
+    <td class="tg-rspx" colspan="2">(@if(in_array("Ketinggian", json_decode($ijin_kerja->kategori))) X @else ( ) @endif) Ketinggian</td>
+    <td class="tg-rspx" colspan="2">(@if(in_array("Penggalian", json_decode($ijin_kerja->kategori))) X @else ( ) @endif) Penggalian</td>
+    <td class="tg-rspx" colspan="3">(@if(in_array("Pekerjaan Bawah Air", json_decode($ijin_kerja->kategori))) X @else ( ) @endif) Pekerjaan di bawah air</td>
   </tr>
   <tr>
-    <td class="tg-rspx" colspan="2">(@if(in_array("Kerja Panas", json_decode($ijin_kerja->jenis_resiko))) X @else ( ) @endif) Kerja Panas</td>
-    <td class="tg-rspx" colspan="2">(@if(in_array("Area Terbatas", json_decode($ijin_kerja->jenis_resiko))) X @else ( ) @endif) Area Terbatas</td>
+    <td class="tg-rspx" colspan="2">(@if(in_array("Kerja Panas", json_decode($ijin_kerja->kategori))) X @else ( ) @endif) Kerja Panas</td>
+    <td class="tg-rspx" colspan="2">(@if(in_array("Area Terbatas", json_decode($ijin_kerja->kategori))) X @else ( ) @endif) Area Terbatas</td>
     <td class="tg-rspx" colspan="3">@if(count($get_risk_lainnya) > 0) ( X ) Lainnya: {{ $get_risk_lainnya[0] }} @else (( )) Lainnya @endif </td>
   </tr>
   <tr>

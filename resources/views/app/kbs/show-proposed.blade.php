@@ -128,7 +128,8 @@
                                 <div class="form-group row">
                                     <div class="col-sm-12">
                                         <div class="pull-right">
-                                            <input type="submit" class="btn btn-success swal-btn-submit-approve" name="submitDokumen" value="Setujui">
+                                            <input type="submit" class="btn btn-success swal-btn-submit-approve btn-inline" name="submitDokumen" value="Setujui">
+                                            <button class="btn btn-inline btn-danger swal-btn-input">Tolak Pengajuan</button>
                                         </div>
                                     </div>
                                 </div>
@@ -163,7 +164,7 @@
                 }
                 $.ajax({
                     method: 'post',
-                    url: " {{ route('rejectIjinKerja', $id) }} ",
+                    url: " {{ route('rejectIjinKerjaKbs', $id) }} ",
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     data: { rejectValue: inputValue } ,
                     success: function(response){
