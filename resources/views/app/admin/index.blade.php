@@ -52,11 +52,23 @@
                                 <th>No.</th>
                                 <th>Tanggal Pengajuan</th>
                                 <th>Perihal</th>
+                                <th>Perusahaan</th>
                                 <th>Nama Pemohon</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
+                        <tfoot>
+                            <tr>
+                                <th>No.</th>
+                                <th>Tanggal Upload</th>
+                                <th>Perihal</th>
+                                <th>Perusahaan</th>
+                                <th>Nama Pemohon</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </tfoot>
                         <tbody>
                             @php $i = 1; @endphp
                             @foreach($list_ijin_admin as $ijin)
@@ -68,6 +80,7 @@
                                 @else
                                 <td>{{ $ijin->perihal }}</td>
                                 @endif
+                                <td>{{ $ijin->nama_perusahaan }}</td>
                                 <td>{{ $ijin->nama_pemohon }}</td>
                                 <td>
                                     @if($ijin->status == 2)
@@ -94,16 +107,6 @@
                             </tr>
                             @endforeach
                         </tbody>
-                        <tfoot>
-                            <tr>
-                                <th>No.</th>
-                                <th>Tanggal Upload</th>
-                                <th>Perihal</th>
-                                <th>Nama Pemohon</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </tfoot>
                     </table>
                     @elseif(in_array("KADISK3LH", json_decode(Auth::user()->roles)))
                     <table id="example" class="display table table-bordered table-striped">

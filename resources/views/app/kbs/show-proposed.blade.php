@@ -55,6 +55,12 @@
                                 </div>
                             </div>
                             <div class="form-group row">
+                                <label class="col-sm-2 form-control-label">Perusahaan</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static"><input type="text" class="form-control" id="inputPassword" value=" {{ $lihat_ijin[0]->nama_perusahaan }} " disabled></p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label class="col-sm-2 form-control-label">Nama Pemohon</label>
                                 <div class="col-sm-10">
                                     <p class="form-control-static"><input type="text" class="form-control" id="inputPassword" value=" {{ $lihat_ijin[0]->name }} " disabled></p>
@@ -83,7 +89,8 @@
                                         @if(json_decode($lihat_ijin[0]->dokumen_pendukung) != null)
                                             @foreach(json_decode($lihat_ijin[0]->dokumen_pendukung) as $dokumen_pendukung)
                                             <a target="_blank" href="{{ asset('storage/'.$dokumen_pendukung) }}">
-                                                <embed src=" {{ asset('storage/'.$dokumen_pendukung) }} " width="20%" height="100%" />
+                                                <!-- <embed src=" {{ asset('storage/'.$dokumen_pendukung) }} " width="20%" height="100%" /> -->
+                                                {{ $dokumen_pendukung }}
                                             </a>
                                             @endforeach
                                         @else

@@ -36,6 +36,7 @@ class PenerbitanIjinKerja extends Mailable
                         'nomor_lik' => $this->data['nomor_lik'],
                         'tanggal_dibuat' => $this->data['tanggal_dibuat'],
                         'pemohon' => $this->data['pemohon'],
+                        'nama_perusahaan' => $this->data['nama_perusahaan'],
                         'safety_officer' => $this->data['safety_officer'],
                         'status' => $this->data['status']
                     ]);

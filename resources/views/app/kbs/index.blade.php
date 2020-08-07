@@ -52,11 +52,23 @@
                                 <th>No.</th>
                                 <th>Tanggal Pengajuan</th>
                                 <th>Perihal</th>
+                                <th>Perusahaan</th>
                                 <th>Nama Pemohon</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
+                        <tfoot>
+                            <tr>
+                                <th>No.</th>
+                                <th>Tanggal Pengajuan</th>
+                                <th>Perihal</th>
+                                <th>Perusahaan</th>
+                                <th>Nama Pemohon</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </tfoot>
                         <tbody>
                             @php $i = 1; @endphp
                             @foreach($list_ijin_admin as $ijin)
@@ -68,6 +80,7 @@
                                 <td>-</td>
                                 @else
                                 <td>{{ $ijin->perihal }}</td>
+                                <td>{{ $ijin->nama_perusahaan }}</td>
                                 @endif
                                 <td>{{ $ijin->nama_pemohon }}</td>
                                 <td>
@@ -93,16 +106,6 @@
                             @endif
                             @endforeach
                         </tbody>
-                        <tfoot>
-                            <tr>
-                                <th>No.</th>
-                                <th>Tanggal Pengajuan</th>
-                                <th>Perihal</th>
-                                <th>Nama Pemohon</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </tfoot>
                     </table>
                     @endif
                 </div>
