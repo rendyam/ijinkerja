@@ -237,6 +237,17 @@
                   <tr>
                     <td style="text-align:left;">
                     <br>
+                    <strong>Perusahaan:</strong><br>
+                      {{ $nama_perusahaan }}
+                    </td>
+                    <td style="text-align:right; vertical-align:top;">
+                    <br>
+                    <b></b> <br>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="text-align:left;">
+                    <br>
                     <strong>Safety Officer:</strong><br>
                       {{ $safety_officer }}
                     </td>

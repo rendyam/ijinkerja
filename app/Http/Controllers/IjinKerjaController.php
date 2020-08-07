@@ -61,13 +61,24 @@ class IjinKerjaController extends Controller
     public function indexPemohon()
     {
         $list_ijin = DB::table('work_permits as wp')
-            ->select('wp.id as id_ijin_kerja', 'wp.perihal', 'wp.created_at', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status')
+            ->select(
+                    'wp.id as id_ijin_kerja', 
+                    'wp.perihal', 
+                    'wp.created_at', 
+                    'u.name as nama_pemohon', 
+                    'wps.name as status_ijin_kerja', 
+                    'wp.status',
+                    'u.nama_perusahaan'
+                )
             ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
             ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
             ->where('pic_pemohon', $this->user_id)
             ->orderBy('wp.created_at', 'desc')
             ->get();
-        // dd($list_ijin);
+        // $perusahaan = json_decode($list_ijin[0]->izin_diberikan_kepada, true);
+        
+        // dd($perusahaan['perusahaan']);
+
         return view('app.pemohon.index', compact(['list_ijin']));
     }
 
@@ -166,6 +177,11 @@ class IjinKerjaController extends Controller
     public function updateUploadedDok(Request $request, $id)
     {
         $update_uploaded_dok = \App\IjinKerja::findOrFail($id);
+        $perusahaan = DB::table('users')
+                    ->select('nama_perusahaan')
+                    ->where('id', $update_uploaded_dok->pic_pemohon)
+                    ->pluck('nama_perusahaan');
+        // dd($perusahaan[0]);
 
         $update_uploaded_dok->status = 6;
 
@@ -187,6 +203,7 @@ class IjinKerjaController extends Controller
         $data_update['pemohon'] = $this->name;
         $data_update['tanggal_upload'] = $update_uploaded_dok->created_at;
         $safety_officer_email = $this->getSafetyOfficerEmail();
+        $data_update['nama_perusahaan'] = $perusahaan[0];
 
         Mail::to($safety_officer_email)->send(new DokumenTelahDiuploadKembali($data_update));
 
@@ -270,6 +287,7 @@ class IjinKerjaController extends Controller
         $data_send_email_safety_officer['tanggal_dibuat'] = $send_to_so->created_at;
         $data_send_email_safety_officer['pemohon'] = $pemohon[0]->name;
         $data_send_email_safety_officer['status'] = "Menunggu Persetujuan Safety Officer";
+        $data_send_email_safety_officer['nama_perusahaan'] = $pemohon[0]->nama_perusahaan;
 
         Mail::to($safety_officer_email)->send(new PersetujuanSafetyOfficer($data_send_email_safety_officer));
         

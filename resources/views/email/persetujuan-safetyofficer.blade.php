@@ -234,6 +234,17 @@
                     <b></b> <br>
                     </td>
                   </tr>
+                  <tr>
+                    <td style="text-align:left;">
+                    <br>
+                    <strong>Perusahaan:</strong><br>
+                      {{ $nama_perusahaan }}
+                    </td>
+                    <td style="text-align:right; vertical-align:top;">
+                    <br>
+                    <b></b> <br>
+                    </td>
+                  </tr>
                 </table>
 
                 <table style="margin:0 auto;" cellspacing="0" cellpadding="0" class="force-width-80">

@@ -37,7 +37,8 @@ class PersetujuanKadisK3LH extends Mailable
                         'pemohon' => $this->data['pemohon'],
                         'safety_officer' => $this->data['safety_officer'],
                         'tanggal_dibuat' => $this->data['tanggal_dibuat'],
-                        'status' => $this->data['status']
+                        'status' => $this->data['status'],
+                        'nama_perusahaan' => $this->data['nama_perusahaan']
                     ]);
     }
 }

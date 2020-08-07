@@ -50,7 +50,7 @@ class IjinKerjaAdminController extends Controller
     public function index()
     {
         $list_ijin_admin = DB::table('work_permits as wp')
-                            ->select('wp.id', 'wp.created_at', 'wp.perihal', 'u.name as nama_pemohon', 'wps.name as status_ijin_kerja', 'wp.status')
+                            ->select('wp.id', 'wp.created_at', 'wp.perihal', 'u.name as nama_pemohon', 'wps.name as status_ijin_kerja', 'wp.status', 'u.nama_perusahaan')
                             ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
                             ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
                             ->orderBy('wp.created_at', 'desc')
@@ -327,6 +327,7 @@ class IjinKerjaAdminController extends Controller
         $data_publish_kerja['nomor_lik'] = $publish_ijin_kerja->nomor_lik;
         $data_publish_kerja['tanggal_dibuat'] = $publish_ijin_kerja->created_at;
         $data_publish_kerja['pemohon'] = $pemohon[0]->name;
+        $data_publish_kerja['nama_perusahaan'] = $pemohon[0]->nama_perusahaan;
         $data_publish_kerja['safety_officer'] = $safety_officer[0]->name;
         $data_publish_kerja['status'] = "Diterbitkan";
 
@@ -349,7 +350,7 @@ class IjinKerjaAdminController extends Controller
     public function showIjinKerjaDiajukan($id)
     {
         $lihat_ijin = DB::table('work_permits as wp')
-                        ->select('wp.created_at', 'wp.perihal', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject')
+                        ->select('wp.created_at', 'wp.perihal', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject', 'u.nama_perusahaan')
                         ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
                         ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
                         ->where('wp.id', $id)

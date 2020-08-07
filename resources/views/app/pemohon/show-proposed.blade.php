@@ -87,7 +87,8 @@
                                 @if(json_decode($lihat_ijin_pemohon[0]->dokumen_pendukung) != null)
                                 @foreach(json_decode($lihat_ijin_pemohon[0]->dokumen_pendukung) as $dokumen_pendukung)
                                 <a target="_blank" href="{{ asset('storage/'.$dokumen_pendukung) }}">
-                                    <embed src=" {{ asset('storage/'.$dokumen_pendukung) }} " width="20%" height="100%" />
+                                    <!-- <embed src=" {{ asset('storage/'.$dokumen_pendukung) }} " width="20%" height="100%" /> -->
+                                    {{ $dokumen_pendukung }}
                                 </a>
                                 @endforeach
                                 @else

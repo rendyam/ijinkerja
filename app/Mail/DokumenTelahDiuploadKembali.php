@@ -35,7 +35,8 @@ class DokumenTelahDiuploadKembali extends Mailable
                         'id' => $this->data_update['id'],
                         'perihal' => $this->data_update['perihal'],
                         'pemohon' => $this->data_update['pemohon'],
-                        'tanggal_upload' => $this->data_update['tanggal_upload']
+                        'tanggal_upload' => $this->data_update['tanggal_upload'],
+                        'nama_perusahaan' => $this->data_update['nama_perusahaan']
                     ]);
     }
 }

@@ -51,10 +51,23 @@
                                     <th>No.</th>
                                     <th>Tanggal Pengajuan</th>
                                     <th>Perihal</th>
+                                    <th>Perusahaan</th>
+                                    <th>Pemohon</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>No.</th>
+                                    <th>Tanggal Upload</th>
+                                    <th>Perihal</th>
+                                    <th>Perusahaan</th>
+                                    <th>Pemohon</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </tfoot>
                             <tbody>
                                 @php $i = 1; @endphp
                                 @foreach($list_ijin as $ijin)
@@ -66,6 +79,10 @@
                                         @else
                                         <td>{{ $ijin->perihal }}</td>
                                         @endif
+                                        <td>
+                                        {{ $ijin->nama_perusahaan }}
+                                        </td>
+                                        <td>{{ $ijin->nama_pemohon }}</td>
                                         <td>
                                         @if($ijin->status == 2)
                                             <span class="label label-pill label-primary">{{ $ijin->status_ijin_kerja }}</span>
@@ -90,15 +107,6 @@
                                     </tr>
                                 @endforeach
                             </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th>No.</th>
-                                    <th>Tanggal Upload</th>
-                                    <th>Perihal</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </tfoot>
                         </table>
                     </div>
                 </div><!--card -->

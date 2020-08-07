@@ -36,7 +36,8 @@ class PersetujuanSafetyOfficer extends Mailable
                         'perihal' => $this->data['perihal'],
                         'pemohon' => $this->data['pemohon'],
                         'tanggal_dibuat' => $this->data['tanggal_dibuat'],
-                        'status' => $this->data['status']
+                        'status' => $this->data['status'],
+                        'nama_perusahaan' => $this->data['nama_perusahaan']
                     ]);
     }
 }
