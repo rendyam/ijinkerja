@@ -23,6 +23,7 @@ use App\Mail\PersetujuanKadisK3LH;
 use App\Mail\PenerbitanIjinKerja;
 
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Arr;
 
 use Auth;
 use PDF;
@@ -409,13 +410,42 @@ class IjinKerjaAdminController extends Controller
 
     public function download($id)
     {
-        $approval = DB::table('approvals as a')
+        $get_pemohon = DB::table('approvals as a')
             ->select('u.name', 'wp.nomor_lik', 'a.created_at')
             ->join('users as u', 'u.id', '=', 'a.user_id')
             ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
             ->where('a.work_permit_id', '=', $id)
+            ->where('a.user_status', '=', 'PEMOHON')
             ->orderBy('a.created_at')
             ->get();
+        $get_pemohon = Arr::get($get_pemohon, 0);
+
+        $get_safety_officer = DB::table('approvals as a')
+            ->select('ad.name', 'wp.nomor_lik', 'a.created_at')
+            ->join('admins as ad', 'ad.id', '=', 'a.user_id')
+            ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
+            ->where('a.work_permit_id', '=', $id)
+            ->where('a.user_status', '=', 'ADMIN')
+            ->orderBy('a.created_at')
+            ->get();
+        $get_safety_officer = Arr::get($get_safety_officer, 0);
+
+        $get_kadis = DB::table('approvals as a')
+            ->select('dbeu.name', 'wp.nomor_lik', 'a.created_at')
+            ->join('db_efile.users as dbeu', 'dbeu.id', '=', 'a.user_id')
+            ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
+            ->where('a.work_permit_id', '=', $id)
+            ->where('a.user_status', '=', '["KADISK3LH"]')
+            ->orderBy('a.created_at')
+            ->get();
+        $get_kadis = Arr::get($get_kadis, 0);
+        // $approval = DB::table('approvals as a')
+        //     ->select('u.name', 'wp.nomor_lik', 'a.created_at')
+        //     ->join('users as u', 'u.id', '=', 'a.user_id')
+        //     ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
+        //     ->where('a.work_permit_id', '=', $id)
+        //     ->orderBy('a.created_at')
+        //     ->get();
         // dd($approval);
 
         $ijin_kerja = IjinKerja::findOrFail($id);
@@ -424,8 +454,11 @@ class IjinKerjaAdminController extends Controller
         foreach ($risks as $risk) {
             $risk_name_array[] = $risk->name;
         }
-        $compare_risk = array_intersect($risk_name_array, json_decode($ijin_kerja->jenis_resiko)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
-        $get_risk_lainnya = array_diff(json_decode($ijin_kerja->jenis_resiko), $compare_risk);
+
+        // dd($risk_name_array, $ijin_kerja->kategori);
+        //jenis_resiko diubah menjadi kategori
+        $compare_risk = array_intersect($risk_name_array, json_decode($ijin_kerja->kategori)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
+        $get_risk_lainnya = array_diff(json_decode($ijin_kerja->kategori), $compare_risk);
         $get_risk_lainnya = (array_values($get_risk_lainnya));
 
         $dangers = \App\Danger::all();
@@ -451,8 +484,9 @@ class IjinKerjaAdminController extends Controller
         $compare_dokumen = array_intersect($document_name_array, json_decode($ijin_kerja->list_dokumen)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
         $get_dokumen_lainnya = array_diff(json_decode($ijin_kerja->list_dokumen), $compare_dokumen);
         $get_dokumen_lainnya = (array_values($get_dokumen_lainnya));
-
-        $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $approval[0]->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $approval[0]->name . ' (pada tgl ' . $approval[0]->created_at . ') sebagai Pemohon, ' . $approval[1]->name . ' sebagai Safety Officer (ttd. tgl ' . $approval[1]->created_at . ') dan Bapak ' . $approval[2]->name . ' sebagai Kadis K3LH (ttd. tgl ' . $approval[2]->created_at . ')'));
+        // dd($approval);
+        // $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $approval[0]->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $approval[0]->name . ' (pada tgl ' . $approval[0]->created_at . ') sebagai Pemohon, ' . $approval[1]->name . ' sebagai Safety Officer (ttd. tgl ' . $approval[1]->created_at . ') dan Bapak ' . $approval[2]->name . ' sebagai Kadis K3LH (ttd. tgl ' . $approval[2]->created_at . ')'));
+        $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $get_pemohon->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $get_pemohon->name . ' (pada tgl ' . $get_pemohon->created_at . ') sebagai Pemohon, ' . $get_safety_officer->name . ' sebagai Safety Officer (ttd. tgl ' . $get_safety_officer->created_at . ') dan Bapak ' . $get_kadis->name . ' sebagai Kadis K3LH (ttd. tgl ' . $get_kadis->created_at . ')'));
         // dd($qrcode);
 
         $pdf = PDF::loadview('app.download-ijin-kerja', ['ijin_kerja' => $ijin_kerja, 'get_dokumen_lainnya' => $get_dokumen_lainnya, 'get_risk_lainnya' => $get_risk_lainnya, 'get_danger_lainnya' => $get_danger_lainnya, 'get_se_lainnya' => $get_se_lainnya, 'qrcode' => $qrcode]);
