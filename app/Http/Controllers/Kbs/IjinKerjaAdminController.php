@@ -300,11 +300,14 @@ class IjinKerjaAdminController extends Controller
         $tahun = date('Y');
         $bulan_romawi = $this->KonDecRomawi($bulan);
 
-        $get_ijin_kerja_no = IjinKerja::whereRaw("DATE_FORMAT(created_at, '%m') = DATE_FORMAT(now(), '%m')")->get();
-        $nomor_surat = (int)count($get_ijin_kerja_no)+1;
+        $get_ijin_kerja_no = IjinKerja::whereRaw("DATE_FORMAT(created_at, '%m') = DATE_FORMAT(now(), '%m')")
+                            ->where('status', 8)
+                            ->get();
+        $nomor_surat = (int)count($get_ijin_kerja_no) + 1;
         
         if($nomor_surat != null || $nomor_surat > 0){
             $nomor_surat_formatted = str_pad($nomor_surat, 2, "0", STR_PAD_LEFT);
+            // dd($nomor_surat_formatted);
         }
         $no_surat_final = $nomor_surat_formatted."/"."LIK-K3LH"."/".$bulan_romawi."/".$tahun;
 
