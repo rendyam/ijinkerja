@@ -104,7 +104,7 @@
                             <div class="form-group row">
                                 <label class="col-sm-2 form-control-label">Uraian Singkat Pekerjaan</label>
                                 <div class="col-sm-10">
-                                    <p class="form-control-static"><textarea class="form-control" name="uraian_singkat" ></textarea></p>
+                                    <p class="form-control-static"><textarea class="form-control" name="uraian_singkat" required></textarea></p>
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -266,6 +266,7 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="{{ asset('startui/js/lib/html5-form-validation/jquery.validation.min.js') }}"></script>
 
     <script>
 
@@ -338,38 +339,97 @@
             })
         })
 
+        $('input[name="risk"]').change(function(e){
+            // console.log(e)
+            if($(this).is(":checked")) {
+                var returnVal = true;
+                // console.log(returnVal);
+                $(this).attr("checked", returnVal);
+            }
+            // console.log($('input[name="risk"]').is(":checked"))
+        });
+
         $('.swal-btn-submit').click(function(e){
-            e.preventDefault();
-            var form = $(this).parents('form')
-            swal({
-                title: "Apakah Anda yakin dengan data yang telah diinput?",
-                text: "Setelah mengisi data, akan dikirimkan ke Kadis K3LH.",
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonClass: "btn-success",
-                confirmButtonText: "Ya, kirim sekarang",
-                cancelButtonText: "Kembali",
-                closeOnConfirm: false,
-                closeOnCancel: true
-            },
-            function(isConfirm) {
-                if(isConfirm){
-                    form.submit()
-                    swal({
-                        title: "Sukses!",
-                        text: "Ijin Kerja dikirim ke Kadis K3LH untuk disetujui.",
-                        type: "success",
-                        confirmButtonClass: "btn-success"
-                    })
-                    const delay = t => new Promise(resolve => setTimeout(resolve, t));
-                    delay(2000).then(function() {
-                        if (result.value){
-                            document.location.href = '{{ route("indexPemohon") }}'
-                        }
-                    })
-                }
-                
-            })
+            if ($('input[name="jenis_resiko"]:checked').length == 0) {
+                alert('Mohon isi Jenis Resiko!');
+                return false; 
+            } 
+            else if ($('input[name="kategori_ijin_kerja[]"]:checked').length == 0 && $('input[name="risk"]').is(":checked") != true) {
+                alert('Mohon isi Kategori Ijin Kerja!');
+                return false;
+            } 
+            else if ($('input[name="risk"]:checked').length == 1 && $('#TxtArea_1').val() == '') {
+                alert('Mohon isi kotak teks lainnya pada Kategori Ijin Kerja!');
+                return false;
+            } 
+            else if ($('input[name="lokasi_pekerjaan"]').val() == '') {
+                alert('Mohon isi Lokasi Pekerjaan!');
+                return false;
+            }
+            else if ($('textarea[name="uraian_singkat"]').val() == '') {
+                alert('Mohon isi Uraian Singkat Pekerjaan!');
+                return false;
+            } 
+            else if ($('input[name="dangers[]"]:checked').length == 0 && $('input[name="danger"]').is(":checked") != true) {
+                alert('Mohon isi Jenis Bahaya!');
+                return false;
+            } 
+            else if ($('input[name="danger"]:checked').length == 1 && $('#TxtArea_2').val() == '') {
+                alert('Mohon isi kotak teks lainnya pada Jenis Bahaya!');
+                return false;
+            }
+            else if ($('input[name="safety_equipments[]"]:checked').length == 0 && $('input[name="safety_equipment"]').is(":checked") != true) {
+                alert('Mohon isi Alat Pelindung Diri (APD)!');
+                return false;
+            } 
+            else if ($('input[name="safety_equipment"]:checked').length == 1 && $('#TxtArea_3').val() == '') {
+                alert('Mohon isi kotak teks lainnya pada Alat Pelindung Diri (APD)!');
+                return false;
+            }
+            else if ($('textarea[name="catatan_safety_officer"]').val() == '') {
+                alert('Mohon isi Catatan Safety Officer!');
+                return false;
+            } 
+            else if ($('input[name="documents[]"]:checked').length == 0 && $('input[name="document"]').is(":checked") != true) {
+                alert('Mohon isi Dokumen Pendukung!');
+                return false;
+            } 
+            else if ($('input[name="document"]:checked').length == 1 && $('#TxtArea_4').val() == '') {
+                alert('Mohon isi kotak teks lainnya pada Dokumen Pendukung!');
+                return false;
+            } else {
+                e.preventDefault();
+                var form = $(this).parents('form')
+                swal({
+                    title: "Apakah Anda yakin dengan data yang telah diinput?",
+                    text: "Setelah mengisi data, akan dikirimkan ke Kadis K3LH.",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-success",
+                    confirmButtonText: "Ya, kirim sekarang",
+                    cancelButtonText: "Kembali",
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                },
+                function(isConfirm) {
+                    if(isConfirm){
+                        form.submit()
+                        swal({
+                            title: "Sukses!",
+                            text: "Ijin Kerja dikirim ke Kadis K3LH untuk disetujui.",
+                            type: "success",
+                            confirmButtonClass: "btn-success"
+                        })
+                        const delay = t => new Promise(resolve => setTimeout(resolve, t));
+                        delay(2000).then(function() {
+                            if (result.value){
+                                document.location.href = '{{ route("indexPemohon") }}'
+                            }
+                        })
+                    }    
+                })
+            }
+
         })
 
         $('.swal-btn-input').click(function(e){
