@@ -99,6 +99,14 @@
                     </span>
                 </a>
             </li>
+            <li class="grey">
+                <a href="{{ route('indexLaporan') }}">
+                    <span>
+                        <i class="font-icon font-icon-dashboard"></i>
+                        <span class="lbl">Laporan Ijin Kerja</span>
+                    </span>
+                </a>
+            </li>
             <li class="red">
                 <a href="{{ route('logout') }}" onclick="event.preventDefault();
                                         document.getElementById('logout-form').submit();">

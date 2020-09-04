@@ -27,6 +27,7 @@ use Illuminate\Support\Arr;
 
 use Auth;
 use PDF;
+use DataTables;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 
@@ -551,6 +552,34 @@ class IjinKerjaAdminController extends Controller
         $msg = "Success.";
 
         return response()->json(array('msg' => $msg), 200);
+    }
+
+    public function indexLaporan()
+    {
+        return view('app.admin.laporan');
+    }
+
+    public function listDataLaporan(Request $request)
+    {
+        if(request()->ajax()){
+            if($_GET[0]['from_date'] != ""){
+                $laporan = DB::table('view_laporan as vl')
+                        ->whereBetween('split_mulai', [$_GET[0]['from_date'], $_GET[0]['to_date']])
+                        ->get();
+                // $laporan['awww'] = $_GET[0]['from_date'];
+                // return json_encode($output);
+                // return $laporan = "Test";
+            } else {
+                $laporan = DB::table('view_laporan as vl')
+                        ->get();
+                // $laporan['aw'] = $_GET[0]['from_date'];
+            }
+            // return DataTables::of($laporan)->make(true);
+            // return DataTables::of($laporan)->make(true);
+            return datatables()->of($laporan)->make(true);
+            // return $request;
+        }
+        // return view('app.admin.laporan');
     }
 
     function getSafetyOfficerEmail()

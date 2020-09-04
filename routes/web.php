@@ -40,6 +40,11 @@ Route::group(['prefix' => 'admin'], function () {
         Route::post('/send-to-kadis/{id}', 'Admin\IjinKerjaAdminController@sendToKadis')->name('sendToKadis'); //kirim Ijin Kerja untuk ditandatangan Kadis
         Route::get('/download-ijin-kerja/{id}', 'Admin\IjinKerjaAdminController@download')->name('downloadIjinKerjaAdmin');
     });
+
+    Route::group(["prefix" => "/laporan"], function () {
+        Route::get('', 'Admin\IjinKerjaAdminController@indexLaporan')->name('indexLaporan');
+        Route::get('/list-data', 'Admin\IjinKerjaAdminController@listDataLaporan')->name('listDataLaporan');
+    });
 });
 
 Route::group(['auth' => ['web']], function () {
