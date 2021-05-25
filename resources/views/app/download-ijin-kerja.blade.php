@@ -68,7 +68,7 @@
   </tr>
   <tr>
     <td class="tg-4qi8" colspan="4" rowspan="2"><span style="font-weight:bold">LEMBAR IJIN KERJA (LIK)</span></td>
-    <td class="tg-rspx" colspan="2">Tgl. Terbit : 15-08-2019<br></td>
+    <td class="tg-rspx" colspan="2">Tgl. Terbit : {{ $tglSurat }}<br></td>
   </tr>
   <tr>
     <td class="tg-bxgz" colspan="2">Divisi Kawasan &amp; K3LH<br></td>
