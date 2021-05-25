@@ -478,8 +478,10 @@ class IjinKerjaController extends Controller
 
         $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $get_pemohon->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $get_pemohon->name . ' (pada tgl ' . $get_pemohon->created_at . ') sebagai Pemohon, ' . $get_safety_officer->name . ' sebagai Safety Officer (ttd. tgl ' . $get_safety_officer->created_at . ') dan Bapak ' . $get_kadis->name . ' sebagai Kadis K3LH (ttd. tgl ' . $get_kadis->created_at . ')'));
         // dd($qrcode);
+        $tglSuratRaw = $get_kadis->created_at;
+        $tglSurat = date("d-m-Y", strtotime($tglSuratRaw));
 
-        $pdf = PDF::loadview('app.download-ijin-kerja', ['ijin_kerja' => $ijin_kerja, 'get_dokumen_lainnya' => $get_dokumen_lainnya, 'get_risk_lainnya' => $get_risk_lainnya, 'get_danger_lainnya' => $get_danger_lainnya, 'get_se_lainnya' => $get_se_lainnya, 'qrcode' => $qrcode]);
+        $pdf = PDF::loadview('app.download-ijin-kerja', ['ijin_kerja' => $ijin_kerja, 'get_dokumen_lainnya' => $get_dokumen_lainnya, 'get_risk_lainnya' => $get_risk_lainnya, 'get_danger_lainnya' => $get_danger_lainnya, 'get_se_lainnya' => $get_se_lainnya, 'qrcode' => $qrcode, 'tglSurat' => $tglSurat]);
         return $pdf->setPaper('A4', 'portrait')->download('ijin-kerja-pdf.pdf');
     }
 
@@ -541,6 +543,12 @@ class IjinKerjaController extends Controller
         $msg = "Success.";
 
         return response()->json(array('msg' => $msg), 200);
+    }
+
+    public function remove($id)
+    {
+        $get_ijin_kerja = \App\IjinKerja::where('id', $id)->get()->all();
+        dd(array_diff(json_decode($get_ijin_kerja[0]->dokumen_pendukung), $_GET));
     }
 
     function getSafetyOfficerEmail()
