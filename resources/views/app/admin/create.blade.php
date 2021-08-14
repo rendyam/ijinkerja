@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('startui/css/separate/vendor/sweet-alert-animations.min.css') }}">
     <link rel="stylesheet" href="{{ asset('startui/css/separate/vendor/bootstrap-daterangepicker.min.css') }}">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" href="{{ asset('startui/css/separate/vendor/blockui.min.css') }}">
 @endpush
 
 @section('content')
@@ -267,6 +268,7 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="{{ asset('startui/js/lib/html5-form-validation/jquery.validation.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('startui/js/lib/blockUI/jquery.blockUI.js') }}"></script>
 
     <script>
 
@@ -408,24 +410,38 @@
                     confirmButtonClass: "btn-success",
                     confirmButtonText: "Ya, kirim sekarang",
                     cancelButtonText: "Kembali",
-                    closeOnConfirm: false,
+                    closeOnConfirm: true,
                     closeOnCancel: true
                 },
                 function(isConfirm) {
                     if(isConfirm){
                         form.submit()
-                        swal({
-                            title: "Sukses!",
-                            text: "Ijin Kerja dikirim ke Kadis K3LH untuk disetujui.",
-                            type: "success",
-                            confirmButtonClass: "btn-success"
-                        })
-                        const delay = t => new Promise(resolve => setTimeout(resolve, t));
-                        delay(2000).then(function() {
-                            if (result.value){
-                                document.location.href = '{{ route("indexPemohon") }}'
-                            }
-                        })
+                        $.blockUI({
+                            overlayCSS: {
+                                background: 'rgba(142, 159, 167, 0.3)',
+                                opacity: 1,
+                                cursor: 'wait'
+                            },
+                            css: {
+                                width: 'auto',
+                                top: '45%',
+                                left: '45%'
+                            },
+                            message: '<div class="blockui-default-message">Mohon tunggu...</div>',
+                            blockMsgClass: 'block-msg-message-loader'
+                        });
+                        // swal({
+                        //     title: "Sukses!",
+                        //     text: "Ijin Kerja dikirim ke Kadis K3LH untuk disetujui.",
+                        //     type: "success",
+                        //     confirmButtonClass: "btn-success"
+                        // })
+                        // const delay = t => new Promise(resolve => setTimeout(resolve, t));
+                        // delay(2000).then(function() {
+                        //     if (result.value){
+                        //         document.location.href = '{{ route("indexPemohon") }}'
+                        //     }
+                        // })
                     }    
                 })
             }
