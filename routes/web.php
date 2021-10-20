@@ -66,6 +66,19 @@ Route::post('/send-to-so/{id}', 'IjinKerjaController@sendToSo')->name('sendToSo'
 Route::get('/download-ijin-kerja/{id}', 'IjinKerjaController@download')->name('downloadIjinKerja');
 Route::get('/logout', 'Auth\LoginController@logoutUser')->name('logout');
 
+// Ijin Masuk Controllers untuk vendor
+Route::group(['prefix' => 'ijinmasuk'], function () {
+    Route::get('/', 'IjinKerjaController@indexIjinMasuk')->name('indexIjinMasuk');
+    Route::get('/create', 'IjinKerjaController@createIjinMasuk')->name('createIjinMasuk');
+    Route::post('/store', 'IjinKerjaController@storeIjinMasuk')->name('storeIjinMasuk');
+    Route::get('/edit', 'IjinKerjaController@editIjinMasuk')->name('editIjinMasuk');
+    Route::get('/view/{id}', 'IjinKerjaController@viewIjinMasuk')->name('viewIjinMasuk');
+    Route::get('/submit/{id}', 'IjinKerjaController@submitIjinMasuk')->name('submitIjinMasuk');
+    Route::post('/update', 'IjinKerjaController@updateIjinMasuk')->name('updateIjinMasuk');
+    Route::get('/delete', 'IjinKerjaController@deleteIjinMasuk')->name('deleteIjinMasuk');
+    Route::post('/get-user-docs/{id}', 'IjinKerjaController@getUserDocs')->name('getUserDocs');
+});
+
 Route::group(['prefix' => 'kbs'], function () {
     Route::get('/', 'KbsController@index')->name('kbs.home');
     Route::get('/login', 'AuthKbs\LoginController@showLoginForm')->name('kbs.login');
@@ -75,5 +88,36 @@ Route::group(['prefix' => 'kbs'], function () {
     Route::post('/publish-ijin-kerja/{id}', 'Kbs\IjinKerjaAdminController@publishIjinKerja')->name('publishIjinKerjaKbs'); //Kadis tandatangan dan publish Ijin Kerja untuk Pemohon
     Route::post('/reject/{id}', 'Kbs\IjinKerjaAdminController@rejectIjinKerja')->name('rejectIjinKerjaKbs');
 
+    //Ijin masuk Controllers untuk KADISKAM KBS dan Admin KBS (Rendy)
+    Route::group(["prefix" => "/ijin-masuk"], function () {
+        Route::get('/', 'Kbs\IjinKerjaAdminController@indexIjinMasukKbs')->name('indexIjinMasukKbs');
+        Route::get('/view/{id}', 'Kbs\IjinKerjaAdminController@viewIjinMasukKbs')->name('viewIjinMasukKbs');
+        Route::post('/update', 'Kbs\IjinKerjaAdminController@updateIjinMasukKbs')->name('updateIjinMasukKbs');
+    });
+
+    Route::group(["prefix" => "/master-data"], function () {
+        Route::group(["prefix" => "/vendor"], function () {
+            Route::get('/', 'Kbs\IjinKerjaAdminController@indexVendor')->name('indexVendor');
+            Route::get('/edit', 'Kbs\IjinKerjaAdminController@editVendor')->name('editVendor');
+            Route::get('/update', 'Kbs\IjinKerjaAdminController@updateVendor')->name('updateVendor');
+        });
+
+        Route::group(["prefix" => "/tipe-vendor"], function () {
+            Route::get('/', 'Kbs\IjinKerjaAdminController@indexTipeVendor')->name('indexTipeVendor');
+            Route::get('/create', 'Kbs\IjinKerjaAdminController@createTipeVendor')->name('createTipeVendor');
+            Route::get('/edit', 'Kbs\IjinKerjaAdminController@editTipeVendor')->name('editTipeVendor');
+            Route::get('/update', 'Kbs\IjinKerjaAdminController@updateTipeVendor')->name('updateTipeVendor');
+            Route::get('/delete', 'Kbs\IjinKerjaAdminController@deleteTipeVendor')->name('deleteTipeVendor');
+        });
+        
+        Route::group(["prefix" => "/tipe-dokumen"], function () {
+            Route::get('/', 'Kbs\IjinKerjaAdminController@indexTipeDokumen')->name('indexTipeDokumen');
+            Route::get('/create', 'Kbs\IjinKerjaAdminController@createTipeDokumen')->name('createTipeDokumen');
+            Route::get('/edit', 'Kbs\IjinKerjaAdminController@editTipeDokumen')->name('editTipeDokumen');
+            Route::get('/update', 'Kbs\IjinKerjaAdminController@updateTipeDokumen')->name('updateTipeDokumen');
+            Route::get('/delete', 'Kbs\IjinKerjaAdminController@deleteTipeDokumen')->name('deleteTipeDokumen');
+        });
+    });
+    
     Route::get('/logout', 'AuthKbs\LoginController@logout')->name('logoutKbs');
 });

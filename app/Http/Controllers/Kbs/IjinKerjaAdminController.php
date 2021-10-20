@@ -21,6 +21,7 @@ use App\Mail\PersetujuanPemohon;
 use App\Mail\PersetujuanSafetyOfficer;
 use App\Mail\PersetujuanKadisK3LH;
 use App\Mail\PenerbitanIjinKerja;
+use App\Mail\UpdateIjinMasukKeamanan;
 
 use Illuminate\Support\Facades\Mail;
 
@@ -482,6 +483,155 @@ class IjinKerjaAdminController extends Controller
         $msg = "Success.";
 
         return response()->json(array('msg'=> $msg), 200);
+    }
+
+    public function indexIjinMasuk(){
+        $list_ijin_admin = DB::table('work_permits as wp')
+                            ->select('wp.id', 'wp.created_at', 'wp.perihal', 'u.name as nama_pemohon', 'wps.name as status_ijin_kerja', 'wp.status', 'u.nama_perusahaan')
+                            ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
+                            ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
+                            ->orderBy('wp.created_at', 'desc')
+                            ->get();
+        return view('app.kbs.index', compact(['list_ijin_admin']));
+    }
+
+    // Vendor
+    public function indexVendor(){
+
+    }
+
+    public function editVendor($id){
+
+    }
+
+    public function updateVendor(Request $request, $id){
+        
+    }
+
+    // Tipe Vendor
+    public function indexTipeVendor(){
+
+    }
+
+    public function createTipeVendor(){
+        
+    }
+
+    public function editTipeVendor($id){
+        
+    }
+
+    public function updateTipeVendor(Request $request, $id){
+        
+    }
+
+    public function deleteTipeVendor($id){
+        
+    }
+
+    // Tipe Dokumen
+    public function indexTipeDokumen(){
+        
+    }
+
+    public function createTipeDokumen(){
+        
+    }
+
+    public function editTipeDokumen(){
+        
+    }
+
+    public function updateTipeDokumen(Request $request, $id){
+        
+    }
+
+    public function deleteTipeDokumen($id){
+        
+    }
+
+    // Ijin Masuk
+    public function indexIjinMasukKbs(){
+        $index = DB::table('entry_permits as ep')
+                ->select('ep.id', 'ep.number', 'ep.subject', 'ep.created_at', 'ep.status', 'wps.name as status_name', 'ep.remark')
+                ->join('work_permit_status as wps', 'wps.id', '=', 'ep.status')
+                ->where('ep.status', '>', 1)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+        return view('app.kbs.ijin-masuk.index', compact('index'));
+    }
+
+    public function viewIjinMasukKbs($id_ijin_masuk){
+        $id = base64_decode($id_ijin_masuk);
+        $data_ijin_masuk = \App\EntryPermit::findOrFail($id);
+        $get_user_type = \App\User::findOrFail($data_ijin_masuk->user_id);
+
+        // dd($get_user_type->user_type);
+        $docs = $this->getDocs($get_user_type->user_type);
+
+        return view('app.kbs.ijin-masuk.view', compact('data_ijin_masuk', 'docs'));
+    }
+
+    public function updateIjinMasukKbs(Request $request){
+        $get_ijin_masuk_to_update = \App\EntryPermit::findOrFail($request->get('id'));
+        // dd($request->get('submit'), $get_ijin_masuk_to_update);
+
+        $get_ijin_masuk_to_update['approver'] = Auth::user()->id;
+        $get_ijin_masuk_to_update['approver_updated_at'] = date('Y-m-d H:m:s');
+
+        if($request->get('submit') == 'tolak'){
+            $get_ijin_masuk_to_update['status'] = 4;
+            $get_ijin_masuk_to_update['approver_status'] = 4;
+        }
+        if($request->get('submit') == 'approve'){
+            $get_ijin_masuk_to_update['status'] = 3;
+            $get_ijin_masuk_to_update['approver_status'] = 3;
+        }
+
+        $get_ijin_masuk_to_update['remark'] = $request->get('remark');
+
+        $get_ijin_masuk_to_update->save();
+        
+        $pemohon = \App\User::where('id', $get_ijin_masuk_to_update->user_id)->get()->all();
+
+        $send_email_data['id']                  = $get_ijin_masuk_to_update->id;
+        $send_email_data['nomor_ijin_masuk']    = $get_ijin_masuk_to_update->number;
+        $send_email_data['pemohon']             = $pemohon[0]->name;
+        $send_email_data['nama_perusahaan']     = $pemohon[0]->nama_perusahaan;
+        $send_email_data['perihal']             = $get_ijin_masuk_to_update->subject;
+        $send_email_data['catatan']             = $get_ijin_masuk_to_update->message;
+        $send_email_data['tanggal_submit']      = $get_ijin_masuk_to_update->created_at;
+        $send_email_data['approver_status']     = $get_ijin_masuk_to_update->approver_status;
+        $send_email_data['approver_updated_at'] = $get_ijin_masuk_to_update->approver_updated_at;
+        $send_email_data['remark']              = $get_ijin_masuk_to_update->remark;
+
+        if($request->get('submit') == 'tolak'){
+            $send_email_data['heading'] = "Ditolak";
+            Mail::to($pemohon[0]->email)->send(new UpdateIjinMasukKeamanan($send_email_data));
+
+            return redirect()->route('indexIjinMasukKbs')->with('status', 'Ijin Masuk dengan nomor ' . $get_ijin_masuk_to_update->number . ' berhasil ditolak');
+        }
+        if($request->get('submit') == 'approve'){
+            $send_email_data['heading'] = "Approved";
+            Mail::to($pemohon[0]->email)->send(new UpdateIjinMasukKeamanan($send_email_data));
+
+            return redirect()->route('indexIjinMasukKbs')->with('status', 'Ijin Masuk dengan nomor ' . $get_ijin_masuk_to_update->number . ' berhasil diapprove');
+        }
+    }
+
+    public function rejectIjinMasukKbs(){
+        
+    }
+
+    function getDocs($user_type){
+        $data = DB::table('user_docs as ud')
+                ->select('epd.id', 'epd.name')
+                ->join('entry_permit_docs as epd', 'epd.id', '=', 'ud.entry_permit_doc_id')
+                ->where('ud.user_type_id', $user_type)
+                ->get();
+        
+        return $data;
     }
 
     function getSafetyOfficerEmail()

@@ -20,11 +20,13 @@
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
+    <link rel="stylesheet" href="{{ asset('startui/css/lib/font-awesome/font-awesome.min.css') }}">
     <!--Bootstrap-->
     <link rel="stylesheet" href="{{ asset('startui/css/lib/bootstrap/bootstrap.min.css') }}">
 
-    <!-- Styles -->
-    <link rel="stylesheet" href="{{ asset('startui/css/main.css') }}">
+    @stack('list-ijin-kerja-css')
+    @stack('upload-css')
+    @stack('lihat-dokumen-diajukan-css')
 
     <!--Optional-->
     <link rel="stylesheet" href="{{ asset('startui/css/lib/lobipanel/lobipanel.min.css') }}">
@@ -32,10 +34,10 @@
 
     <!-- jQuery -->
     <link rel="stylesheet" href="{{ asset('startui/css/lib/jqueryui/jquery-ui.min.css') }}">
-
-    @stack('list-ijin-kerja-css')
-    @stack('upload-css')
-    @stack('lihat-dokumen-diajukan-css')
+    
+    <link rel="stylesheet" href="{{ asset('startui/css/separate/pages/widgets.min.css') }}">
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ asset('startui/css/main.css') }}">
 
 </head>
 
@@ -91,18 +93,18 @@
                     </span>
                 </a>
             </li>
-            <li class="grey">
+            <li class="green">
                 <a href="{{ route('indexIjinKerjaAdmin') }}">
                     <span>
-                        <i class="font-icon font-icon-dashboard"></i>
+                        <i class="font-icon font-icon-users"></i>
                         <span class="lbl">Ijin Kerja</span>
                     </span>
                 </a>
             </li>
-            <li class="grey">
+            <li class="grey-blue">
                 <a href="{{ route('indexLaporan') }}">
                     <span>
-                        <i class="font-icon font-icon-dashboard"></i>
+                        <i class="font-icon font-icon-list-square"></i>
                         <span class="lbl">Laporan Ijin Kerja</span>
                     </span>
                 </a>
@@ -128,11 +130,19 @@
                     </span>
                 </a>
             </li>
-            <li class="grey">
+            <li class="green">
                 <a href="{{ route('indexPemohon') }}">
                     <span>
-                        <i class="font-icon font-icon-dashboard"></i>
+                        <i class="font-icon font-icon-users"></i>
                         <span class="lbl">Ijin Kerja</span>
+                    </span>
+                </a>
+            </li>
+            <li class="blue">
+                <a href="{{ route('indexIjinMasuk') }}">
+                    <span>
+                        <i class="font-icon font-icon-notebook-bird"></i>
+                        <span class="lbl">Ijin Masuk</span>
                     </span>
                 </a>
             </li>
@@ -157,14 +167,57 @@
                     </span>
                 </a>
             </li>
-            <li class="grey">
+            @if(Auth::user()->role_ijinkerja == '["KADISK3LH"]' || Auth::user()->role_ijinkerja == "ADMINKBS")
+            <li class="green">
                 <a href="{{ route('indexIjinKerjaKbs') }}">
                     <span>
-                        <i class="font-icon font-icon-dashboard"></i>
+                        <i class="font-icon font-icon-users"></i>
                         <span class="lbl">Ijin Kerja</span>
                     </span>
                 </a>
             </li>
+            @endif
+            @if(Auth::user()->role_ijinkerja == "KEAMANAN" || Auth::user()->role_ijinkerja == "ADMINKBS")
+            <li class="blue">
+                <a href="{{ route('indexIjinMasukKbs') }}">
+                    <span>
+                        <i class="font-icon font-icon-notebook-bird"></i>
+                        <span class="lbl">Ijin Masuk</span>
+                    </span>
+                </a>
+            </li>
+            @endif
+            @if(Auth::user()->role_ijinkerja == "ADMINKBS")
+            <li class="gold with-sub">
+                <span class="label-right">
+                    <i class="font-icon font-icon-server"></i>
+                    <span class="lbl">Master Data</span>
+                </span>
+                <ul>
+                    <li>
+                        <a href="{{ route('indexVendor') }}">
+                            <span>
+                                <span class="lbl">Vendor</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('indexTipeVendor') }}" class="label-right">
+                            <span>
+                                <span class="lbl">Tipe Vendor</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('indexTipeDokumen') }}" class="label-right">
+                            <span>
+                                <span class="lbl">Tipe Dokumen</span>
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            @endif
             <li class="red">
                 <a href="{{ route('logoutKbs') }}" onclick="event.preventDefault();
                                         document.getElementById('logout-form').submit();">
@@ -207,16 +260,14 @@
 
     <script type="text/javascript" src="{{ asset('startui/js/lib/jqueryui/jquery-ui.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('startui/js/lib/lobipanel/lobipanel.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('startui/js/lib/match-height/jquery.matchHeight.min.js') }}"></script>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-
-    <script src="{{ asset('startui/js/app.js') }}"></script>
 
     <!-- OPTIONAL SCRIPTS -->
-
+    @stack('create-ijin-masuk-js')
     @stack('list-ijin-kerja-js')
     @stack('upload-js')
     @stack('lihat-dokumen-diajukan-js')
+    <script src="{{ asset('startui/js/app.js') }}"></script>
+
 </body>
 
 </html>
