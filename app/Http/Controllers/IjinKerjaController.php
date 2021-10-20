@@ -12,6 +12,8 @@ use App\ClosingWorkPermit;
 use App\Approval;
 use App\IjinKerja;
 
+use App\EntryPermitDoc;
+
 use App\Mail\EmailUploadDokumen;
 use App\Mail\RejectDokumenDiupload;
 use App\Mail\DokumenTelahDiuploadKembali;
@@ -19,6 +21,7 @@ use App\Mail\PersetujuanPemohon;
 use App\Mail\PersetujuanSafetyOfficer;
 use App\Mail\PersetujuanKadisK3LH;
 use App\Mail\PenerbitanIjinKerja;
+use App\Mail\SubmitIjinMasuk;
 
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Arr;
@@ -41,6 +44,7 @@ class IjinKerjaController extends Controller
         $this->middleware(function ($request, $next) {
             $this->user_id = Auth::user()->id;
             $this->name = Auth::user()->name;
+            $this->user_type = Auth::user()->user_type;
 
             return $next($request);
         });
@@ -141,6 +145,7 @@ class IjinKerjaController extends Controller
 
         if ($request->hasfile('dokumen_pendukung')) {
             $names = [];
+            dd($request->file('dokumen_pendukung'));
             foreach ($request->file('dokumen_pendukung') as $doc) {
                 $move = $doc->store('dokumen_pendukung', 'public');
                 $filename = $move;
@@ -551,6 +556,227 @@ class IjinKerjaController extends Controller
         dd(array_diff(json_decode($get_ijin_kerja[0]->dokumen_pendukung), $_GET));
     }
 
+    // Ijin Masuk
+
+    public function indexIjinMasuk(){
+        $index = DB::table('entry_permits as ep')
+                ->select('ep.id', 'ep.number', 'ep.subject', 'ep.created_at', 'ep.status', 'wps.name as status_name', 'ep.remark')
+                ->join('work_permit_status as wps', 'wps.id', '=', 'ep.status')
+                ->where('ep.user_id', $this->user_id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+        return view('app.pemohon.ijin-masuk.index', compact('index'));
+    }
+
+    public function createIjinMasuk(){
+        $docs = $this->getDocs();
+        $getRoles = DB::table('user_types')
+                    ->select('id', 'name')
+                    ->get();
+        
+        return view('app.pemohon.ijin-masuk.create', compact('docs', 'getRoles'));
+    }
+
+    public function storeIjinMasuk(Request $request){
+        try{
+            $tahun_sekarang = date('Y');
+            $get_ijin_masuk_no = \App\EntryPermit::whereRaw("DATE_FORMAT(created_at, '%Y') = DATE_FORMAT(now(), '%Y')")->get();
+            
+            $no_ijin_masuk = (int) count($get_ijin_masuk_no) + 1;
+            if ($no_ijin_masuk != null || $no_ijin_masuk > 0) {
+                $digit_nomor_formatted = str_pad($no_ijin_masuk, 4, "0", STR_PAD_LEFT);
+            }
+            
+            $no_ijin_masuk_formatted = "IM-" . $tahun_sekarang . "-" . $digit_nomor_formatted;
+
+            $new_ijin_masuk = new \App\EntryPermit;
+            $new_ijin_masuk['user_id'] = Auth::user()->id;
+
+            if($request->get('submit') == 'draft'){
+                // dd("1");
+                $new_ijin_masuk['status'] = 1; //draft
+            }
+            if($request->get('submit') == 'submit'){
+                // dd("2");
+                $new_ijin_masuk['status'] = 2; //proposed
+            }
+
+            $files = [];
+            for($i=0;$i<count($request->doc_type);$i++){
+                // dd($request->doc_type[$i]);
+                $file_names = [];
+                $atribut_file = 'dokumen_pendukung_' . $request->doc_type[$i];
+                // dd($atribut_file);
+                foreach($request->file($atribut_file) as $doc) {
+                    // dd($doc);
+                    $move = $doc->store('dokumen_pendukung', 'public');
+                    $file_name = $move;
+                    array_push($file_names, $file_name);
+                }
+                $doc_type_dan_files = (object) ['doc_type_id' => $request->doc_type[$i], 'files' => $file_names];
+                array_push($files, $doc_type_dan_files);   
+            }
+
+            $new_ijin_masuk['docs'] = json_encode($files);
+
+            // $new_ijin_masuk['approver'] = 21;
+            $new_ijin_masuk['subject'] = $request->get('perihal');
+            $new_ijin_masuk['message'] = $request->get('catatan');
+            $new_ijin_masuk['number'] = $no_ijin_masuk_formatted;
+
+            $new_ijin_masuk->save();
+
+            if($request->get('submit') == 'submit'){
+                $pemohon = \App\User::where('id', $this->user_id)->get()->all();
+
+                $get_email_keamanan = DB::table('db_efile.users')
+                                        ->select('email')
+                                        ->where('role_ijinkerja', 'KEAMANAN')
+                                        ->get();
+
+                foreach ($get_email_keamanan as $emails) {
+                    $get_emails[] = $emails->email;
+                }
+
+                $send_email_data['id']               = $new_ijin_masuk->id;
+                $send_email_data['nomor_ijin_masuk'] = $new_ijin_masuk->number;
+                $send_email_data['pemohon']          = $pemohon[0]->name;
+                $send_email_data['nama_perusahaan']  = $pemohon[0]->nama_perusahaan;
+                $send_email_data['perihal']          = $new_ijin_masuk->subject;
+                $send_email_data['catatan']          = $new_ijin_masuk->message;
+                $send_email_data['tanggal_submit']   = $new_ijin_masuk->created_at;
+
+                Mail::to($get_emails)->send(new SubmitIjinMasuk($send_email_data));
+
+                return redirect()->route('indexIjinMasuk')->with('status', 'Ijin Masuk berhasil dibuat dan disubmit dengan nomor ' . $no_ijin_masuk_formatted);
+            }
+
+            return redirect()->route('indexIjinMasuk')->with('status', 'Ijin Masuk berhasil dibuat dengan nomor ' . $no_ijin_masuk_formatted);
+        } catch(Throwable $e){
+            report($e);
+            return false;
+        }
+    }
+
+    public function editIjinMasuk($id){
+        
+    }
+
+    public function viewIjinMasuk($id_ijin_masuk){
+        $id = base64_decode($id_ijin_masuk);
+        $data_ijin_masuk = \App\EntryPermit::findOrFail($id);
+        // dd(json_decode($data_ijin_masuk->docs));
+        $docs = $this->getDocs();
+
+        return view('app.pemohon.ijin-masuk.view', compact('data_ijin_masuk', 'docs'));
+    }
+
+    public function updateIjinMasuk(Request $request){
+        $get_ijin_masuk_to_update = \App\EntryPermit::findOrFail($request->get('id'));
+        // dd($get_ijin_masuk_to_update->docs);
+
+        if($request->get('submit') == 'draft'){
+            $get_ijin_masuk_to_update['status'] = 1; //draft
+        }
+        if($request->get('submit') == 'submit'){
+            $get_ijin_masuk_to_update['status'] = 2; //proposed
+        }
+
+        $files = [];
+        for($i=0;$i<count($request->doc_type);$i++){
+            // dd(array_search($request->doc_type[$i], array_column(json_decode($get_ijin_masuk_to_update->docs), 'doc_type_id')));
+
+            // dd(array_column(json_decode($get_ijin_masuk_to_update->docs), 'files'));
+
+            // dd($request->doc_type[$i],array_column(json_decode($get_ijin_masuk_to_update->docs), 'doc_type_id'));
+            // 1. dapetin dulu data yang ada di db
+            // 2. lakukan array search pada data yang sudah didapat (buat cari data yg udah didapat), dengan dokumen yang dimapping ke user
+            // 3. kalau ketemu, maka dapatkan indexnya. dan simpan ke files, melalui array column array_column(json_decode($get_ijin_masuk_to_update->docs), 'files')
+            
+            $file_names = [];
+            $atribut_file = 'dokumen_pendukung_' . $request->doc_type[$i];
+
+            if($request->file($atribut_file) !== null){
+                foreach($request->file($atribut_file) as $doc) {
+                    // dd($doc);
+                    $move = $doc->store('dokumen_pendukung', 'public');
+                    $file_name = $move;
+                    array_push($file_names, $file_name);
+                }
+                $doc_type_dan_files = (object) ['doc_type_id' => $request->doc_type[$i], 'files' => $file_names];
+                array_push($files, $doc_type_dan_files);   
+            }
+
+            if($request->file($atribut_file) == null){
+                $data_docs_dari_db = json_decode($get_ijin_masuk_to_update->docs);
+                $index = array_column($data_docs_dari_db, 'doc_type_id'); // dapatkan index antara data dari db dengan dokumen yang dimapping user
+                $search = array_search($request->doc_type[$i], $index);
+                
+                $doc_type_dan_files = (object) ['doc_type_id' => $request->doc_type[$i], 'files' => $data_docs_dari_db[$search]->files];
+                array_push($files, $doc_type_dan_files);    
+            }
+        }
+        
+        if(!empty($files)){
+           $get_ijin_masuk_to_update['docs'] = json_encode($files);
+        }
+
+        // $get_ijin_masuk_to_update['approver'] = 21;
+        $get_ijin_masuk_to_update['subject'] = $request->get('perihal');
+        $get_ijin_masuk_to_update['message'] = $request->get('catatan');
+
+        $get_ijin_masuk_to_update->save();
+
+        if($request->get('submit') == 'draft'){
+            return redirect()->route('indexIjinMasuk')->with('status', 'Ijin Masuk dengan nomor ' . $get_ijin_masuk_to_update->number . ' berhasil disimpan');
+        }
+        
+        if($request->get('submit') == 'submit'){
+            $pemohon = \App\User::where('id', $this->user_id)->get()->all();
+
+            $get_email_keamanan = DB::table('db_efile.users')
+                                    ->select('email')
+                                    ->where('role_ijinkerja', 'KEAMANAN')
+                                    ->get();
+
+            foreach ($get_email_keamanan as $emails) {
+                $get_emails[] = $emails->email;
+            }
+
+            $send_email_data['id']               = $get_ijin_masuk_to_update->id;
+            $send_email_data['nomor_ijin_masuk'] = $get_ijin_masuk_to_update->number;
+            $send_email_data['pemohon']          = $pemohon[0]->name;
+            $send_email_data['nama_perusahaan']  = $pemohon[0]->nama_perusahaan;
+            $send_email_data['perihal']          = $get_ijin_masuk_to_update->subject;
+            $send_email_data['catatan']          = $get_ijin_masuk_to_update->message;
+            $send_email_data['tanggal_submit']   = $get_ijin_masuk_to_update->created_at;
+
+            Mail::to($get_emails)->send(new SubmitIjinMasuk($send_email_data));
+
+            return redirect()->route('indexIjinMasuk')->with('status', 'Ijin Masuk berhasil dibuat dan disubmit dengan nomor ' . $get_ijin_masuk_to_update->number);
+        }
+        
+    }
+
+    public function getUserDocs(Request $request){
+        return json_encode($request);
+    }
+
+    public function deleteIjinMasuk($id){
+        
+    }
+
+    function getDocs(){
+        $data = DB::table('user_docs as ud')
+                ->select('epd.id', 'epd.name')
+                ->join('entry_permit_docs as epd', 'epd.id', '=', 'ud.entry_permit_doc_id')
+                ->where('ud.user_type_id', $this->user_type)
+                ->get();
+        
+        return $data;
+    }
+
     function getSafetyOfficerEmail()
     {
         $safety_officer_email = \App\Admin::select('email')->get();
@@ -659,5 +885,13 @@ class IjinKerjaController extends Controller
         }
 
         return ($hsl);
+    }
+
+    function varName( $v ) {
+        $trace = debug_backtrace();
+        $vLine = file( __FILE__ );
+        $fLine = $vLine[ $trace[0]['line'] - 1 ];
+        preg_match( "#\\$(\w+)#", $fLine, $match );
+        return $match;
     }
 }

@@ -78,6 +78,7 @@
                                 <td>{{ $ijin->created_at }}</td>
                                 @if($ijin->perihal == null)
                                 <td>-</td>
+                                <td>-</td>
                                 @else
                                 <td>{{ $ijin->perihal }}</td>
                                 <td>{{ $ijin->nama_perusahaan }}</td>

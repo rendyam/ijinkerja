@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends Controller
 {
@@ -25,6 +26,8 @@ class LoginController extends Controller
      *
      * @return void
      */
+    use AuthenticatesUsers;
+
     public function __construct()
     {
         $this->middleware('guest:kbs')->except(['logout']);
@@ -50,18 +53,26 @@ class LoginController extends Controller
         // Attempt to log the user in
         if (Auth::guard('kbs')->attempt($credential, $request->member)) {
             // If login succesful, then redirect to their intended location
-            return redirect()->route('indexIjinKerjaKbs');
+            return redirect()->route('kbs.home');
         }
 
         // If Unsuccessful, then redirect back to the login with the form data
         return redirect()->back()->withInput($request->only('email', 'remember'));
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        Auth::guard('kbs')->logout();
-        // return redirect('kbs.login');
-        // return redirect()->intended(route('logoutKbs'));
-        return view('auth-kbs.login');
+        // Auth::guard('kbs')->logout();
+        // // return redirect('kbs.login');
+        // // return redirect()->intended(route('logoutKbs'));
+        // return view('auth-kbs.login');
+
+        $this->guard()->logout();
+ 
+        $request->session()->flush();
+ 
+        $request->session()->regenerate();
+ 
+        return redirect()->route('kbs.login')->withSuccess('Terimakasih, selamat datang kembali!');
     }
 }
