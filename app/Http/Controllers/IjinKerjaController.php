@@ -560,22 +560,32 @@ class IjinKerjaController extends Controller
 
     public function indexIjinMasuk(){
         $index = DB::table('entry_permits as ep')
-                ->select('ep.id', 'ep.number', 'ep.subject', 'ep.created_at', 'ep.status', 'wps.name as status_name', 'ep.remark')
+                ->select(
+                        'ep.id as id_ijin_masuk', 
+                        'ep.number as nomor_ijin_masuk', 
+                        'ep.subject', 
+                        'ep.created_at', 
+                        'ep.status', 
+                        'wps.name as status_name', 
+                        'ep.remark',
+                        'ut.name as user_type_name'
+                )
                 ->join('work_permit_status as wps', 'wps.id', '=', 'ep.status')
+                ->join('user_types as ut', 'ut.id', '=', 'ep.role')
                 ->where('ep.user_id', $this->user_id)
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->get();        
 
         return view('app.pemohon.ijin-masuk.index', compact('index'));
     }
 
     public function createIjinMasuk(){
-        $docs = $this->getDocs();
+        // $docs = $this->getDocs();
         $getRoles = DB::table('user_types')
                     ->select('id', 'name')
                     ->get();
         
-        return view('app.pemohon.ijin-masuk.create', compact('docs', 'getRoles'));
+        return view('app.pemohon.ijin-masuk.create', compact('getRoles'));
     }
 
     public function storeIjinMasuk(Request $request){
@@ -592,6 +602,7 @@ class IjinKerjaController extends Controller
 
             $new_ijin_masuk = new \App\EntryPermit;
             $new_ijin_masuk['user_id'] = Auth::user()->id;
+            $new_ijin_masuk['role'] = $request->role;            
 
             if($request->get('submit') == 'draft'){
                 // dd("1");
@@ -667,7 +678,7 @@ class IjinKerjaController extends Controller
         $id = base64_decode($id_ijin_masuk);
         $data_ijin_masuk = \App\EntryPermit::findOrFail($id);
         // dd(json_decode($data_ijin_masuk->docs));
-        $docs = $this->getDocs();
+        $docs = $this->getDocs($data_ijin_masuk->role);
 
         return view('app.pemohon.ijin-masuk.view', compact('data_ijin_masuk', 'docs'));
     }
@@ -760,18 +771,26 @@ class IjinKerjaController extends Controller
     }
 
     public function getUserDocs(Request $request){
-        return json_encode($request);
+        $user_type_id = $request->id;
+
+        $get_user_docs = DB::table('user_docs as ud')
+                        ->select('epd.id as id_dok_ijin_masuk', 'epd.name')
+                        ->join('entry_permit_docs as epd', 'epd.id', 'ud.entry_permit_doc_id')
+                        ->where('ud.user_type_id', $user_type_id)
+                        ->get();
+
+        return json_encode($get_user_docs);
     }
 
     public function deleteIjinMasuk($id){
         
     }
 
-    function getDocs(){
+    function getDocs($role){
         $data = DB::table('user_docs as ud')
                 ->select('epd.id', 'epd.name')
                 ->join('entry_permit_docs as epd', 'epd.id', '=', 'ud.entry_permit_doc_id')
-                ->where('ud.user_type_id', $this->user_type)
+                ->where('ud.user_type_id', $role)
                 ->get();
         
         return $data;

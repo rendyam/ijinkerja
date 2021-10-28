@@ -29,7 +29,7 @@
 
                     </div>
                     <div class="pull-right">
-
+                        <a class="btn btn-primary" href=" {{ route('indexIjinMasuk') }} ">Kembali</a>
                     </div>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                     </div>
                     @endif
 
-                    <form action=" {{ route('storeIjinMasuk') }} " method="POST" enctype="multipart/form-data">
+                    <form action=" {{ route('storeIjinMasuk') }} " method="POST" enctype="multipart/form-data" id="form-ijin-masuk">
                         @csrf
                         <div class="form-group row">
                             <label class="col-sm-2 form-control-label" for="exampleInput">Perihal</label>
@@ -68,7 +68,7 @@
                             <label class="col-sm-2 form-control-label">Anda Sebagai...</label>
                             <div class="col-sm-10">
                                 <p class="form-control-static">
-                                    <select class="select2" name="roles" id="roles" required onchange="val()">
+                                    <select class="select2" name="role" id="role" required onchange="val()">
                                         <option selected disabled value="">-- Pilih --</option>
                                         @foreach($getRoles as $role)
                                         <option value="{{$role->id}}">{{$role->name}}</option>
@@ -78,15 +78,9 @@
                             </div>
                         </div>
 
-                        @for($i=0; $i<count($docs) ; $i++)
-                            {{ $i+1 }} . {{ $docs[$i]->name }}
-                            <input type="hidden" name="doc_type[]" value="{{$docs[$i]->id}}">
-                            <div class="form-group row">
-                                <div class="col-sm-12">
-                                    <p class="form-control-static"><input type="file" id="file-1" type="file" name="dokumen_pendukung_{{$docs[$i]->id}}[]" multiple class="file" data-msg-placeholder="Format file .jpg, .jpeg, .pdf, .zip" required></p>
-                                </div>
-                            </div>
-                        @endfor
+                        <div id="docs">
+
+                        </div>
 
                         <div class="form-group row">
                             <label for="exampleSelect" class="col-sm-2 form-control-label">Catatan</label>
@@ -145,78 +139,102 @@
         },
         dropZoneEnabled: false,
     });
-
+    // function draftSurat(){
     $('.draft').click(function() {
-        if (confirm('Anda yakin akan menyimpan ijin masuk sebagai draft?')) {
-            $.blockUI({
-                overlayCSS: {
-                    background: 'rgba(142, 159, 167, 0.3)',
-                    opacity: 1,
-                    cursor: 'wait'
-                },
-                css: {
-                    width: 'auto',
-                    top: '45%',
-                    left: '45%'
-                },
-                message: '<div class="blockui-default-message">Mohon tunggu...</div>',
-                blockMsgClass: 'block-msg-message-loader'
-            });
-            return true;
-        } else {
-            return false;
+        let error = 0
+        $('#form-ijin-masuk').find('select, textarea, input').each(function() {
+            if ($(this).val() === '' || $(this).val() === null) {
+                error += 1;
+                // console.log($(this).prop('name') + ' kosong' + ' nilainya ' + $(this).val())
+            }
+        });
+        if (error == 0) {
+            if (confirm('Anda yakin akan menyimpan ijin masuk sebagai draft?')) {
+                $.blockUI({
+                    overlayCSS: {
+                        background: 'rgba(142, 159, 167, 0.3)',
+                        opacity: 1,
+                        cursor: 'wait'
+                    },
+                    css: {
+                        width: 'auto',
+                        top: '45%',
+                        left: '45%'
+                    },
+                    message: '<div class="blockui-default-message">Mohon tunggu...</div>',
+                    blockMsgClass: 'block-msg-message-loader'
+                });
+                return true
+            } else {
+                return false;
+            }
         }
     })
 
+    // function submitSurat(){
     $('.submit').click(function() {
-        if (confirm('Anda yakin akan submit ijin masuk ini?')) {
-            $.blockUI({
-                overlayCSS: {
-                    background: 'rgba(142, 159, 167, 0.3)',
-                    opacity: 1,
-                    cursor: 'wait'
-                },
-                css: {
-                    width: 'auto',
-                    top: '45%',
-                    left: '45%'
-                },
-                message: '<div class="blockui-default-message">Mohon tunggu...</div>',
-                blockMsgClass: 'block-msg-message-loader'
-            });
-            return true;
-        } else {
-            return false;
+        let error = 0
+        $('#form-ijin-masuk').find('select, textarea, input').each(function() {
+            if ($(this).val() === '' || $(this).val() === null) {
+                error += 1;
+                // console.log($(this).prop('name') + ' kosong' + ' nilainya ' + $(this).val())
+            }
+        });
+        if (error == 0) {
+            if (confirm('Anda yakin akan submit ijin masuk ini?')) {
+                $.blockUI({
+                    overlayCSS: {
+                        background: 'rgba(142, 159, 167, 0.3)',
+                        opacity: 1,
+                        cursor: 'wait'
+                    },
+                    css: {
+                        width: 'auto',
+                        top: '45%',
+                        left: '45%'
+                    },
+                    message: '<div class="blockui-default-message">Mohon tunggu...</div>',
+                    blockMsgClass: 'block-msg-message-loader'
+                })
+            } else {
+                return false;
+            }
         }
     })
-
-   
 
     function val(){
-        role_id = document.getElementById('roles').value;
-        // console.log(role_id);
-        // return;
-        let url = '/ijinmasuk/get-user-docs/'+role_id;
-        let token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        let nomor = 1;
+        role_id = document.getElementById('role').value;
         
-        fetch(url, {
-            headers: {
-                "Content-Type": "application/json",
-                "Accept" : "application/json, text-plain, */*",
-                "X-Requested-With" : "XMLHttpRequest",
-                "X-CSRF-TOKEN" : token
-            },
-            method: 'POST',
-            credentials: "same-origin"
-        })
-        .then((data) => {
-            console.log(data.json());
-            throw data;
-        })
-        .catch(function(error){
-            console.log(error)
-        });
+        if(role_id){
+            $.ajax({
+                url: '/ijinmasuk/get-user-docs/'+role_id,
+                type: 'GET',
+                dataType: "json",
+                beforeSend: function(){
+                    $('#loader').css('visibility', 'visible')
+                },
+
+                success:function(data){
+                    $('#docs').empty()
+                    $.each(data, function(key, value){
+
+                        // let inputan = $('<input/>')
+                        //                 .attr('type', "file")
+                        //                 .attr('name',)
+                        $('#docs').append(
+                            nomor++ + ". " +value.name + "<input type='hidden' name='doc_type[]' value='"+value.id_dok_ijin_masuk+"'><div class='form-group row'><div class='col-sm-12'><p class='form-control-static'><input type='file' id='file-1' type='file' name='dokumen_pendukung_"+value.id_dok_ijin_masuk+"[]' multiple class='file' data-msg-placeholder='Format file .jpg, .jpeg, .pdf, .zip' required></p></div></div>"
+                        );
+                    })
+                },
+
+                complete: function(){
+                    $('#loader').css("visibility", "hidden")
+                }
+            })
+        }
     }
+
 </script>
 
 @endpush

@@ -51,6 +51,7 @@
                                     <th>No.</th>
                                     <th>No. Pengajuan</th>
                                     <th>Perihal</th>
+                                    <th>Sebagai</th>
                                     <th>Tanggal Pengajuan</th>
                                     <th>Status</th>
                                     <th>Remark</th>
@@ -62,6 +63,7 @@
                                     <th>No.</th>
                                     <th>No. Pengajuan</th>
                                     <th>Perihal</th>
+                                    <th>Sebagai</th>
                                     <th>Tanggal Pengajuan</th>
                                     <th>Status</th>
                                     <th>Remark</th>
@@ -74,8 +76,9 @@
                                 @foreach($index as $idx)
                                     <tr> 
                                         <td>{{ $i++ }}</td>
-                                        <td>{{ $idx->number }}</td>
+                                        <td>{{ $idx->nomor_ijin_masuk }}</td>
                                         <td>{{ $idx->subject }}</td>
+                                        <td>{{ $idx->user_type_name }}</td>
                                         <td>{{ $idx->created_at }}</td>
                                         <td>
                                             @if($idx->status == 1)
@@ -99,7 +102,7 @@
                                         <td>@if(!is_null($idx->remark)) {{ $idx->remark }} @else - @endif</td>
                                         <td>
                                         @php
-                                            $id_ijin_masuk = base64_encode($idx->id);
+                                            $id_ijin_masuk = base64_encode($idx->id_ijin_masuk);
                                         @endphp
                                             <a class="btn btn-inline" href="{{ route('viewIjinMasuk', $id_ijin_masuk) }}" class="button">Lihat</a>
                                         </td>
