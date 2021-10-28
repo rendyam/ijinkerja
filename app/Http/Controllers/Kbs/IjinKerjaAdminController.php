@@ -565,10 +565,10 @@ class IjinKerjaAdminController extends Controller
     public function viewIjinMasukKbs($id_ijin_masuk){
         $id = base64_decode($id_ijin_masuk);
         $data_ijin_masuk = \App\EntryPermit::findOrFail($id);
-        $get_user_type = \App\User::findOrFail($data_ijin_masuk->user_id);
+        // $get_user_type = \App\User::findOrFail($data_ijin_masuk->user_id);
 
         // dd($get_user_type->user_type);
-        $docs = $this->getDocs($get_user_type->user_type);
+        $docs = $this->getDocs($data_ijin_masuk->role);
 
         return view('app.kbs.ijin-masuk.view', compact('data_ijin_masuk', 'docs'));
     }

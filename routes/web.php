@@ -76,7 +76,7 @@ Route::group(['prefix' => 'ijinmasuk'], function () {
     Route::get('/submit/{id}', 'IjinKerjaController@submitIjinMasuk')->name('submitIjinMasuk');
     Route::post('/update', 'IjinKerjaController@updateIjinMasuk')->name('updateIjinMasuk');
     Route::get('/delete', 'IjinKerjaController@deleteIjinMasuk')->name('deleteIjinMasuk');
-    Route::post('/get-user-docs/{id}', 'IjinKerjaController@getUserDocs')->name('getUserDocs');
+    Route::get('/get-user-docs/{id}', 'IjinKerjaController@getUserDocs')->name('getUserDocs');
 });
 
 Route::group(['prefix' => 'kbs'], function () {
