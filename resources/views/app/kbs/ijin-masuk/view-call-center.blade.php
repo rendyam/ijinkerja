@@ -88,7 +88,7 @@
                     </div>
                     @endif
 
-                    <form action=" {{ route('updateIjinMasukKbs', ) }} " method="POST" enctype="multipart/form-data">
+                    <form action="{{route('updateIjinMasukCC', $data_ijin_masuk->id)}}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group row">
                             <label class="col-sm-2 form-control-label" for="exampleInput">Perihal</label>
@@ -143,7 +143,7 @@
 
                         <!-- <div id="dokumen_preview"></div> -->
                         <br>
-                        @if($data_ijin_masuk->status >= 2)
+                        @if($data_ijin_masuk->status == 2)
                         <div class="form-group row">
                             <div class="col-sm-12">
                                 <div class="pull-right">

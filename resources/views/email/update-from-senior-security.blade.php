@@ -189,7 +189,7 @@
                   </tr>
                   <tr>
                     <td style="font-size:24px; text-align:center; padding: 0 75px; color: #6f6f6f;" class="w320 mobile-spacing">
-                      Permohonan Ijin Masuk Anda @if($call_center_status == 3) Di-Approve @elseif($call_center_status == 4) Ditolak @endif
+                      Permohonan Ijin Masuk Anda @if($approver_status == 3) Di-Approve @elseif($approver_status == 4) Ditolak @endif
                     </td>
                   </tr>
                 </table>
@@ -213,7 +213,7 @@
               <center>
                 <table style="margin:0 auto;" cellspacing="0" cellpadding="0" class="force-width-80">
                   <tr>
-                    @if($call_center_status == 4)
+                    @if($approver_status == 4)
                     <td style="text-align:left;">
                       <br>
                       <strong>Remark/Catatan dari Pihak Keamanan PT KBS:</strong><br>
@@ -225,7 +225,7 @@
                     <td style="text-align:left;">
                       <br>
                       <strong>Waktu Update:</strong><br>
-                        {{ $call_center_updated_at }}
+                        {{ $approver_updated_at }}
                     </td>
                   </tr>
                 </table>

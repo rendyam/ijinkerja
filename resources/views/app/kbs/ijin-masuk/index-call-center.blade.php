@@ -1,7 +1,7 @@
 @extends('home')
 
-    @section('menu_name') Daftar Ijin Masuk @endsection
-    @section('title') Daftar Ijin Masuk @endsection
+    @section('menu_name') Daftar Ijin Masuk Call Center @endsection
+    @section('title') Daftar Ijin Masuk Call Center @endsection
 
 @push('list-ijin-kerja-css')
     <!-- DataTables -->
@@ -102,7 +102,7 @@
                                         @php
                                             $id_ijin_masuk = base64_encode($idx->id);
                                         @endphp
-                                            <a class="btn btn-inline" href="{{ route('viewIjinMasukKbs', $id_ijin_masuk) }}" class="button">Lihat</a>
+                                            <a class="btn btn-inline" href="{{ route('viewIjinMasukCC', $id_ijin_masuk) }}" class="button">Lihat</a>
                                         </td>
                                     </tr>
                                 @endforeach

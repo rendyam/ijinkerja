@@ -34,7 +34,7 @@
 
     <!-- jQuery -->
     <link rel="stylesheet" href="{{ asset('startui/css/lib/jqueryui/jquery-ui.min.css') }}">
-    
+
     <link rel="stylesheet" href="{{ asset('startui/css/separate/pages/widgets.min.css') }}">
     <!-- Styles -->
     <link rel="stylesheet" href="{{ asset('startui/css/main.css') }}">
@@ -180,6 +180,16 @@
             @if(Auth::user()->role_ijinkerja == "KEAMANAN" || Auth::user()->role_ijinkerja == "ADMINKBS")
             <li class="blue">
                 <a href="{{ route('indexIjinMasukKbs') }}">
+                    <span>
+                        <i class="font-icon font-icon-notebook-bird"></i>
+                        <span class="lbl">Ijin Masuk</span>
+                    </span>
+                </a>
+            </li>
+            @endif
+            @if(Auth::user()->role_ijinkerja == "CCKAM")
+            <li class="blue">
+                <a href="{{ route('indexIjinMasukCC') }}">
                     <span>
                         <i class="font-icon font-icon-notebook-bird"></i>
                         <span class="lbl">Ijin Masuk</span>

@@ -269,7 +269,7 @@
                       <table cellspacing="0" cellpadding="0" class="force-full-width">
                         <tr>
                           <td style="border-bottom:1px solid #e3e3e3; font-weight: bold; text-align:left">
-                          
+
                           </td>
                         </tr>
                         <tr>
@@ -304,7 +304,7 @@
                           @php
                               $id_ijin_masuk = base64_encode($id);
                           @endphp
-                          <a href="{{ route('viewIjinMasukKbs', $id_ijin_masuk) }}"
+                          <a href="{{ route('viewIjinMasukCC', $id_ijin_masuk) }}"
                         style="background-color:#f5774e;color:#ffffff;display:inline-block;font-family:'Source Sans Pro', Helvetica, Arial, sans-serif;font-size:18px;font-weight:400;line-height:45px;text-align:center;text-decoration:none;width:180px;-webkit-text-size-adjust:none;">Klik Disini</a>
                           <!--[if mso]>
                         </center>
@@ -321,7 +321,7 @@
                   <td style="background-color:#363636; text-align:center;">
                   <br>
                   <br>
-                    
+
                   <br>
                   <br>
                   </td>

@@ -7,10 +7,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class UpdateIjinMasukKeamanan extends Mailable
+class UpdateFromSeniorSecurity extends Mailable
 {
     use Queueable, SerializesModels;
-
     public $data;
 
     /**
@@ -32,7 +31,7 @@ class UpdateIjinMasukKeamanan extends Mailable
     {
         return $this->from('jangandibalas@ijinkerja.com')
                     ->subject('Update Ijin Masuk PT Krakatau Bandar Samudera - '.$this->data['nomor_ijin_masuk'])
-                    ->view('email.update-ijin-masuk-keamanan')
+                    ->view('email.update-from-senior-security')
                     ->with([
                         'id'                   => $this->data['id'],
                         'nomor_ijin_masuk'     => $this->data['nomor_ijin_masuk'],
@@ -41,8 +40,8 @@ class UpdateIjinMasukKeamanan extends Mailable
                         'perihal'              => $this->data['perihal'],
                         'catatan'              => $this->data['catatan'],
                         'tanggal_submit'       => $this->data['tanggal_submit'],
-                        'call_center_status'   => $this->data['call_center_status'],
-                        'call_center_updated_at' => $this->data['call_center_updated_at'],
+                        'approver_status'      => $this->data['approver_status'],
+                        'approver_updated_at'  => $this->data['approver_updated_at'],
                         'remark'               => $this->data['remark'],
                         'heading'              => $this->data['heading'],
                     ]);

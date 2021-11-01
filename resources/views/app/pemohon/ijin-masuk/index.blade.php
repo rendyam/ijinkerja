@@ -31,7 +31,7 @@
                     </div>
                 </div>
             </div>
-        </header>           
+        </header>
 
         <div class="row">
             <div class="col-md-12">
@@ -43,7 +43,7 @@
                             <div class="alert alert-success" role="alert">
                                 {{ session('status') }}
                             </div>
-                        @endif 
+                        @endif
 
                         <table id="example" class="display table table-bordered table-striped">
                             <thead>
@@ -71,10 +71,10 @@
                                 </tr>
                             </tfoot>
                             <tbody>
-                                
+
                                 @php $i = 1; @endphp
                                 @foreach($index as $idx)
-                                    <tr> 
+                                    <tr>
                                         <td>{{ $i++ }}</td>
                                         <td>{{ $idx->nomor_ijin_masuk }}</td>
                                         <td>{{ $idx->subject }}</td>
@@ -97,6 +97,8 @@
                                                 <span class="label label-pill label-info">{{ $idx->status_name }}</span>
                                             @elseif($idx->status == 8)
                                                 <span class="label label-pill label-success">{{ $idx->status_name }}</span>
+                                            @elseif($idx->status == 12)
+                                                <span class="label label-pill label-info">{{ $idx->status_name }}</span>
                                             @endif
                                         </td>
                                         <td>@if(!is_null($idx->remark)) {{ $idx->remark }} @else - @endif</td>
