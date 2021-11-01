@@ -93,11 +93,11 @@
                         <div class="form-group row">
                             <label class="col-sm-2 form-control-label" for="exampleInput">Perihal</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control maxlength-simple" id="perihal" name="perihal" placeholder="Tuliskan perihal Anda" maxlength="100" required value="{{$data_ijin_masuk->subject}}" @if($data_ijin_masuk->status == 2) disabled @endif >
+                                <input type="text" class="form-control maxlength-simple" id="perihal" name="perihal" placeholder="Tuliskan perihal Anda" maxlength="100" required value="{{$data_ijin_masuk->subject}}" @if($data_ijin_masuk->status >= 2) disabled @endif >
                                 <small class="text-muted">Max karakter 100</small>
                             </div>
 						</div>
-                        
+
                         <div class="form-group row">
                             <label class="col-sm-12 form-control-label">Upload Dokumen Anda
                                 <small class="text-muted">Pastikan untuk mengupload file sesuai kolom tersedia</small>
@@ -108,18 +108,18 @@
                             <input type="hidden" name="doc_type[]" value="{{$docs[$i]->id}}">
                             <br>
                             Dokumen yang diupload:
-                            @php 
+                            @php
                                 $doc = json_decode($data_ijin_masuk->docs);
                             @endphp
 
                             @for($i_doc=0; $i_doc<count($doc[$i]->files); $i_doc++)
                                 <a href="{{ asset('storage/'.$doc[$i]->files[$i_doc]) }}" target="_blank" >
-                                    {{ $doc[$i]->files[$i_doc] }} 
+                                    {{ $doc[$i]->files[$i_doc] }}
                                 </a> <br>
                             @endfor
                             <div class="form-group row">
                                 <div class="col-sm-12">
-                                    <p class="form-control-static"><input type="file" id="file-1" type="file" name="dokumen_pendukung_{{$docs[$i]->id}}[]" multiple class="file" data-msg-placeholder="Format file .jpg, .jpeg, .pdf, .zip" @if($data_ijin_masuk->status == 2) disabled @endif></p>
+                                    <p class="form-control-static"><input type="file" id="file-1" type="file" name="dokumen_pendukung_{{$docs[$i]->id}}[]" multiple class="file" data-msg-placeholder="Format file .jpg, .jpeg, .pdf, .zip" @if($data_ijin_masuk->status >= 2) disabled @endif ></p>
                                 </div>
                             </div>
                         @endfor
@@ -127,11 +127,11 @@
                         <div class="form-group row">
                             <label for="exampleSelect" class="col-sm-2 form-control-label">Catatan</label>
                             <div class="col-sm-10">
-                                <textarea rows="2" name="catatan" class="form-control maxlength-simple" placeholder="Sampaikan catatan Anda" maxlength="500" required @if($data_ijin_masuk->status == 2) disabled @endif>{{$data_ijin_masuk->message}}</textarea>
+                                <textarea rows="2" name="catatan" class="form-control maxlength-simple" placeholder="Sampaikan catatan Anda" maxlength="500" required @if($data_ijin_masuk->status >= 2) disabled @endif >{{$data_ijin_masuk->message}}</textarea>
                                 <small class="text-muted">Max karakter 500</small>
                             </div>
                         </div>
-                    
+
                         <input type="hidden" name="id" value="{{$data_ijin_masuk->id}}">
 
                         <!-- <div id="dokumen_preview"></div> -->

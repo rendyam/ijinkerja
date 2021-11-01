@@ -183,13 +183,13 @@
                   <tr>
                     <td style="font-size:40px; font-weight: 600; color: #ffffff; text-align:center;" class="mobile-spacing">
                     <div class="mobile-br">&nbsp;</div>
-                      {{ $heading }}
+                      Ijin Masuk Baru!
                     <br/>
                     </td>
                   </tr>
                   <tr>
                     <td style="font-size:24px; text-align:center; padding: 0 75px; color: #6f6f6f;" class="w320 mobile-spacing">
-                      Permohonan Ijin Masuk Anda @if($call_center_status == 3) Di-Approve @elseif($call_center_status == 4) Ditolak @endif
+                      Ada permohonan Ijin Masuk yang baru dibuat dan menunggu persetujuan Anda!
                     </td>
                   </tr>
                 </table>
@@ -212,73 +212,54 @@
 
               <center>
                 <table style="margin:0 auto;" cellspacing="0" cellpadding="0" class="force-width-80">
-                  <tr>
-                    @if($call_center_status == 4)
-                    <td style="text-align:left;">
+                    <tr>
+                      <td style="text-align:left;">
+                        <br>
+                        <strong>Nomor Ijin Masuk:</strong><br>
+                          {{ $nomor_ijin_masuk }}
+                      </td>
+                      <td style="text-align:left;">
+                        <br>
+                        <strong>Tanggal:</strong><br>
+                          {{ $tanggal_submit }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="text-align:left;">
+                        <br>
+                        <strong>Pemohon:</strong><br>
+                          {{ $pemohon }}
+                      </td>
+                      <td style="text-align:left;">
+                        <br>
+                        <strong>Nama Perusahaan:</strong><br>
+                          {{ $nama_perusahaan }}
+                      </td>
+                    </tr>
+                      <td style="text-align:right; vertical-align:top;">
                       <br>
-                      <strong>Remark/Catatan dari Pihak Keamanan PT KBS:</strong><br>
-                        {{ $remark }}
-                    </td>
-                    @endif
-                  </tr>
-                  <tr>
-                    <td style="text-align:left;">
+                      <b></b> <br>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="text-align:left;">
+                        <br>
+                        <strong>Perihal:</strong><br>
+                          {{ $perihal }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="text-align:left;">
+                        <br>
+                        <strong>Catatan:</strong><br>
+                          {{ $catatan }}
+                      </td>
+                      <td style="text-align:right; vertical-align:top;">
                       <br>
-                      <strong>Waktu Update:</strong><br>
-                        {{ $call_center_updated_at }}
-                    </td>
-                  </tr>
-                </table>
-
-                <table style="margin:0 auto;" cellspacing="0" cellpadding="0" class="force-width-80">
-                  <tr>
-                    <td style="text-align:left;">
-                      <br>
-                      <strong>Nomor Ijin Masuk:</strong><br>
-                        {{ $nomor_ijin_masuk }}
-                    </td>
-                    <td style="text-align:left;">
-                      <br>
-                      <strong>Tanggal Submit:</strong><br>
-                        {{ $tanggal_submit }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="text-align:left;">
-                      <br>
-                      <strong>Pemohon:</strong><br>
-                        {{ $pemohon }}
-                    </td>
-                    <td style="text-align:left;">
-                      <br>
-                      <strong>Nama Perusahaan:</strong><br>
-                        {{ $nama_perusahaan }}
-                    </td>
-                  </tr>
-                    <td style="text-align:right; vertical-align:top;">
-                    <br>
-                    <b></b> <br>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="text-align:left;">
-                      <br>
-                      <strong>Perihal:</strong><br>
-                        {{ $perihal }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="text-align:left;">
-                      <br>
-                      <strong>Catatan:</strong><br>
-                        {{ $catatan }}
-                    </td>
-                    <td style="text-align:right; vertical-align:top;">
-                    <br>
-                    <b></b> <br>
-                    </td>
-                  </tr>
-                </table>
+                      <b></b> <br>
+                      </td>
+                    </tr>
+                  </table>
 
                 <table style="margin:0 auto;" cellspacing="0" cellpadding="0" class="force-width-80">
                   <tr>
@@ -288,7 +269,7 @@
                       <table cellspacing="0" cellpadding="0" class="force-full-width">
                         <tr>
                           <td style="border-bottom:1px solid #e3e3e3; font-weight: bold; text-align:left">
-
+                          
                           </td>
                         </tr>
                         <tr>
@@ -305,7 +286,7 @@
                   <tr>
                     <td style="text-align: left;">
                     <br>
-                      Klik tombol di bawah ini untuk dapat memeriksa ijin masuk yang telah diupdate oleh pihak Keamanan PT Krakatau Bandar Samudera
+                      Klik tombol di bawah ini untuk dapat memeriksa dokumen pendukung yang telah diupload Pemohon
                     </td>
                   </tr>
                 </table>
@@ -323,7 +304,7 @@
                           @php
                               $id_ijin_masuk = base64_encode($id);
                           @endphp
-                          <a href="{{ route('viewIjinMasuk', $id_ijin_masuk) }}"
+                          <a href="{{ route('viewIjinMasukKbs', $id_ijin_masuk) }}"
                         style="background-color:#f5774e;color:#ffffff;display:inline-block;font-family:'Source Sans Pro', Helvetica, Arial, sans-serif;font-size:18px;font-weight:400;line-height:45px;text-align:center;text-decoration:none;width:180px;-webkit-text-size-adjust:none;">Klik Disini</a>
                           <!--[if mso]>
                         </center>
@@ -340,7 +321,7 @@
                   <td style="background-color:#363636; text-align:center;">
                   <br>
                   <br>
-
+                    
                   <br>
                   <br>
                   </td>

@@ -112,12 +112,12 @@ class IjinKerjaAdminController extends Controller
 
         return view('app.admin.create', compact(
                 [
-                    'collect_ijin', 
-                    'risks', 
-                    'dangers', 
-                    'documents', 
-                    'safety_equipments', 
-                    'closing_work_permits', 
+                    'collect_ijin',
+                    'risks',
+                    'dangers',
+                    'documents',
+                    'safety_equipments',
+                    'closing_work_permits',
                     'id',
                     'no_po',
                     'perusahaan',
@@ -485,7 +485,7 @@ class IjinKerjaAdminController extends Controller
         $compare_dokumen = array_intersect($document_name_array, json_decode($ijin_kerja->list_dokumen)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
         $get_dokumen_lainnya = array_diff(json_decode($ijin_kerja->list_dokumen), $compare_dokumen);
         $get_dokumen_lainnya = (array_values($get_dokumen_lainnya));
-        
+
         // dd($get_kadis);
         // $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $approval[0]->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $approval[0]->name . ' (pada tgl ' . $approval[0]->created_at . ') sebagai Pemohon, ' . $approval[1]->name . ' sebagai Safety Officer (ttd. tgl ' . $approval[1]->created_at . ') dan Bapak ' . $approval[2]->name . ' sebagai Kadis K3LH (ttd. tgl ' . $approval[2]->created_at . ')'));
         $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $get_pemohon->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $get_pemohon->name . ' (pada tgl ' . $get_pemohon->created_at . ') sebagai Pemohon, ' . $get_safety_officer->name . ' sebagai Safety Officer (ttd. tgl ' . $get_safety_officer->created_at . ') dan Bapak ' . $get_kadis->name . ' sebagai Kadis K3LH (ttd. tgl ' . $get_kadis->created_at . ')'));

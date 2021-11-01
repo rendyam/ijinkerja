@@ -22,6 +22,8 @@ use App\Mail\PersetujuanSafetyOfficer;
 use App\Mail\PersetujuanKadisK3LH;
 use App\Mail\PenerbitanIjinKerja;
 use App\Mail\UpdateIjinMasukKeamanan;
+use App\Mail\SendToSeniorSecurity;
+use App\Mail\UpdateFromSeniorSecurity;
 
 use Illuminate\Support\Facades\Mail;
 
@@ -91,7 +93,7 @@ class IjinKerjaAdminController extends Controller
                         ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
                         ->where('wp.id', $id)
                         ->get();
-        
+
         $risks = \App\Risk::all();
 
         $dangers = \App\Danger::all();
@@ -128,7 +130,7 @@ class IjinKerjaAdminController extends Controller
             }
             $new_upload_dokumen->dokumen_pendukung = json_encode($names);
         }
-        
+
         $new_upload_dokumen->save();
 
         $pemohon = \App\User::where('id', $this->user_id)->get()->all();
@@ -137,12 +139,12 @@ class IjinKerjaAdminController extends Controller
         $data['perihal'] = $new_upload_dokumen->perihal;
         $data['created_at'] = $new_upload_dokumen->created_at;
         $data['pemohon'] = $pemohon[0]->name;
-        
+
         $safety_officer_email = \App\User::select('email')->where('roles', '["ADMIN"]')->where('status', 'ACTIVE')->get();
         foreach($safety_officer_email as $emails){
             $get_emails[] = $emails->email;
         }
-        
+
         Mail::to($get_emails)->send(new EmailUploadDokumen($data));
 
         return redirect()->route('indexPemohon')->with('status', 'Dokumen Pendukung berhasil diupload');
@@ -166,7 +168,7 @@ class IjinKerjaAdminController extends Controller
         }
 
         $update_uploaded_dok->save();
-        
+
         $data_update['id'] = $id;
         $data_update['perihal'] = $update_uploaded_dok->perihal;
         $data_update['pemohon'] = $this->name;
@@ -195,7 +197,7 @@ class IjinKerjaAdminController extends Controller
 
         $send_ijin_kerja->kategori = $request->kategori_ijin_kerja;
         $send_ijin_kerja->jenis_resiko = json_encode($request->get('risks'));
-        
+
         $izin_diberikan_kepada = (object) ['no_po' => $request->no_po, 'perusahaan' => $request->perusahaan, 'no_hp' => $request->no_hp, 'pic_pemohon' => $request->pic_pemohon];
         $send_ijin_kerja->izin_diberikan_kepada = json_encode($izin_diberikan_kepada);
 
@@ -305,7 +307,7 @@ class IjinKerjaAdminController extends Controller
                             ->where('status', 8)
                             ->get();
         $nomor_surat = (int)count($get_ijin_kerja_no) + 1;
-        
+
         if($nomor_surat != null || $nomor_surat > 0){
             $nomor_surat_formatted = str_pad($nomor_surat, 2, "0", STR_PAD_LEFT);
             // dd($nomor_surat_formatted);
@@ -321,11 +323,11 @@ class IjinKerjaAdminController extends Controller
         $publish_ijin_kerja->save();
 
         // $email_pemohon_safety_officer = $this->getSafetyOfficerEmail(); //awalnya safety officer dulu
-        $pemohon_email = $this->getEmailPemohon($id); 
+        $pemohon_email = $this->getEmailPemohon($id);
         // array_push($email_pemohon_safety_officer, $pemohon); //baru ditambahin jadi dengan pemohon juga
         $pemohon = \App\User::where('id', $publish_ijin_kerja->pic_pemohon)->get()->all();
         $safety_officer = \App\Admin::where('id', $publish_ijin_kerja->pic_safety_officer)->get()->all();
-        
+
         $data_publish_kerja['id'] = $id;
         $data_publish_kerja['perihal'] = $publish_ijin_kerja->perihal;
         $data_publish_kerja['nomor_lik'] = $publish_ijin_kerja->nomor_lik;
@@ -383,9 +385,9 @@ class IjinKerjaAdminController extends Controller
                     ->orderBy('a.created_at')
                     ->get();
         // dd($approval);
-        
+
         $ijin_kerja = IjinKerja::findOrFail($id);
-        
+
         $risks = \App\Risk::get();
         foreach($risks as $risk){
             $risk_name_array[] = $risk->name;
@@ -393,7 +395,7 @@ class IjinKerjaAdminController extends Controller
         $compare_risk = array_intersect($risk_name_array, json_decode($ijin_kerja->jenis_resiko)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
         $get_risk_lainnya = array_diff(json_decode($ijin_kerja->jenis_resiko), $compare_risk);
         $get_risk_lainnya = (array_values($get_risk_lainnya));
-        
+
         $dangers = \App\Danger::all();
         foreach($dangers as $danger){
             $dangers_name_array[] = $danger->name;
@@ -417,7 +419,7 @@ class IjinKerjaAdminController extends Controller
         $compare_dokumen = array_intersect($document_name_array, json_decode($ijin_kerja->list_dokumen)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
         $get_dokumen_lainnya = array_diff(json_decode($ijin_kerja->list_dokumen), $compare_dokumen);
         $get_dokumen_lainnya = (array_values($get_dokumen_lainnya));
-        
+
         $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor '. $approval[0]->nomor_lik .' telah ditandatangani oleh Bapak/Ibu '. $approval[0]->name . ' (pada tgl '. $approval[0]->created_at .') sebagai Pemohon, '. $approval[1]->name . ' sebagai Safety Officer (ttd. tgl '. $approval[1]->created_at .') dan Bapak ' . $approval[2]->name . ' sebagai Kadis K3LH (ttd. tgl '. $approval[2]->created_at .')'));
         // dd($qrcode);
 
@@ -505,7 +507,7 @@ class IjinKerjaAdminController extends Controller
     }
 
     public function updateVendor(Request $request, $id){
-        
+
     }
 
     // Tipe Vendor
@@ -514,40 +516,40 @@ class IjinKerjaAdminController extends Controller
     }
 
     public function createTipeVendor(){
-        
+
     }
 
     public function editTipeVendor($id){
-        
+
     }
 
     public function updateTipeVendor(Request $request, $id){
-        
+
     }
 
     public function deleteTipeVendor($id){
-        
+
     }
 
     // Tipe Dokumen
     public function indexTipeDokumen(){
-        
+
     }
 
     public function createTipeDokumen(){
-        
+
     }
 
     public function editTipeDokumen(){
-        
+
     }
 
     public function updateTipeDokumen(Request $request, $id){
-        
+
     }
 
     public function deleteTipeDokumen($id){
-        
+
     }
 
     // Ijin Masuk
@@ -555,11 +557,24 @@ class IjinKerjaAdminController extends Controller
         $index = DB::table('entry_permits as ep')
                 ->select('ep.id', 'ep.number', 'ep.subject', 'ep.created_at', 'ep.status', 'wps.name as status_name', 'ep.remark')
                 ->join('work_permit_status as wps', 'wps.id', '=', 'ep.status')
-                ->where('ep.status', '>', 1)
+                ->where('ep.status', 3)
+                ->orWhere('ep.status', 4)
+                ->orWhere('ep.status', 12)
                 ->orderBy('created_at', 'desc')
                 ->get();
 
         return view('app.kbs.ijin-masuk.index', compact('index'));
+    }
+
+    public function indexIjinMasukCC(){
+        $index = DB::table('entry_permits as ep')
+                ->select('ep.id', 'ep.number', 'ep.subject', 'ep.created_at', 'ep.status', 'wps.name as status_name', 'ep.remark')
+                ->join('work_permit_status as wps', 'wps.id', '=', 'ep.status')
+                ->where('ep.status', '>', 1)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+        return view('app.kbs.ijin-masuk.index-call-center', compact('index'));
     }
 
     public function viewIjinMasukKbs($id_ijin_masuk){
@@ -573,26 +588,36 @@ class IjinKerjaAdminController extends Controller
         return view('app.kbs.ijin-masuk.view', compact('data_ijin_masuk', 'docs'));
     }
 
+    public function viewIjinMasukCC($id_ijin_masuk){
+        $id = base64_decode($id_ijin_masuk);
+        $data_ijin_masuk = \App\EntryPermit::findOrFail($id);
+        // $get_user_type = \App\User::findOrFail($data_ijin_masuk->user_id);
+
+        // dd($get_user_type->user_type);
+        $docs = $this->getDocs($data_ijin_masuk->role);
+
+        return view('app.kbs.ijin-masuk.view-call-center', compact('data_ijin_masuk', 'docs'));
+    }
+
     public function updateIjinMasukKbs(Request $request){
         $get_ijin_masuk_to_update = \App\EntryPermit::findOrFail($request->get('id'));
         // dd($request->get('submit'), $get_ijin_masuk_to_update);
 
         $get_ijin_masuk_to_update['approver'] = Auth::user()->id;
-        $get_ijin_masuk_to_update['approver_updated_at'] = date('Y-m-d H:m:s');
+        $get_ijin_masuk_to_update['approver_updated_at'] = date('Y-m-d H:i:s');
 
         if($request->get('submit') == 'tolak'){
             $get_ijin_masuk_to_update['status'] = 4;
             $get_ijin_masuk_to_update['approver_status'] = 4;
+            $get_ijin_masuk_to_update['remark'] = $request->get('remark');
         }
         if($request->get('submit') == 'approve'){
             $get_ijin_masuk_to_update['status'] = 3;
             $get_ijin_masuk_to_update['approver_status'] = 3;
         }
 
-        $get_ijin_masuk_to_update['remark'] = $request->get('remark');
-
         $get_ijin_masuk_to_update->save();
-        
+
         $pemohon = \App\User::where('id', $get_ijin_masuk_to_update->user_id)->get()->all();
 
         $send_email_data['id']                  = $get_ijin_masuk_to_update->id;
@@ -608,20 +633,76 @@ class IjinKerjaAdminController extends Controller
 
         if($request->get('submit') == 'tolak'){
             $send_email_data['heading'] = "Ditolak";
-            Mail::to($pemohon[0]->email)->send(new UpdateIjinMasukKeamanan($send_email_data));
+            Mail::to($pemohon[0]->email)->send(new UpdateFromSeniorSecurity($send_email_data));
 
             return redirect()->route('indexIjinMasukKbs')->with('status', 'Ijin Masuk dengan nomor ' . $get_ijin_masuk_to_update->number . ' berhasil ditolak');
         }
         if($request->get('submit') == 'approve'){
             $send_email_data['heading'] = "Approved";
-            Mail::to($pemohon[0]->email)->send(new UpdateIjinMasukKeamanan($send_email_data));
+            Mail::to($pemohon[0]->email)->send(new UpdateFromSeniorSecurity($send_email_data));
 
             return redirect()->route('indexIjinMasukKbs')->with('status', 'Ijin Masuk dengan nomor ' . $get_ijin_masuk_to_update->number . ' berhasil diapprove');
         }
     }
 
+    public function updateIjinMasukCC(Request $request){
+        $get_ijin_masuk_to_update = \App\EntryPermit::findOrFail($request->get('id'));
+        // dd($request->get('submit'), $get_ijin_masuk_to_update);
+
+        $get_ijin_masuk_to_update['call_center_user_id'] = Auth::user()->id;
+        $get_ijin_masuk_to_update['call_center_updated_at'] = \Carbon\Carbon::now()->format('Y-m-d H:i:s');
+
+        if($request->get('submit') == 'tolak'){
+            $get_ijin_masuk_to_update['status'] = 4;
+            $get_ijin_masuk_to_update['call_center_status'] = 4;
+            $get_ijin_masuk_to_update['remark'] = $request->get('remark');
+        }
+        if($request->get('submit') == 'approve'){
+            $get_ijin_masuk_to_update['status'] = 12;
+            $get_ijin_masuk_to_update['call_center_status'] = 12;
+        }
+
+        $get_ijin_masuk_to_update->save();
+
+        $pemohon = \App\User::where('id', $get_ijin_masuk_to_update->user_id)->get()->all();
+
+        $send_email_data['id']                  = $get_ijin_masuk_to_update->id;
+        $send_email_data['nomor_ijin_masuk']    = $get_ijin_masuk_to_update->number;
+        $send_email_data['pemohon']             = $pemohon[0]->name;
+        $send_email_data['nama_perusahaan']     = $pemohon[0]->nama_perusahaan;
+        $send_email_data['perihal']             = $get_ijin_masuk_to_update->subject;
+        $send_email_data['catatan']             = $get_ijin_masuk_to_update->message;
+        $send_email_data['tanggal_submit']      = $get_ijin_masuk_to_update->created_at;
+        $send_email_data['call_center_status']  = $get_ijin_masuk_to_update->call_center_status;
+        $send_email_data['call_center_updated_at'] = $get_ijin_masuk_to_update->call_center_updated_at;
+        $send_email_data['remark']              = $get_ijin_masuk_to_update->remark;
+
+        if($request->get('submit') == 'tolak'){
+            $send_email_data['heading'] = "Ditolak";
+            Mail::to($pemohon[0]->email)->send(new UpdateIjinMasukKeamanan($send_email_data));
+
+            return redirect()->route('indexIjinMasukCC')->with('status', 'Ijin Masuk dengan nomor ' . $get_ijin_masuk_to_update->number . ' berhasil ditolak');
+        }
+
+        if($request->get('submit') == 'approve'){
+            $get_email_keamanan = DB::table('db_efile.users')
+                                    ->select('email')
+                                    ->where('role_ijinkerja', 'KEAMANAN')
+                                    ->get();
+
+            foreach ($get_email_keamanan as $emails) {
+                $get_emails[] = $emails->email;
+            }
+
+            $send_email_data['heading'] = "Approved";
+            Mail::to($get_emails)->send(new SendToSeniorSecurity($send_email_data));
+
+            return redirect()->route('indexIjinMasukCC')->with('status', 'Ijin Masuk dengan nomor ' . $get_ijin_masuk_to_update->number . ' berhasil diapprove');
+        }
+    }
+
     public function rejectIjinMasukKbs(){
-        
+
     }
 
     function getDocs($user_type){
@@ -630,7 +711,7 @@ class IjinKerjaAdminController extends Controller
                 ->join('entry_permit_docs as epd', 'epd.id', '=', 'ud.entry_permit_doc_id')
                 ->where('ud.user_type_id', $user_type)
                 ->get();
-        
+
         return $data;
     }
 
@@ -642,7 +723,7 @@ class IjinKerjaAdminController extends Controller
         }
         return ($get_emails);
     }
-    
+
     function getKadisEmail()
     {
         $kadis_email = \App\User::select('email')->where('roles', '["KADISK3LH"]')->where('status', 'ACTIVE')->get();
@@ -665,7 +746,7 @@ class IjinKerjaAdminController extends Controller
     function KonDecRomawi($angka)
     {
         $hsl = "";
-        if ($angka < 1 || $angka > 5000) { 
+        if ($angka < 1 || $angka > 5000) {
             // Statement di atas buat nentuin angka ngga boleh dibawah 1 atau di atas 5000
             $hsl = "Batas Angka 1 s/d 5000";
         } else {
@@ -673,7 +754,7 @@ class IjinKerjaAdminController extends Controller
                 // While itu termasuk kedalam statement perulangan
                 // Jadi misal variable angka lebih dari sama dengan 1000
                 // Kondisi ini akan di jalankan
-                $hsl .= "M"; 
+                $hsl .= "M";
                 // jadi pas di jalanin , kondisi ini akan menambahkan M ke dalam
                 // Varible hsl
                 $angka -= 1000;
@@ -733,7 +814,7 @@ class IjinKerjaAdminController extends Controller
         }
         while ($angka >= 1) {
             if ($angka == 4) {
-                $hsl .= "IV"; 
+                $hsl .= "IV";
                 $angka -= 4;
             } else {
                 $hsl .= "I";
