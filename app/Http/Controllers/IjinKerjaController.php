@@ -145,7 +145,7 @@ class IjinKerjaController extends Controller
 
         if ($request->hasfile('dokumen_pendukung')) {
             $names = [];
-            dd($request->file('dokumen_pendukung'));
+            // dd($request->file('dokumen_pendukung'));
             foreach ($request->file('dokumen_pendukung') as $doc) {
                 $move = $doc->store('dokumen_pendukung', 'public');
                 $filename = $move;
