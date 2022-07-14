@@ -50,6 +50,7 @@
                         <thead>
                             <tr>
                                 <th>No.</th>
+                                <th>No LIK</th>
                                 <th>Tanggal Pengajuan</th>
                                 <th>Perihal</th>
                                 <th>Perusahaan</th>
@@ -61,6 +62,7 @@
                         <tfoot>
                             <tr>
                                 <th>No.</th>
+                                <th>No LIK</th>
                                 <th>Tanggal Upload</th>
                                 <th>Perihal</th>
                                 <th>Perusahaan</th>
@@ -74,6 +76,7 @@
                             @foreach($list_ijin_admin as $ijin)
                             <tr>
                                 <td>{{ $i++ }}</td>
+                                <td>{{ $ijin->nomor_lik ? $ijin->nomor_lik : '-' }}</td>
                                 <td>{{ $ijin->created_at }}</td>
                                 @if($ijin->perihal == null)
                                 <td>-</td>

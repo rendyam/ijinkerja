@@ -52,7 +52,7 @@ class IjinKerjaAdminController extends Controller
     public function index()
     {
         $list_ijin_admin = DB::table('work_permits as wp')
-            ->select('wp.id', 'wp.created_at', 'wp.perihal', 'u.name as nama_pemohon', 'wps.name as status_ijin_kerja', 'wp.status', 'u.nama_perusahaan')
+            ->select('wp.id', 'wp.nomor_lik' , 'wp.created_at', 'wp.perihal', 'u.name as nama_pemohon', 'wps.name as status_ijin_kerja', 'wp.status', 'u.nama_perusahaan')
             ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
             ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
             ->orderBy('wp.created_at', 'desc')
