@@ -26,7 +26,7 @@ class LoginController extends Controller
      *
      * @return void
      */
-    use AuthenticatesUsers;
+    // use AuthenticatesUsers;
 
     public function __construct()
     {
@@ -62,12 +62,14 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
-        // Auth::guard('kbs')->logout();
+        Auth::guard('kbs')->logout();
         // // return redirect('kbs.login');
         // // return redirect()->intended(route('logoutKbs'));
         // return view('auth-kbs.login');
+        // dd($request);
 
-        $this->guard()->logout();
+
+        // $this->guard()->logout();
  
         $request->session()->flush();
  

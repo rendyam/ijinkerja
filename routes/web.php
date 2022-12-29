@@ -30,7 +30,7 @@ Route::group(['prefix' => 'admin'], function () {
     Route::get('/login', 'AuthAdmin\LoginController@showLoginForm')->name('admin.login');
     Route::post('/login', 'AuthAdmin\LoginController@login')->name('admin.login.submit');
     Route::get('/ijin-kerja', 'Admin\IjinKerjaAdminController@index')->name('indexIjinKerjaAdmin');
-    Route::get('/logout', 'AuthAdmin\LoginController@logoutAdmin')->name('logout');
+    Route::post('/logout', 'AuthAdmin\LoginController@logout')->name('logoutAdmin');
 
     Route::group(["prefix" => "/ijin-kerja"], function () {
         Route::get('/lihat/{id}', 'Admin\IjinKerjaAdminController@showIjinKerjaDiajukan')->name('showIjinKerjaDiajukanAdmin');
@@ -64,7 +64,7 @@ Route::get('/lihat/{id}', 'IjinKerjaController@showIjinKerjaPemohon')->name('sho
 Route::post('/update-uploaded/{id}', 'IjinKerjaController@updateUploadedDok')->name('updateUploadedDok');
 Route::post('/send-to-so/{id}', 'IjinKerjaController@sendToSo')->name('sendToSo'); //kirim Ijin Kerja untuk ditandatangan Safety Officer
 Route::get('/download-ijin-kerja/{id}', 'IjinKerjaController@download')->name('downloadIjinKerja');
-Route::get('/logout', 'Auth\LoginController@logoutUser')->name('logout');
+Route::post('/logout', 'Auth\LoginController@logoutUser')->name('logoutUser');
 
 // Ijin Masuk Controllers untuk vendor
 Route::group(['prefix' => 'ijinmasuk'], function () {
@@ -124,5 +124,5 @@ Route::group(['prefix' => 'kbs'], function () {
         });
     });
 
-    Route::get('/logout', 'AuthKbs\LoginController@logout')->name('logoutKbs');
+    Route::post('/logout', 'AuthKbs\LoginController@logout')->name('logoutKbs');
 });

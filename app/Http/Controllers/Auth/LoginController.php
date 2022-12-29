@@ -21,7 +21,7 @@ class LoginController extends Controller
     |
     */
 
-    use AuthenticatesUsers;
+    // use AuthenticatesUsers;
 
     /**
      * Where to redirect users after login.
@@ -69,6 +69,7 @@ class LoginController extends Controller
 
     public function logoutUser()
     {
+        // dd($request);
         Auth::guard('web')->logout();
         return redirect('/login');
     }

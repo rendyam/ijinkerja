@@ -110,14 +110,14 @@
                 </a>
             </li>
             <li class="red">
-                <a href="{{ route('logout') }}" onclick="event.preventDefault();
+                <a href="{{ route('logoutAdmin') }}" onclick="event.preventDefault();
                                         document.getElementById('logout-form').submit();">
                     <span class="lbl">
                         <i class="font-icon fa fa-sign-out"></i>
                         {{ __('Logout') }}
                     </span>
                 </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                <form id="logout-form" action="{{ route('logoutAdmin') }}" method="POST" style="display: none;">
                     @csrf
                 </form>
             </li>
@@ -147,14 +147,14 @@
                 </a>
             </li>
             <li class="red">
-                <a href="{{ route('logout') }}" onclick="event.preventDefault();
+                <a href="{{ route('logoutUser') }}" onclick="event.preventDefault();
                                         document.getElementById('logout-form').submit();">
                     <span class="lbl">
                         <i class="font-icon fa fa-sign-out"></i>
                         {{ __('Logout') }}
                     </span>
                 </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                <form id="logout-form" action="{{ route('logoutUser') }}" method="POST" style="display: none;">
                     @csrf
                 </form>
             </li>
@@ -236,7 +236,7 @@
                         {{ __('Logout') }}
                     </span>
                 </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                <form id="logout-form" action="{{ route('logoutKbs') }}" method="POST" style="display: none;">
                     @csrf
                 </form>
             </li>

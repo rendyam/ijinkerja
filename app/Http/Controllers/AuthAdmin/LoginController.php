@@ -57,9 +57,16 @@ class LoginController extends Controller
         return redirect()->back()->withInput($request->only('email', 'remember'));
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         Auth::guard('admin')->logout();
-        return redirect('admin.login');
+
+        $request->session()->flush();
+ 
+        $request->session()->regenerate();
+ 
+        return redirect()->route('admin.login')->withSuccess('Terimakasih, selamat datang kembali!');
+
+        // return redirect('admin.login');
     }
 }
