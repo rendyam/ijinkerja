@@ -139,7 +139,7 @@
                     <div class="form-group row">
                         <div class="col-sm-12">
                             <div class="pull-right">
-                                <a class="btn btn-inline" href="{{ route('downloadIjinKerja', $id) }}" class="button">Unduh</a>
+                                <a class="btn btn-inline" href="{{ route('downloadIjinKerja', $id) }}" class="button">Cetak Form</a>
                                 <!-- <button class="btn btn-inline btn-success swal-btn-submit">Upload File</button> -->
                             </div>
                         </div>

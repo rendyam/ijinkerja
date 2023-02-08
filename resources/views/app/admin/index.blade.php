@@ -104,7 +104,7 @@
                                     <!-- <button type="button" class="btn btn-inline">Lihat</button> -->
                                     <a class="btn btn-inline" href="{{ route('showIjinKerjaDiajukanAdmin', $ijin->id) }}" class="button">Lihat</a>
                                     @if($ijin->status == 8)
-                                    <a class="btn btn-inline" href="{{ route('downloadIjinKerjaAdmin', $ijin->id) }}" class="button">Unduh</a>
+                                    <a class="btn btn-inline" href="{{ route('downloadIjinKerjaAdmin', $ijin->id) }}" class="button">Cetak Form</a>
                                     @endif
                                 </td>
                             </tr>

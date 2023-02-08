@@ -101,7 +101,7 @@
                                         <td>
                                             <a class="btn btn-inline" href="{{ route('showIjinKerjaPemohon', $ijin->id_ijin_kerja) }}" class="button">Lihat</a>
                                             @if($ijin->status == 8)
-                                            <a class="btn btn-inline" href="{{ route('downloadIjinKerja', $ijin->id_ijin_kerja) }}" class="button">Unduh</a>
+                                            <a class="btn btn-inline" href="{{ route('downloadIjinKerja', $ijin->id_ijin_kerja) }}" class="button">Cetak Form</a>
                                             @endif
                                         </td>
                                     </tr>
