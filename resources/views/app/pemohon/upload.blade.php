@@ -45,9 +45,16 @@
         padding: 5px;
     }
 </style>
+<link rel="stylesheet" href="{{ asset('startui/css/separate/vendor/select2.min.css') }}">
 <link rel="stylesheet" href=" {{ asset('startui/css/lib/bootstrap-sweetalert/sweetalert.css') }} ">
 <link rel="stylesheet" href="{{ asset('startui/css/separate/vendor/sweet-alert-animations.min.css') }}">
 <link href="{{asset('plugins/bootstrap-fileinput-master/css/fileinput.css')}}" media="all" rel="stylesheet" type="text/css" />
+
+<!-- start 10 Mei 2023-->
+<link rel="stylesheet" href="{{ asset('startui/css/lib/ladda-button/ladda-themeless.min.css') }}">
+<link rel="stylesheet" href="{{ asset('startui/css/separate/vendor/context_menu.min.css') }}">
+<link rel="stylesheet" href="{{ asset('startui/css/separate/vendor/blockui.min.css') }}">
+<!-- end 10 Mei 2023-->
 
 @endpush
 
@@ -87,7 +94,7 @@
                     </div>
                     @endif
 
-                    <form action=" {{ route('uploadingDokumen') }} " method="POST" enctype="multipart/form-data">
+                    <form action=" {{ route('uploadingDokumen') }} " method="POST" enctype="multipart/form-data" onsubmit="return uploadDokumen();">
                         @csrf
                         <div class="form-group row">
                             <label class="col-sm-2 form-control-label">Perihal</label>
@@ -128,18 +135,36 @@
                         </div>
 
                         <div class="form-group row">
+                            <label class="col-sm-2 form-control-label">Kategori</label>
+                            <div class="col-sm-6">
+                                <fieldset class="form-group">
+                                    <select class="select2" name="kategori_vendor" id="kategori_vendor">
+                                        <option selected disabled>Pilih</option>
+                                        @foreach($data['kategori_vendor'] as $data)   
+                                        <option value="{{$data->id}}" {{$data->id == old('kategori_vendor') ? 'selected' : ''}}>
+                                            {{$data->vendor_category_name}}
+                                        </option>
+                                        @endforeach          
+                                    </select>
+                                </fieldset>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
                             <label class="col-sm-12 form-control-label">Dokumen Pendukung
                                 <div class="subtitle">
-                                    JSA/HIRA, Sertifikat Peralatan A2B dan SIO Operator, PO/PPJ/KONTRAK/Memo Dinas, Daftar Peralatan, Daftar Pekerja dan lainnya.
+                                    Silakan upload dokumen di bawah ini berdasarkan kategori yang dipilih
                                 </div>
                             </label>
                         </div>
 
                         <div class="form-group row">
-                            <div class="col-sm-12">
-                                <p class="form-control-static"><input type="file" id="file-1" type="file" name="dokumen_pendukung[]" multiple class="file" data-msg-placeholder="Format file .jpg, .jpeg, .pdf, .zip"></p>
+                            <div id="just-info">
+                                <label class="col-sm-12 form-control-label">Form dokumen akan tampil setelah kategori dipilih</label>
                             </div>
                         </div>
+
+                        <div id="docs"></div>
 
                         <input type="hidden" name="id" value="{{ $data['id'] }}">
                         <input type="hidden" name="role" value=" {{ Auth::user()->roles }} ">
@@ -149,7 +174,8 @@
                         <div class="form-group row">
                             <div class="col-sm-12">
                                 <div class="pull-right">
-                                    <input type="submit" class="btn btn-success swal-btn-submit" name="submitDokumen" value="Upload File">
+                                    <!-- <input type="submit" class="btn btn-success swal-btn-submit" name="submitDokumen" value="Upload File"> -->
+                                    <input type="submit" class="btn btn-success" name="submitDokumen" value="Upload File">
                                 </div>
                             </div>
                         </div>
@@ -173,6 +199,16 @@
 <script src="{{asset('plugins/theme.js')}}" type="text/javascript"></script>
 <script src="{{asset('plugins/popper.min.js')}}" type="text/javascript"></script>
 <script src="{{asset('plugins/bootstrap.min.js')}}" type="text/javascript"></script>
+<script type="text/javascript" src="{{ asset('startui/js/lib/select2/select2.full.min.js') }}"></script>
+
+<!-- start 10 Mei 2023, tambah block ui disetiap submit -->
+<script src="{{ asset('startui/js/lib/ladda-button/spin.min.js') }}"></script>
+  <script src="{{ asset('startui/js/lib/ladda-button/ladda.min.js') }}"></script>
+  <script src="{{ asset('startui/js/lib/ladda-button/ladda-button-init.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('startui/js/lib/jquery-contextmenu/jquery.contextMenu.min.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('startui/js/lib/jquery-contextmenu/jquery.ui.position.min.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('startui/js/lib/blockUI/jquery.blockUI.js') }}"></script>
+  <!-- end 10 Mei 2023, tambah block ui disetiap submit -->
 
 <script>
     $("#file-1").fileinput({
@@ -189,18 +225,76 @@
         dropZoneEnabled: false,
     });
 
+    $('#kategori_vendor').on('change', function() {
+        $('#docs').html('Mohon tunggu...');
+
+        let route_name = '{{ route("getDocuments") }}';
+        let id_vendor_category = this.value;
+
+        request = $.ajax({
+                    url: route_name,
+                    type: "get",
+                    data: {
+                        id_vendor_category:id_vendor_category
+                    },
+                    dataType: "json",
+                });
+
+        request.done(function (response, textStatus, jqXHR){
+            $('#docs').html('');
+            $('#just-info').remove();
+            $('#docs').append(response);
+        });
+
+        // Callback handler that will be called on failure
+        request.fail(function (jqXHR, textStatus, errorThrown){
+            // Log the error to the console
+            console.error(textStatus)
+            console.error(errorThrown)
+            alert(
+                "The following error occurred: " +
+                textStatus, errorThrown
+            );
+        });
+
+
+        // $('#just-info').remove();
+
+    });
+
+    function uploadDokumen(){
+      if (confirm('Anda yakin ingin mengupload?')) {
+          $.blockUI({
+              overlayCSS: {
+                  background: 'rgba(142, 159, 167, 0.3)',
+                  opacity: 1,
+                  cursor: 'wait'
+              },
+              css: {
+                  width: 'auto',
+                  top: '45%',
+                  left: '45%'
+              },
+              message: '<div class="blockui-default-message">Mohon tunggu...</div>',
+              blockMsgClass: 'block-msg-message-loader'
+          });
+      } else {
+          return false
+      }
+    }
+
     $('.swal-btn-submit').click(function(e) {
         e.preventDefault();
-        var input = document.getElementById('file-1');
+        // var input = document.getElementById('file-1');
         // console.log(input.files.length);
 
-        if (input.files.length === 0) {
-            swal({
-                title: "Anda belum memilih file dokumen pendukung!",
-                type: "warning",
-                confirmButtonText: "Baik, saya pilih terlebih dahulu"
-            });
-        } else {
+        // if (input.files.length === 0) {
+        //     swal({
+        //         title: "Anda belum memilih file dokumen pendukung!",
+        //         type: "warning",
+        //         confirmButtonText: "Baik, saya pilih terlebih dahulu"
+        //     });
+        // } else {
             var form = $(this).parents('form')
 
             swal({
@@ -232,7 +326,7 @@
                     }
 
                 })
-        }
+        // }
     })
 
     // if (window.File && window.FileList && window.FileReader) {

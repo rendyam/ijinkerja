@@ -26,7 +26,7 @@
                             Di bawah ini adalah daftar ijin kerja yang sudah diajukan dan/atau yang sudah diterbitkan oleh pihak K3LH PT Krakatau Bandar Samudera
                         </div>
                         <div class="pull-right">
-                            <a class="btn btn-success" href=" {{ route('uploadDokumenPendukung') }} ">Buat Ijin Kerja</a>
+                            <a class="btn btn-success" href=" {{ route('safetyInduction') }} ">Buat Ijin Kerja</a>
                         </div>
                     </div>
                 </div>

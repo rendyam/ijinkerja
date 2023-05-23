@@ -271,12 +271,13 @@
     <script type="text/javascript" src="{{ asset('startui/js/lib/jqueryui/jquery-ui.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('startui/js/lib/lobipanel/lobipanel.min.js') }}"></script>
 
+    <script src="{{ asset('startui/js/app.js') }}"></script>
+    
     <!-- OPTIONAL SCRIPTS -->
     @stack('create-ijin-masuk-js')
     @stack('list-ijin-kerja-js')
     @stack('upload-js')
     @stack('lihat-dokumen-diajukan-js')
-    <script src="{{ asset('startui/js/app.js') }}"></script>
 
 </body>
 

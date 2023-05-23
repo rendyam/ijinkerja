@@ -59,11 +59,14 @@ Route::group(['auth' => ['web']], function () {
 
 Route::get('/index', 'IjinKerjaController@indexPemohon')->name('indexPemohon');
 Route::get('/upload', 'IjinKerjaController@uploadDokumenPendukung')->name('uploadDokumenPendukung');
+Route::get('/get-documents', 'IjinKerjaController@getDocuments')->name('getDocuments');
 Route::post('/upload', 'IjinKerjaController@uploadingDokumen')->name('uploadingDokumen');
 Route::get('/lihat/{id}', 'IjinKerjaController@showIjinKerjaPemohon')->name('showIjinKerjaPemohon');
 Route::post('/update-uploaded/{id}', 'IjinKerjaController@updateUploadedDok')->name('updateUploadedDok');
 Route::post('/send-to-so/{id}', 'IjinKerjaController@sendToSo')->name('sendToSo'); //kirim Ijin Kerja untuk ditandatangan Safety Officer
 Route::get('/download-ijin-kerja/{id}', 'IjinKerjaController@download')->name('downloadIjinKerja');
+Route::get('/download-contoh-dokumen', 'IjinKerjaController@downloadContohDokumen')->name('downloadContohDokumen');
+Route::get('/safety-induction', 'IjinKerjaController@safetyInduction')->name('safetyInduction');
 Route::post('/logout', 'Auth\LoginController@logoutUser')->name('logoutUser');
 
 // Ijin Masuk Controllers untuk vendor

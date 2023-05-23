@@ -11,6 +11,11 @@ use App\SafetyEquipment;
 use App\ClosingWorkPermit;
 use App\Approval;
 use App\IjinKerja;
+use App\VendorCategory;
+use App\ViewVendorCategoryWithDocument;
+use App\WorkPermitDocument;
+use App\CutoffDocument;
+use App\UploadedDocument;
 
 use App\EntryPermitDoc;
 
@@ -124,12 +129,14 @@ class IjinKerjaController extends Controller
         $id = Auth::user()->id;
         $name = Auth::user()->name;
         $no_hp = Auth::user()->no_hp;
+        $kategori_vendor = VendorCategory::all();
 
         $data = array(
             'nama_perusahaan' => $nama_perusahaan,
             'id' => $id,
             'name' => $name,
-            'no_hp' => $no_hp
+            'no_hp' => $no_hp,
+            'kategori_vendor' => $kategori_vendor,
         );
 
         return view('app.pemohon.upload', compact(['data']));
@@ -137,32 +144,54 @@ class IjinKerjaController extends Controller
 
     public function uploadingDokumen(Request $request)
     {
+        // dd($request);
         $new_upload_dokumen = new \App\IjinKerja;
 
         $new_upload_dokumen->perihal = $request->perihal;
         $new_upload_dokumen->pic_pemohon = $this->user_id;
         $new_upload_dokumen->status = 6;
 
-        if ($request->hasfile('dokumen_pendukung')) {
-            $names = [];
-            // dd($request->file('dokumen_pendukung'));
-            foreach ($request->file('dokumen_pendukung') as $doc) {
-                $move = $doc->store('dokumen_pendukung', 'public');
-                $filename = $move;
-
-                array_push($names, $filename);
-            }
-            $new_upload_dokumen->dokumen_pendukung = json_encode($names);
-        }
-
         $izin_diberikan_kepada = (object) ['no_po' => $request->no_po, 'perusahaan' => $request->nama_perusahaan, 'no_hp' => $request->no_hp, 'pic_pemohon' => $request->pic_pemohon];
         $new_upload_dokumen->izin_diberikan_kepada = json_encode($izin_diberikan_kepada);
 
-        $new_upload_dokumen->save();
+        if($new_upload_dokumen->save()){
+
+            if($request->hasfile('dok_pendukung')) {
+
+                $dokumen_pendukung = $request->file('dok_pendukung');
+    
+                foreach ($dokumen_pendukung as $key => $doc) {
+                                
+                    $parameter['document_id'] = $request->doc_id[$key];
+                    $parameter['id_ijin_kerja'] = $request->doc_id[$key];
+                    // $atribut[] = str_replace('_', '', $matches[0]);
+    
+                    $move = $doc->store('dok_pendukung', 'public');
+                    $filename = $move;
+    
+                    $save_dokumen_pendukung = new WorkPermitDocument;
+    
+                    $save_dokumen_pendukung["work_permit_id"] = $new_upload_dokumen->id;
+                    $save_dokumen_pendukung["document_id"] = $parameter['document_id'];
+                    $save_dokumen_pendukung["vendor_category_id"] = $request['kategori_vendor'];
+                    $save_dokumen_pendukung["attachment"] = $filename;
+                    $save_dokumen_pendukung["created_at"] = date('Y-m-d H:i:s');
+    
+                    $save_dokumen_pendukung->save();
+                }
+                
+            }
+
+            $this->sendToSo($request, $new_upload_dokumen->id);
+
+            return redirect()->route('indexPemohon')->with('status', 'Dokumen Pendukung berhasil diupload');
+        } else {
+
+            return response()->json(['message' => $exception->getMessage()], 500);
+        }
 
         // $pemohon = \App\User::where('id', $this->user_id)->get()->all();
 
-        $this->sendToSo($request, $new_upload_dokumen->id);
 
         // $data['id'] = $new_upload_dokumen->id;
         // $data['perihal'] = $new_upload_dokumen->perihal;
@@ -176,7 +205,6 @@ class IjinKerjaController extends Controller
 
         // Mail::to($get_emails)->send(new EmailUploadDokumen($data));
 
-        return redirect()->route('indexPemohon')->with('status', 'Dokumen Pendukung berhasil diupload');
     }
 
     public function updateUploadedDok(Request $request, $id)
@@ -402,13 +430,59 @@ class IjinKerjaController extends Controller
 
     public function showIjinKerjaPemohon($id)
     {
-        $lihat_ijin_pemohon = DB::table('work_permits as wp')
-            ->select('wp.created_at', 'wp.perihal', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject')
-            ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
-            ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
-            ->where('wp.id', $id)
-            ->get();
-        return view('app.pemohon.show-proposed', compact(['lihat_ijin_pemohon', 'id']));
+        
+        $cutoff = $this->cutoff();
+
+        $data = $this->viewUploadedDocument($id, $cutoff);
+
+        $sebelum_cutoff = $data['sebelum_cutoff'];
+
+        $list_documents = $data['list_documents'];
+
+        $lihat_ijin_pemohon = $data['lihat_ijin_pemohon'];
+
+        return view('app.pemohon.show-proposed', compact(['lihat_ijin_pemohon', 'list_documents', 'id', 'sebelum_cutoff']));
+    }
+
+    public function viewUploadedDocument($id, $cutoff) {
+
+        $work_permit = IjinKerja::where('id', $id)->get()->all();
+
+        $tanggal_ijin_kerja = $work_permit[0]->created_at->format('Y-m-d');
+        $tanggal_cutoff     = $cutoff[0]->tanggal_cutoff;
+
+        $data['sebelum_cutoff'] = true;
+
+        $data['list_documents'] = [];
+
+        $data['lihat_ijin_pemohon'] = DB::table('work_permits as wp')
+                                        ->select('wp.created_at', 'wp.perihal', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject', 'u.nama_perusahaan')
+                                        ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
+                                        ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
+                                        ->where('wp.id', $id)
+                                        ->get();
+
+        if ($tanggal_ijin_kerja >= $tanggal_cutoff) {
+
+            $data['sebelum_cutoff'] = false;
+            
+            $data['list_documents'] = UploadedDocument::where('id', $id)->get()->all();
+        }
+
+        return $data;
+    }
+
+    public function cutoff() {
+
+        $cutoff = CutoffDocument::get()->all();
+
+        return $cutoff;
+    }
+
+    public function safetyInduction()
+    {
+
+        return view('app.pemohon.safety-induction');
     }
 
     public function download($id)
@@ -784,6 +858,45 @@ class IjinKerjaController extends Controller
 
     public function deleteIjinMasuk($id){
 
+    }
+
+    public function downloadContohDokumen()
+    {
+        return view('app.pemohon.download-contoh');
+    }
+
+    public function getDocuments(Request $request)
+    {
+
+        $id_vendor_category = $request->id_vendor_category;
+
+        $get_documents = ViewVendorCategoryWithDocument::where('id_vendor_category', $id_vendor_category)->get();
+
+        $doc_inputs = '<table class="table table-hover">';
+
+        foreach ($get_documents as $doc) {
+
+            // $doc_inputs .= '<div class="form-group row">
+            //                     <label class="col-sm-2 form-control-label">'.$doc->nama_dokumen.'</label>
+            //                     <div class="col-sm-10">
+            //                         <p class="form-control-static">
+            //                             <input type="file" type="file" data-document-id='.$doc->id_document.' class="file" data-msg-placeholder="Format file .jpg, .jpeg, .pdf, .zip">
+            //                         </p>
+            //                     </div>
+            //                 </div>';
+
+            $doc_inputs .= '<tr>'. ($doc->is_required == 1 ? '<td>'. $doc->nama_dokumen .' <strong>(harus diisi)</strong></td>' : '<td>'. $doc->nama_dokumen .'</td>') . '
+                                <td>
+                                    <input type="file" type="file" name="dok_pendukung[]" data-document-id='.$doc->id_document.' class="file" data-msg-placeholder="Format file .jpg, .jpeg, .pdf, .zip" '. ($doc->is_required == 1 ? 'required="required"' : '') .'>
+                                    <input type="hidden" name="doc_id[]" value='.$doc->id_document.'>
+                                </td>
+                            </tr>
+                            ';
+        }
+
+        $doc_inputs .= '</table>';
+        
+        echo json_encode($doc_inputs);
     }
 
     function getDocs($role){

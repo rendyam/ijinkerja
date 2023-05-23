@@ -146,15 +146,27 @@
                                 <label class="col-sm-2 form-control-label">Dokumen Pendukung yang di-upload</label>
                                 <div class="col-sm-10">
                                     <p class="form-control-static">
-                                        @if(json_decode($collect_ijin[0]->dokumen_pendukung) != null)
-                                            @foreach(json_decode($collect_ijin[0]->dokumen_pendukung) as $dokumen_pendukung)
+                                        @if($sebelum_cutoff)
+                                            @if(json_decode($lihat_ijin_pemohon[0]->dokumen_pendukung) != null)
+                                            @foreach(json_decode($lihat_ijin_pemohon[0]->dokumen_pendukung) as $dokumen_pendukung)
                                             <a target="_blank" href="{{ asset('storage/'.$dokumen_pendukung) }}">
                                                 <!-- <embed src=" {{ asset('storage/'.$dokumen_pendukung) }} " width="20%" height="100%" /> -->
-                                                {{$dokumen_pendukung}}
+                                                {{ $dokumen_pendukung }}
                                             </a>
                                             @endforeach
-                                        @else
+                                            @else
                                             -- Tidak ada dokumen pendukung --
+                                            @endif
+                                        @else
+                                            Kategori Vendor: {{$list_documents[0]->vendor_category_name}} 
+                                            <table class="table table-hover">
+                                            @foreach($list_documents as $doc)
+                                                <tr>
+                                                    <td>{{$doc->nama_dokumen}}</td>
+                                                    <td><a class="button btn" href="{{ asset('storage/' . $doc->attachment) }}"><i class="fa fa-download"></i> Download</a></td>
+                                                </tr>
+                                            @endforeach
+                                            </table>
                                         @endif
                                     </p>
                                 </div>

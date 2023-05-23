@@ -86,6 +86,17 @@ class IjinKerjaAdminController extends Controller
 
     public function createIjinKerja($id)
     {
+
+        $cutoff = app('App\Http\Controllers\IjinKerjaController')->cutoff();
+
+        $data = app('App\Http\Controllers\IjinKerjaController')->viewUploadedDocument($id, $cutoff);
+
+        $sebelum_cutoff = $data['sebelum_cutoff'];
+
+        $list_documents = $data['list_documents'];
+
+        $lihat_ijin = $data['lihat_ijin_pemohon'];
+
         $collect_ijin = DB::table('work_permits as wp')
             ->select('wp.created_at', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject', 'wp.pic_pemohon', 'wp.izin_diberikan_kepada')
             ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
@@ -122,7 +133,8 @@ class IjinKerjaAdminController extends Controller
                     'no_po',
                     'perusahaan',
                     'no_hp',
-                    'pic_pemohon'
+                    'pic_pemohon',
+                    'lihat_ijin', 'list_documents', 'id', 'sebelum_cutoff'
                 ]
             )
         );
@@ -389,13 +401,18 @@ class IjinKerjaAdminController extends Controller
 
     public function showIjinKerjaDiajukan($id)
     {
-        $lihat_ijin = DB::table('work_permits as wp')
-            ->select('wp.created_at', 'wp.perihal', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject', 'u.nama_perusahaan')
-            ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
-            ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
-            ->where('wp.id', $id)
-            ->get();
-        return view('app.admin.show-proposed', compact(['lihat_ijin', 'id']));
+
+        $cutoff = app('App\Http\Controllers\IjinKerjaController')->cutoff();
+
+        $data = app('App\Http\Controllers\IjinKerjaController')->viewUploadedDocument($id, $cutoff);
+
+        $sebelum_cutoff = $data['sebelum_cutoff'];
+
+        $list_documents = $data['list_documents'];
+
+        $lihat_ijin = $data['lihat_ijin_pemohon'];
+
+        return view('app.admin.show-proposed', compact(['lihat_ijin', 'list_documents', 'id', 'sebelum_cutoff']));
     }
 
     public function showIjinKerjaPemohon($id)

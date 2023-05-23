@@ -60,7 +60,7 @@ class LoginController extends Controller
         // Attempt to log the user in
         if (Auth::guard('web')->attempt($credential, $request->member)) {
             // If login succesful, then redirect to their intended location
-            return redirect()->route('indexPemohon');
+            return redirect()->route('home');
         }
 
         // If Unsuccessful, then redirect back to the login with the form data

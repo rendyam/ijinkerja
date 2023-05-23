@@ -107,33 +107,56 @@
 @endpush
 
 @section('content')
-    <div class="page-content">
-    </div>
-    
+<!-- <div class="page-content"> -->
+    <br><br>
     <div class="container-fluid">
-        <header class="section-header">
-            <div class="tbl">
-                <div class="tbl-row">
-                    <div class="tbl-cell">
-                        <h3>Welcome User</h3>
-                        <div class="subtitle">
-                        </div>
-                        <div class="pull-right">
-                        </div>
-                        <div class="panel-body">
-                            <div class="col-xxl-5 col-xl-6 col-md-9 poster">
-                                <div class="slideshow"></div>
-                            </div>
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
-        </header>
-    </div> <!--container-fluid -->
+        <div class="row">
+            <div class="col-xl-6">
+                <div class="box-typical box-typical-padding documentation">
+                    <header class="documentation-header">
+                        <h2>Persyaratan Ijin Kerja</h2>
+                        <p class="lead color-blue-grey">Harap diperhatikan bagi seluruh vendor yang akan bekerja di area Krakatau International Port</p>
+                    </header>
 
-    <div class="row">
-    </div>
+                    <div class="form-group">
+                        <a class="button btn btn-inline" href="{{ route('downloadContohDokumen') }}">Download Contoh Dokumen</a>
+                        <a class="button btn btn-inline btn-success" href="{{ route('safetyInduction') }}"><i class="fa fa-newspaper-o"></i> Buat Ijin Kerja</a>
+                        <!-- <button type="button" class="btn btn-inline btn-success"><i class="fa fa-newspaper-o"></i> Buat Ijin Kerja</button> -->
+                    </div>
+
+                    <div class="text-block text-block-typical">
+                        <p>Lampiran Dokumen Izin Kerja yang harus diupload antara lain:</p>
+                        <table class="table table-hover">
+                            <tr><td>1.</td> <td>Surat Permohonan Izin Kerja, ditujukan ke Divisi HSE.</td></tr>
+                            <tr><td>2.</td> <td>Foto dan / atau Scan KTP (Dokumen Asli) PO/PPJ/KONTRAK/SPK/Memo dinas user / divisi terkait sebagai dasar penunjukan / info pekerjaan.</td></tr>
+                            <tr><td>3.</td> <td>Daftar personil yang bekerja dilengkapi dengan Foto dan / atau Scan KTP (Dokumen Asli).</td></tr>
+                            <tr><td>4.</td> <td>Foto dan / atau STNK + Nama Supir (Dokumen Asli) Kendaraan yang digunakan untuk masuk area PT. KBS dan / atau digunakan pada saat bekerja.</td></tr>
+                            <tr><td>5.</td> <td>Daftar Peralatan yang akan digunakan.</td></tr>
+                            <tr><td>6.</td> <td>Menyertakan JSA (Job Safety Analysis) atau HIRADC (Hazard Identification Risk Assessment & Determining Control) yang sudah di “Tandatangi” oleh pihak yang bertanggung jawab di Perusahaan masing–masing.</td></tr>
+                            <tr><td>7.</td> <td>Untuk pekerjaan pengelasan wajib melampirkan SIO / Sertifikasi pengelasan bagi pekerja yang melakukan pengelasan. Sesuai Permenakertrans No. 02/MEN/1982.</td></tr>
+                            <tr><td>8.</td> <td>Untuk peralatan A2B (Mobile Crane, Forklift, Wheel Loader, Excavator, Spreader, dll.) Wajib dilengkapi “SERTIFIKASI KELAYAKAN”.</td></tr>
+                            <tr><td>9.</td> <td>Foto dan / atau Scan (Dokumen Asli) SIO Operator A2B.</td></tr>
+                            <tr><td>10.</td> <td>Dilampirkan Dokumen Asli dan Valid untuk “RKBM (Rencana Kegiatan Bongkar Muat) dan / atau Ship Chandler” dari KSOP Kelas I Banten, khusus untuk kegiatan Perusahaan Bongkar Muat.</td></tr>
+                            <tr><td>11.</td> <td>Untuk pekerjaan lain yang diperlukan sertifikasi dalam kegiatan bekerjanya wajib “menyertakan” sertifikasi keahlian (Penyelaman, Bekerja di Confined Space, Kelistrikan tegangan Medium dan tinggi, Angkat angkut, dll.)</td></tr>
+                            <tr><td>12.</td> <td>Untuk pekerjaan di bawah Dermaga, pada permukaan air, ataupun di bawah permukaan air, dan pengelasan di atas kapal wajib mengajukan izin terlebih dahulu ke Syahbandar (KSOP Kelas I Banten) dan dilampirkan (Dokumen Asli) pada izin kerja PT. KBS.</td></tr>
+                            <tr><td>13.</td> <td>Pekerjaan terkait Limbah B3 wajib melampirkan data di foto dan / atau Scan (Dokumen Asli) pengelolaan Limbah B3 (Penghasil / Pengangkut / Pemanfaat):
+                                <br>a. Surat rekomendasi Pengangkutan Limbah B3 dari KEMENLHK, atau
+                                <br>b. Izin Penyelenggaraan Angkutan Barang Berbahaya (B3) dari Kemenhub dirjen perhubungan darat
+                                <br>c. Form Manifest (FESTRONIK / Manifest Manual) Update 31 Januari 2023</td></tr>
+                            <tr><td>14.</td> <td>Dilampirkan Dokumen Asli dan Valid untuk “RKBM (Rencana Kegiatan Bongkar Muat) dan / atau Ship Chandler” dari KSOP Kelas I Banten, khusus untuk kegiatan Perusahaan Bongkar Muat.</td></tr>
+                        </table>
+                        <!-- <h4>Lorem Ipsum</h4> -->
+                    </div>
+                </div><!--.box-typical-->
+            </div><!--.col-xl-6-->
+            
+            <div class="col-xl-6">
+                <div class="slideshow"></div>
+            </div>
+        </div><!--.row-->
+    </div><!--.container-fluid-->
+<!-- </div> .page-content-->
+
 @endsection
 
 @push('list-ijin-kerja-js')
