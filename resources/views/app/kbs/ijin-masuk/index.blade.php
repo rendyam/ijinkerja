@@ -48,56 +48,59 @@
                             <thead>
                                 <tr>
                                     <th>No.</th>
-                                    <th>No. Pengajuan</th>
-                                    <th>Perihal</th>
+                                    <th>No. LIK</th>
                                     <th>Tanggal Pengajuan</th>
+                                    <th>Perihal</th>
+                                    <th>Perusahaan</th>
+                                    <th>Nama Pemohon</th>
                                     <th>Status</th>
-                                    <th>Remark</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tfoot>
                                 <tr>
                                     <th>No.</th>
-                                    <th>No. Pengajuan</th>
-                                    <th>Perihal</th>
+                                    <th>No. LIK</th>
                                     <th>Tanggal Pengajuan</th>
+                                    <th>Perihal</th>
+                                    <th>Perusahaan</th>
+                                    <th>Nama Pemohon</th>
                                     <th>Status</th>
-                                    <th>Remark</th>
                                     <th>Action</th>
                                 </tr>
                             </tfoot>
                             <tbody>
 
                                 @php $i = 1; @endphp
-                                @foreach($index as $idx)
+                                @foreach($list_ijin_kadis_keamanan as $key => $idx)
                                     <tr>
-                                        <td>{{ $i++ }}</td>
-                                        <td>{{ $idx->number }}</td>
-                                        <td>{{ $idx->subject }}</td>
+                                        <td>{{ $list_ijin_kadis_keamanan->firstItem() + $key }}</td>
+                                        <td>{{ $idx->nomor_lik ? $idx->nomor_lik : '-' }}</td>
                                         <td>{{ $idx->created_at }}</td>
+                                        <td>{{ $idx->perihal ? $idx->perihal : '-' }}</td>
+                                        <td>{{ $idx->nama_perusahaan }}</td>
+                                        <td>{{ $idx->nama_pemohon }}</td>
                                         <td>
                                             @if($idx->status == 1)
-                                                <span class="label label-pill label-info">{{ $idx->status_name }}</span>
+                                                <span class="label label-pill label-info">{{ $idx->status_ijin_kerja }}</span>
                                             @elseif($idx->status == 2)
-                                                <span class="label label-pill label-primary">{{ $idx->status_name }}</span>
+                                                <span class="label label-pill label-primary">{{ $idx->status_ijin_kerja }}</span>
                                             @elseif($idx->status == 3)
-                                                <span class="label label-pill label-success">{{ $idx->status_name }}</span>
+                                                <span class="label label-pill label-success">{{ $idx->status_ijin_kerja }}</span>
                                             @elseif($idx->status == 4)
-                                                <span class="label label-pill label-danger">{{ $idx->status_name }}</span>
+                                                <span class="label label-pill label-danger">{{ $idx->status_ijin_kerja }}</span>
                                             @elseif($idx->status == 5)
-                                                <span class="label label-pill label-info">{{ $idx->status_name }}</span>
+                                                <span class="label label-pill label-info">{{ $idx->status_ijin_kerja }}</span>
                                             @elseif($idx->status == 6)
-                                                <span class="label label-pill label-info">{{ $idx->status_name }}</span>
+                                                <span class="label label-pill label-info">{{ $idx->status_ijin_kerja }}</span>
                                             @elseif($idx->status == 7)
-                                                <span class="label label-pill label-info">{{ $idx->status_name }}</span>
+                                                <span class="label label-pill label-info">{{ $idx->status_ijin_kerja }}</span>
                                             @elseif($idx->status == 8)
-                                                <span class="label label-pill label-success">{{ $idx->status_name }}</span>
-                                            @elseif($idx->status == 12)
-                                                <span class="label label-pill label-info">{{ $idx->status_name }}</span>
+                                                <span class="label label-pill label-success">{{ $idx->status_ijin_kerja }}</span>
+                                            @elseif($idx->status == 11)
+                                                <span class="label label-pill label-warning">{{ $idx->status_ijin_kerja }}</span>
                                             @endif
                                         </td>
-                                        <td>@if(!is_null($idx->remark)) {{ $idx->remark }} @else - @endif</td>
                                         <td>
                                         @php
                                             $id_ijin_masuk = base64_encode($idx->id);

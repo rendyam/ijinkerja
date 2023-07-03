@@ -45,11 +45,21 @@
                     </div>
                     @endif
 
+                    <form action="{{route('indexIjinKerjaKbs')}}">
+                        <div class="input-group">
+                            <input name="cari_lik" type="text" value="{{Request::get('cari_lik')}}"class="form-control" placeholder="Cari berdasarkan nomor LIK, perihal surat, perusahaan, nama pemohon">
+                            <div class="input-group-append">
+                            <input type="submit" value="Cari" class="btn btn-primary">
+                            </div>
+                        </div>
+                    </form>
+
                     @if(Auth::guard('kbs')->check())
                     <table id="example" class="display table table-bordered table-striped">
                         <thead>
                             <tr>
                                 <th>No.</th>
+                                <th>No. LIK</th>
                                 <th>Tanggal Pengajuan</th>
                                 <th>Perihal</th>
                                 <th>Perusahaan</th>
@@ -61,6 +71,7 @@
                         <tfoot>
                             <tr>
                                 <th>No.</th>
+                                <th>No. LIK</th>
                                 <th>Tanggal Pengajuan</th>
                                 <th>Perihal</th>
                                 <th>Perusahaan</th>
@@ -71,10 +82,10 @@
                         </tfoot>
                         <tbody>
                             @php $i = 1; @endphp
-                            @foreach($list_ijin_admin as $ijin)
-                            @if($ijin->status >= 7)
+                            @foreach($list_ijin_admin as $key => $ijin)
                             <tr>
-                                <td>{{ $i++ }}</td>
+                                <td>{{ $list_ijin_admin->firstItem() + $key }}</td>
+                                <td>{{ $ijin->nomor_lik ? $ijin->nomor_lik : '-' }}</td>
                                 <td>{{ $ijin->created_at }}</td>
                                 @if($ijin->perihal == null)
                                 <td>-</td>
@@ -97,6 +108,8 @@
                                     <span class="label label-pill label-info">{{ $ijin->status_ijin_kerja }}</span>
                                     @elseif($ijin->status == 8)
                                     <span class="label label-pill label-success">{{ $ijin->status_ijin_kerja }}</span>
+                                    @elseif($ijin->status == 11)
+                                    <span class="label label-pill label-warning">{{ $ijin->status_ijin_kerja }}</span>
                                     @endif
                                 </td>
                                 <td>
@@ -107,8 +120,8 @@
                                     @endif
                                 </td>
                             </tr>
-                            @endif
                             @endforeach
+                            {{ $list_ijin_admin->appends(['cari_surat' => request()->cari_surat, 'per_page' => 10])->links() }}
                         </tbody>
                     </table>
                     @endif
@@ -124,10 +137,4 @@
 
 @push('list-ijin-kerja-js')
 <!-- DataTables -->
-<script src="{{ asset('startui/js/lib/datatables-net/datatables.min.js') }}"></script>
-<script>
-    $(function() {
-        $('#example').DataTable();
-    });
-</script>
 @endpush

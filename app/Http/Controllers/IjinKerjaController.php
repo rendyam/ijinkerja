@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
 
 use App\Risk;
 use App\Danger;
@@ -444,7 +445,7 @@ class IjinKerjaController extends Controller
         return view('app.pemohon.show-proposed', compact(['lihat_ijin_pemohon', 'list_documents', 'id', 'sebelum_cutoff']));
     }
 
-    public function viewUploadedDocument($id, $cutoff) {
+    public function viewUploadedDocument($id, $cutoff, $lihat_ijin = 1) {
 
         $work_permit = IjinKerja::where('id', $id)->get()->all();
 
@@ -454,13 +455,16 @@ class IjinKerjaController extends Controller
         $data['sebelum_cutoff'] = true;
 
         $data['list_documents'] = [];
+        
+        if($lihat_ijin == 1) {
 
-        $data['lihat_ijin_pemohon'] = DB::table('work_permits as wp')
-                                        ->select('wp.created_at', 'wp.perihal', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject', 'u.nama_perusahaan')
-                                        ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
-                                        ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
-                                        ->where('wp.id', $id)
-                                        ->get();
+            $data['lihat_ijin_pemohon'] = DB::table('work_permits as wp')
+                                            ->select('wp.created_at', 'wp.perihal', 'wp.dokumen_pendukung', 'u.name', 'wps.name as status_ijin_kerja', 'wp.status', 'wp.note_reject', 'u.nama_perusahaan')
+                                            ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
+                                            ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
+                                            ->where('wp.id', $id)
+                                            ->get();
+        }
 
         if ($tanggal_ijin_kerja >= $tanggal_cutoff) {
 
@@ -485,8 +489,11 @@ class IjinKerjaController extends Controller
         return view('app.pemohon.safety-induction');
     }
 
-    public function download($id)
+    public function download($id, $view_only = 0)
     {
+        
+        $id = $view_only == 1 ? Crypt::decryptString($id) : $id; // kalau view only, idnya terencrypt, sehingga harus didecrypt terlebih dahulu
+
         $get_pemohon = DB::table('approvals as a')
             ->select('u.name', 'wp.nomor_lik', 'a.created_at')
             ->join('users as u', 'u.id', '=', 'a.user_id')
@@ -516,6 +523,16 @@ class IjinKerjaController extends Controller
             ->orderBy('a.created_at')
             ->get();
         $get_kadis = Arr::get($get_kadis, 0);
+
+        $get_kadis_keamanan = DB::table('approvals as a')
+            ->select('dbeu.name', 'wp.nomor_lik', 'a.created_at')
+            ->join('db_efile.users as dbeu', 'dbeu.id', '=', 'a.user_id')
+            ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
+            ->where('a.work_permit_id', '=', $id)
+            ->where('a.user_status', '=', 'KADISKEAMANAN')
+            ->orderBy('a.created_at')
+            ->get();
+        $get_kadis_keamanan = Arr::get($get_kadis_keamanan, 0);
 
         // dd($get_approval_kadis->created_at);
 
@@ -551,17 +568,77 @@ class IjinKerjaController extends Controller
         foreach ($documents as $document) {
             $document_name_array[] = $document->name;
         }
-        $compare_dokumen = array_intersect($document_name_array, json_decode($ijin_kerja->list_dokumen)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
-        $get_dokumen_lainnya = array_diff(json_decode($ijin_kerja->list_dokumen), $compare_dokumen);
-        $get_dokumen_lainnya = (array_values($get_dokumen_lainnya));
+        
+        $cutoff = $this->cutoff();
 
-        $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $get_pemohon->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $get_pemohon->name . ' (pada tgl ' . $get_pemohon->created_at . ') sebagai Pemohon, ' . $get_safety_officer->name . ' sebagai Safety Officer (ttd. tgl ' . $get_safety_officer->created_at . ') dan Bapak ' . $get_kadis->name . ' sebagai Kadis K3LH (ttd. tgl ' . $get_kadis->created_at . ')'));
-        // dd($qrcode);
-        $tglSuratRaw = $get_kadis->created_at;
+        $tanggal_ijin_kerja = $ijin_kerja->created_at->format('Y-m-d');
+        $tanggal_cutoff     = $cutoff[0]->tanggal_cutoff;
+
+        $encrypted_id = Crypt::encryptString($id);
+
+        $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate(route('viewDocument', $encrypted_id)));
+
+        // $tglSuratRaw = $get_kadis_keamanan->created_at;
+        $tglSuratRaw = $get_safety_officer->created_at;
         $tglSurat = date("d-m-Y", strtotime($tglSuratRaw));
 
-        $pdf = PDF::loadview('app.download-ijin-kerja', ['ijin_kerja' => $ijin_kerja, 'get_dokumen_lainnya' => $get_dokumen_lainnya, 'get_risk_lainnya' => $get_risk_lainnya, 'get_danger_lainnya' => $get_danger_lainnya, 'get_se_lainnya' => $get_se_lainnya, 'qrcode' => $qrcode, 'tglSurat' => $tglSurat]);
-        return $pdf->setPaper('A4', 'portrait')->download('ijin-kerja-pdf.pdf');
+        $lihat_ijin = 0;
+
+        $list_documents = $this->viewUploadedDocument($id, $cutoff, $lihat_ijin);
+
+        $list_in_text = "";
+
+        foreach($list_documents['list_documents'] as $doc) {
+            
+            $list_in_text .= $doc->nama_dokumen .", ";
+        }
+
+        $list_in_text = rtrim($list_in_text, ", ");
+
+        $get_dokumen_lainnya = [];
+
+        if ($tanggal_ijin_kerja <= $tanggal_cutoff) { // kalau tanggal ijin kerja kurang dari tanggal cutoff, maka penandatangannya Pemohon, SO, Kadis HSE; kalau lebih dari tanggal cutoff maka penandatangannya Pemohon, Kadis HSE, Kadis Keamanan
+
+            $compare_dokumen = array_intersect($document_name_array, json_decode($ijin_kerja->list_dokumen)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
+            $get_dokumen_lainnya = array_diff(json_decode($ijin_kerja->list_dokumen), $compare_dokumen);
+            $get_dokumen_lainnya = (array_values($get_dokumen_lainnya)); // remark per 3 Juli 2023 update ijin kerja
+
+            $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $get_pemohon->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $get_pemohon->name . ' (pada tgl ' . $get_pemohon->created_at . ') sebagai Pemohon, ' . $get_safety_officer->name . ' sebagai Safety Officer (ttd. tgl ' . $get_safety_officer->created_at . ') dan Bapak ' . $get_kadis->name . ' sebagai Kadis K3LH (ttd. tgl ' . $get_kadis->created_at . ')'));
+        }
+
+        if ($view_only == 0) { // 0 = download
+
+            $pdf = PDF::loadview('app.download-ijin-kerja', [
+                        'ijin_kerja'          => $ijin_kerja, 
+                        'get_dokumen_lainnya' => $get_dokumen_lainnya, 
+                        'get_risk_lainnya'    => $get_risk_lainnya, 
+                        'get_danger_lainnya'  => $get_danger_lainnya, 
+                        'get_se_lainnya'      => $get_se_lainnya, 
+                        'qrcode'              => $qrcode, 
+                        'tglSurat'            => $tglSurat,
+                        'list_in_text'        => $list_in_text,
+                        'tanggal_ijin_kerja'  => $tanggal_ijin_kerja,
+                        'tanggal_cutoff'      => $tanggal_cutoff,
+                    ]);
+
+            return $pdf->setPaper('A4', 'portrait')->download('ijin-kerja-pdf.pdf');
+        }
+
+        if ($view_only == 1) { // 1 = view only
+            // abort(400, "test");
+            return view('app.pemohon.view-document', compact(
+                'ijin_kerja',
+                'get_dokumen_lainnya',
+                'get_risk_lainnya',
+                'get_danger_lainnya',
+                'get_se_lainnya',
+                'qrcode',
+                'tglSurat',
+                'list_in_text',
+                'tanggal_ijin_kerja',
+                'tanggal_cutoff'
+            ));
+        }
     }
 
     /**
@@ -897,6 +974,13 @@ class IjinKerjaController extends Controller
         $doc_inputs .= '</table>';
         
         echo json_encode($doc_inputs);
+    }
+
+    public function viewDocument($id) {
+
+        $download = $this->download($id, 1);
+
+        return $download;
     }
 
     function getDocs($role){

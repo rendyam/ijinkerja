@@ -177,7 +177,7 @@
                 </a>
             </li>
             @endif
-            @if(Auth::user()->role_ijinkerja == "KEAMANAN" || Auth::user()->role_ijinkerja == "ADMINKBS")
+            @if(Auth::user()->role_ijinkerja == "KADISKEAMANAN" || Auth::user()->role_ijinkerja == "ADMINKBS")
             <li class="blue">
                 <a href="{{ route('indexIjinMasukKbs') }}">
                     <span>

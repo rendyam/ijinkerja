@@ -171,15 +171,15 @@
                                     </p>
                                 </div>
                             </div>
-                            <div class="form-group row">
+                            <!-- <div class="form-group row">
                                 <label class="col-sm-2 form-control-label">Dokumen Pendukung</label>
                                 <div class="col-sm-10">
-                                    @foreach($documents as $doc)
-                                    <label for="{{ $doc->name }}"><input type="checkbox" name="documents[]" value="{{$doc->name}}"> {{ $doc->name }}</label>
-                                    @endforeach
+                                    foreach($documents as $doc)
+                                    <label for="doc->name"><input type="checkbox" name="documents[]" value="doc->name"> doc->name </label>
+                                    endforeach
                                     <input type="checkbox" name="document" value="1" id="checkbox"/> Lainnya <div id="document" style="display:inline"><input name="documents[]" id="TxtArea_4" disabled></div>
                                 </div>
-                            </div>
+                            </div> remark per tanggal 2023-07-03 --> 
 
                             @if($collect_ijin[0]->status == 6)
                             <!-- start 05 Agustus 2020 -->
@@ -404,10 +404,10 @@
                 alert('Mohon isi Catatan Safety Officer!');
                 return false;
             } 
-            else if ($('input[name="documents[]"]:checked').length == 0 && $('input[name="document"]').is(":checked") != true) {
-                alert('Mohon isi Dokumen Pendukung!');
-                return false;
-            } 
+            // else if ($('input[name="documents[]"]:checked').length == 0 && $('input[name="document"]').is(":checked") != true) {
+            //     alert('Mohon isi Dokumen Pendukung!');
+            //     return false;
+            // } remark per tanggal 2023-07-03
             else if ($('input[name="document"]:checked').length == 1 && $('#TxtArea_4').val() == '') {
                 alert('Mohon isi kotak teks lainnya pada Dokumen Pendukung!');
                 return false;

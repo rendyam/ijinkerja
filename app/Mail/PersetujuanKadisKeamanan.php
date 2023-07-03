@@ -7,19 +7,19 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class PersetujuanKadisK3LH extends Mailable
+class PersetujuanKadisKeamanan extends Mailable
 {
     use Queueable, SerializesModels;
-    public $data_send_email_kadis;
+    public $data_send_email_kadis_keamanan;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($data_send_email_kadis)
+    public function __construct($data_send_email_kadis_keamanan)
     {
-        $this->data = $data_send_email_kadis;
+        $this->data = $data_send_email_kadis_keamanan;
     }
 
     /**

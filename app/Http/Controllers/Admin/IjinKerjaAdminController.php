@@ -49,15 +49,30 @@ class IjinKerjaAdminController extends Controller
         });
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $list_ijin_admin = DB::table('work_permits as wp')
-            ->select('wp.id', 'wp.nomor_lik' , 'wp.created_at', 'wp.perihal', 'u.name as nama_pemohon', 'wps.name as status_ijin_kerja', 'wp.status', 'u.nama_perusahaan')
-            ->join('work_permit_status as wps', 'wps.id', '=', 'wp.status')
-            ->join('users as u', 'u.id', '=', 'wp.pic_pemohon')
-            ->orderBy('wp.created_at', 'desc')
-            ->get();
-        // dd($list_ijin);
+        
+        $cari_lik_text = $request->cari_lik;
+
+        if(!isset($cari_lik_text)) {
+
+            $list_ijin_admin = DB::table('index_ijin_kerja_safety_officer_rpt')
+                                ->paginate(10)
+                                ->appends(['cari_lik' => $cari_lik_text, 'per_page' => 10]);
+        }
+
+        if(isset($cari_lik_text)){
+
+            $list_ijin_admin = DB::table('index_ijin_kerja_safety_officer_rpt')
+                                ->where(function ($query) use ($cari_lik_text) {
+                                    $query->where('nomor_lik', 'like', '%' . $cari_lik_text . '%')
+                                        ->orWhere('perihal', 'like', '%' . $cari_lik_text . '%')
+                                        ->orWhere('nama_perusahaan', 'like', '%' . $cari_lik_text . '%')
+                                        ->orWhere('nama_pemohon', 'like', '%' . $cari_lik_text . '%');})
+                                ->paginate(10)
+                                ->appends(['cari_lik' => $cari_lik_text, 'per_page' => 10]);
+        }
+        
         return view('app.admin.index', compact(['list_ijin_admin']));
     }
 
@@ -226,9 +241,7 @@ class IjinKerjaAdminController extends Controller
 
     public function sendIjinKerja(Request $request, $id)
     {
-        // dd($request);
-        $this->sendToKadis($request, $id);
-
+        
         $send_ijin_kerja = \App\IjinKerja::findOrFail($id);
 
         $send_ijin_kerja->jenis_resiko = $request->jenis_resiko;
@@ -254,13 +267,17 @@ class IjinKerjaAdminController extends Controller
 
         $send_ijin_kerja->catatan_safety_officer = $request->get('catatan_safety_officer');
 
-        $send_ijin_kerja->list_dokumen = json_encode($request->get('documents'));
+        // $send_ijin_kerja->list_dokumen = json_encode($request->get('documents')); remark per tanggal 2023-07-03
 
         //edit perubahan alur 4 agustus 2020. sebelumnya status 5 = Menunggu Persetujuan Pemohon
         $send_ijin_kerja->status = 7; // 7 = Menunggu Persetujuan Kadis K3LH
 
         // $send_ijin_kerja->jenis_resiko = $request->kategori_ijin_kerja;
-        $send_ijin_kerja->save();
+        
+        if($send_ijin_kerja->save()) {
+
+            $this->sendToKadis($request, $id);
+        }
 
         // $get_email = $this->getKadisEmail($id);
         // $persetujuan_pemohon['id'] = $id;
@@ -308,37 +325,45 @@ class IjinKerjaAdminController extends Controller
                             ->get();
         // dd(count($cek));
         if(count($cek) == 0){
+
             $insert_to_approval = new Approval();
             $insert_to_approval->work_permit_id = $id;
             $insert_to_approval->user_id = $this->user_id;
             $insert_to_approval->user_status = $request->role;
             $insert_to_approval->status = 3;
 
-            $insert_to_approval->save();
+            $send_to_kadis = \App\IjinKerja::findOrFail($id);
+            // $send_to_kadis->status = $request->status;
+            $send_to_kadis->status = 7;
+            $send_to_kadis->pic_safety_officer = $request->pic_safety_officer;
+
+            try {
+
+                if($insert_to_approval->save() && $send_to_kadis->save()) {
+
+                    $kadis_email = $this->getKadisEmail();
+                    $pemohon = \App\User::where('id', $send_to_kadis->pic_pemohon)->get()->all();
+                    $safety_officer = \App\Admin::where('id', $send_to_kadis->pic_safety_officer)->get()->all();
+                    // dd($safety_officer);
+
+                    $data_send_email_kadis['id'] = $id;
+                    $data_send_email_kadis['perihal'] = $send_to_kadis->perihal;
+                    $data_send_email_kadis['tanggal_dibuat'] = $send_to_kadis->created_at;
+                    $data_send_email_kadis['pemohon'] = $pemohon[0]->name;
+                    $data_send_email_kadis['safety_officer'] = $safety_officer[0]->name;
+                    $data_send_email_kadis['status'] = "Menunggu Persetujuan Kadis K3LH";
+                    $data_send_email_kadis['nama_perusahaan'] = $pemohon[0]->nama_perusahaan;
+
+                    Mail::to($kadis_email)->send(new PersetujuanKadisK3LH($data_send_email_kadis));
+
+                    return redirect()->route('indexIjinKerjaAdmin')->with('status', 'Dokumen Pemohon dengan perihal "' . $send_to_kadis->perihal . '" berhasil disetujui dan dikirimkan ke Kadis K3LH untuk persetujuan');
+                }
+            } catch (Throwable $t) {
+
+                abort(500, $t->getMessage());
+            }
         }
 
-        $send_to_kadis = \App\IjinKerja::findOrFail($id);
-        // $send_to_kadis->status = $request->status;
-        $send_to_kadis->status = 7;
-        $send_to_kadis->pic_safety_officer = $request->pic_safety_officer;
-        $send_to_kadis->save();
-
-        $kadis_email = $this->getKadisEmail();
-        $pemohon = \App\User::where('id', $send_to_kadis->pic_pemohon)->get()->all();
-        $safety_officer = \App\Admin::where('id', $send_to_kadis->pic_safety_officer)->get()->all();
-        // dd($safety_officer);
-
-        $data_send_email_kadis['id'] = $id;
-        $data_send_email_kadis['perihal'] = $send_to_kadis->perihal;
-        $data_send_email_kadis['tanggal_dibuat'] = $send_to_kadis->created_at;
-        $data_send_email_kadis['pemohon'] = $pemohon[0]->name;
-        $data_send_email_kadis['safety_officer'] = $safety_officer[0]->name;
-        $data_send_email_kadis['status'] = "Menunggu Persetujuan Kadis K3LH";
-        $data_send_email_kadis['nama_perusahaan'] = $pemohon[0]->nama_perusahaan;
-
-        Mail::to($kadis_email)->send(new PersetujuanKadisK3LH($data_send_email_kadis));
-
-        return redirect()->route('indexIjinKerjaAdmin')->with('status', 'Dokumen Pemohon dengan perihal "' . $send_to_kadis->perihal . '" berhasil disetujui dan dikirimkan ke Kadis K3LH untuk persetujuan');
     }
 
     public function publishIjinKerja(Request $request, $id)
@@ -428,90 +453,10 @@ class IjinKerjaAdminController extends Controller
 
     public function download($id)
     {
-        $get_pemohon = DB::table('approvals as a')
-            ->select('u.name', 'wp.nomor_lik', 'a.created_at')
-            ->join('users as u', 'u.id', '=', 'a.user_id')
-            ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
-            ->where('a.work_permit_id', '=', $id)
-            ->where('a.user_status', '=', 'PEMOHON')
-            ->orderBy('a.created_at')
-            ->get();
-        $get_pemohon = Arr::get($get_pemohon, 0);
+        
+        $download = app('App\Http\Controllers\IjinKerjaController')->download($id, 0);
 
-        $get_safety_officer = DB::table('approvals as a')
-            ->select('ad.name', 'wp.nomor_lik', 'a.created_at')
-            ->join('admins as ad', 'ad.id', '=', 'a.user_id')
-            ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
-            ->where('a.work_permit_id', '=', $id)
-            ->where('a.user_status', '=', 'ADMIN')
-            ->orderBy('a.created_at')
-            ->get();
-        $get_safety_officer = Arr::get($get_safety_officer, 0);
-
-        $get_kadis = DB::table('approvals as a')
-            ->select('dbeu.name', 'wp.nomor_lik', 'a.created_at')
-            ->join('db_efile.users as dbeu', 'dbeu.id', '=', 'a.user_id')
-            ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
-            ->where('a.work_permit_id', '=', $id)
-            ->where('a.user_status', '=', '["KADISK3LH"]')
-            ->orderBy('a.created_at')
-            ->get();
-        $get_kadis = Arr::get($get_kadis, 0);
-        // $approval = DB::table('approvals as a')
-        //     ->select('u.name', 'wp.nomor_lik', 'a.created_at')
-        //     ->join('users as u', 'u.id', '=', 'a.user_id')
-        //     ->join('work_permits as wp', 'wp.id', '=', 'a.work_permit_id')
-        //     ->where('a.work_permit_id', '=', $id)
-        //     ->orderBy('a.created_at')
-        //     ->get();
-        // dd($approval);
-
-        $ijin_kerja = IjinKerja::findOrFail($id);
-
-        $risks = \App\Risk::get();
-        foreach ($risks as $risk) {
-            $risk_name_array[] = $risk->name;
-        }
-
-        // dd($risk_name_array, $ijin_kerja->kategori);
-        //jenis_resiko diubah menjadi kategori
-        $compare_risk = array_intersect($risk_name_array, json_decode($ijin_kerja->kategori)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
-        $get_risk_lainnya = array_diff(json_decode($ijin_kerja->kategori), $compare_risk);
-        $get_risk_lainnya = (array_values($get_risk_lainnya));
-
-        $dangers = \App\Danger::all();
-        foreach ($dangers as $danger) {
-            $dangers_name_array[] = $danger->name;
-        }
-        $compare_dangers = array_intersect($dangers_name_array, json_decode($ijin_kerja->jenis_bahaya)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
-        $get_danger_lainnya = array_diff(json_decode($ijin_kerja->jenis_bahaya), $compare_dangers);
-        $get_danger_lainnya = (array_values($get_danger_lainnya));
-
-        $safety_equipments = \App\SafetyEquipment::all();
-        foreach ($safety_equipments as $se) {
-            $se_name_array[] = $se->name;
-        }
-        $compare_se = array_intersect($se_name_array, json_decode($ijin_kerja->apd)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
-        $get_se_lainnya = array_diff(json_decode($ijin_kerja->apd), $compare_se);
-        $get_se_lainnya = (array_values($get_se_lainnya));
-
-        $documents = \App\Document::all();
-        foreach ($documents as $document) {
-            $document_name_array[] = $document->name;
-        }
-        $compare_dokumen = array_intersect($document_name_array, json_decode($ijin_kerja->list_dokumen)); //check dokumen mana aja yang memang ada di db dari data yang dipilih
-        $get_dokumen_lainnya = array_diff(json_decode($ijin_kerja->list_dokumen), $compare_dokumen);
-        $get_dokumen_lainnya = (array_values($get_dokumen_lainnya));
-
-        // dd($get_kadis);
-        // $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $approval[0]->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $approval[0]->name . ' (pada tgl ' . $approval[0]->created_at . ') sebagai Pemohon, ' . $approval[1]->name . ' sebagai Safety Officer (ttd. tgl ' . $approval[1]->created_at . ') dan Bapak ' . $approval[2]->name . ' sebagai Kadis K3LH (ttd. tgl ' . $approval[2]->created_at . ')'));
-        $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $get_pemohon->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $get_pemohon->name . ' (pada tgl ' . $get_pemohon->created_at . ') sebagai Pemohon, ' . $get_safety_officer->name . ' sebagai Safety Officer (ttd. tgl ' . $get_safety_officer->created_at . ') dan Bapak ' . $get_kadis->name . ' sebagai Kadis K3LH (ttd. tgl ' . $get_kadis->created_at . ')'));
-        // dd($qrcode);
-        $tglSuratRaw = $get_kadis->created_at;
-        $tglSurat = date("d-m-Y", strtotime($tglSuratRaw));
-
-        $pdf = PDF::loadview('app.download-ijin-kerja', ['ijin_kerja' => $ijin_kerja, 'get_dokumen_lainnya' => $get_dokumen_lainnya, 'get_risk_lainnya' => $get_risk_lainnya, 'get_danger_lainnya' => $get_danger_lainnya, 'get_se_lainnya' => $get_se_lainnya, 'qrcode' => $qrcode, 'tglSurat' => $tglSurat]);
-        return $pdf->setPaper('A4', 'portrait')->download('ijin-kerja-pdf.pdf');
+        return $download;
     }
 
     /**

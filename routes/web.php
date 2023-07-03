@@ -67,6 +67,8 @@ Route::post('/send-to-so/{id}', 'IjinKerjaController@sendToSo')->name('sendToSo'
 Route::get('/download-ijin-kerja/{id}', 'IjinKerjaController@download')->name('downloadIjinKerja');
 Route::get('/download-contoh-dokumen', 'IjinKerjaController@downloadContohDokumen')->name('downloadContohDokumen');
 Route::get('/safety-induction', 'IjinKerjaController@safetyInduction')->name('safetyInduction');
+Route::get('/view-document/{id}', 'IjinKerjaController@viewDocument')->name('viewDocument');
+
 Route::post('/logout', 'Auth\LoginController@logoutUser')->name('logoutUser');
 
 // Ijin Masuk Controllers untuk vendor
@@ -88,7 +90,8 @@ Route::group(['prefix' => 'kbs'], function () {
     Route::post('/login', 'AuthKbs\LoginController@login')->name('kbs.login.submit');
     Route::get('/ijin-kerja', 'Kbs\IjinKerjaAdminController@index')->name('indexIjinKerjaKbs');
     Route::get('/lihat/{id}', 'Kbs\IjinKerjaAdminController@showIjinKerjaDiajukan')->name('showIjinKerjaDiajukanKbs');
-    Route::post('/publish-ijin-kerja/{id}', 'Kbs\IjinKerjaAdminController@publishIjinKerja')->name('publishIjinKerjaKbs'); //Kadis tandatangan dan publish Ijin Kerja untuk Pemohon
+    Route::post('/publish-ijin-kerja/{id}', 'Kbs\IjinKerjaAdminController@publishIjinKerja')->name('publishIjinKerjaKbs'); // Kadis tandatangan dan publish Ijin Kerja untuk Pemohon
+    Route::post('/publish-to-pemohon/{id}', 'Kbs\IjinKerjaAdminController@publishToPemohon')->name('publishToPemohon'); // Kirim ke Pemohon
     Route::post('/reject/{id}', 'Kbs\IjinKerjaAdminController@rejectIjinKerja')->name('rejectIjinKerjaKbs');
 
     Route::get('/download-ijin-kerja/{id}', 'Kbs\IjinKerjaAdminController@download')->name('downloadIjinKerjaKbs');

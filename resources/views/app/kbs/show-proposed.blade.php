@@ -88,8 +88,8 @@
                                 <div class="col-sm-10">
                                     <p class="form-control-static">
                                     @if($sebelum_cutoff)
-                                        @if(json_decode($lihat_ijin_pemohon[0]->dokumen_pendukung) != null)
-                                        @foreach(json_decode($lihat_ijin_pemohon[0]->dokumen_pendukung) as $dokumen_pendukung)
+                                        @if(json_decode($lihat_ijin[0]->dokumen_pendukung) != null)
+                                        @foreach(json_decode($lihat_ijin[0]->dokumen_pendukung) as $dokumen_pendukung)
                                         <a target="_blank" href="{{ asset('storage/'.$dokumen_pendukung) }}">
                                             <!-- <embed src=" {{ asset('storage/'.$dokumen_pendukung) }} " width="20%" height="100%" /> -->
                                             {{ $dokumen_pendukung }}
@@ -143,7 +143,24 @@
                                 @csrf
                                 
                                 <input type="hidden" name="status" value="8">
-                                <input type="hidden" name="role" value=" {{ Auth::user()->role_ijinkerja }} ">
+                                <input type="hidden" name="role" value="{{ Auth::user()->role_ijinkerja }}">
+                                
+                                <div class="form-group row">
+                                    <div class="col-sm-12">
+                                        <div class="pull-right">
+                                            <input type="submit" class="btn btn-success swal-btn-submit-approve btn-inline" name="submitDokumen" value="Setujui">
+                                            <button class="btn btn-inline btn-danger swal-btn-input">Tolak Pengajuan</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            @endif
+                            @if($lihat_ijin[0]->status == 11)
+                            <form action="{{route('publishToPemohon', $id)}}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                
+                                <input type="hidden" name="status" value="8">
+                                <input type="hidden" name="role" value="{{ Auth::user()->role_ijinkerja }}">
                                 
                                 <div class="form-group row">
                                     <div class="col-sm-12">

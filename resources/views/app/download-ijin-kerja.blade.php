@@ -3,7 +3,7 @@
 <head>
 	<title>Ijin Kerja</title>
     <style type="text/css">
-      .tg  {border-collapse:collapse;border-spacing:0;}
+      .tg  {border-collapse:collapse;border-spacing:10;}
       .tg td{font-family:Arial, sans-serif;font-size:14px;padding:2px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
       .tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:2px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
       .tg .tg-w0yc{font-weight:bold;font-size:11px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
@@ -16,8 +16,10 @@
       .tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
       .tg .tg-nxv2{font-size:16px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:center;vertical-align:top}
       .tg .tg-rspx{font-size:11px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:left;vertical-align:top}
+
       .tg .tg-4qi8{font-size:14px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:center;vertical-align:top}
       .tg .tg-bxgz{font-size:11px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:center;vertical-align:top}
+      .tg .tg-bxgz2{font-size:11px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:center;vertical-align:top}
       .tg .tg-lj5e{font-size:12px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:center;vertical-align:top}
       .tg .tg-xwok{font-weight:bold;font-size:11px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:left;vertical-align:top}
       .tg .extra{font-weight:bold;font-size:11px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
@@ -172,7 +174,7 @@
     <td class="tg-rspx" colspan="3"></td>
   </tr>
   <tr>
-    <td class="tg-rspx" colspan="7">Catatan Safety Officer<br></td>
+    <td class="tg-rspx" colspan="7" style="width:1000px">Catatan Safety Officer<br></td>
   </tr>
   <tr>
     <td class="tg-4msd" colspan="7" rowspan="2">{{ $ijin_kerja->catatan_safety_officer }}<br><br></td>
@@ -183,6 +185,7 @@
     <td class="tg-hl2d" rowspan="7"><span style="font-weight:bold"><p class="verticalTableHeader">Bagian 3 : &nbsp;&nbsp;&nbsp;&nbsp; <br> Dokumen Pendukung &nbsp;&nbsp;&nbsp;&nbsp;</p></span><br></td>
     <td class="tg-xwok" colspan="7">Dokumen Pendukung<br></td>
   </tr>
+  @if($tanggal_ijin_kerja <= $tanggal_cutoff)
   <tr>
     <td class="tg-rspx" colspan="4">(@if(in_array("JSA", json_decode($ijin_kerja->list_dokumen))) X @else ( ) @endif) JSA/HIRA</td>
     <td class="tg-rspx" colspan="3">(@if(in_array("Daftar Peralatan", json_decode($ijin_kerja->list_dokumen))) X @else ( ) @endif) Daftar Peralatan<br></td>
@@ -200,6 +203,25 @@
     <td class="tg-bxgz" colspan="2" rowspan="3"><img src="data:image/png;base64, {!! $qrcode !!}"><br> (Safety Officer)</td>
     <td class="tg-bxgz" colspan="2" rowspan="3"><img src="data:image/png;base64, {!! $qrcode !!}"><br> (Kadis K3LH)</td>
   </tr>
+  @endif
+  @if($tanggal_ijin_kerja >= $tanggal_cutoff)
+  <tr>
+    <td class="tg-rspx tg-rspx2" colspan="7">
+			  {{ $list_in_text }}
+    </td>
+  </tr>
+  <tr>
+    <td class="tg-rspx" colspan="7"></td>
+  </tr>
+  <tr>
+    <td class="tg-rspx" colspan="7"></td>
+  </tr>
+  <tr>
+    <td class="tg-bxgz" colspan="2" rowspan="3"> <img src="data:image/png;base64, {!! $qrcode !!}"><br> (Pemohon/Penanggung Jawab)</td>
+    <td class="tg-bxgz" colspan="2" rowspan="3"><img src="data:image/png;base64, {!! $qrcode !!}"><br> (Kadis K3LH)</td>
+    <td class="tg-bxgz" colspan="3" rowspan="3"><img src="data:image/png;base64, {!! $qrcode !!}"><br> (Kadis Keamanan)</td>
+  </tr>
+  @endif
   <tr>
   </tr>
   <tr>
@@ -218,7 +240,7 @@
   <tr>
     <td class="extra5" rowspan="6"> <p class="verticalTableHeader"> Bagian 5 : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br> Penutupan Ijin Kerja &nbsp;&nbsp;&nbsp;&nbsp; </p><br></td>
     <td class="tg-xwok" colspan="3">Penutupan Ijin Kerja<br></td>
-    <td class="tg-bxgz" colspan="2">Safety Officer<br></td>
+    <td class="tg-bxgz2" colspan="2">Safety Officer<br></td>
     <td class="tg-70n2" colspan="2" rowspan="6">Catatan Lainnya<br></td>
   </tr>
   <tr>

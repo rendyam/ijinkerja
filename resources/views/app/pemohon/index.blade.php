@@ -96,6 +96,8 @@
                                             <span class="label label-pill label-info">{{ $ijin->status_ijin_kerja }}</span>
                                         @elseif($ijin->status == 8)
                                             <span class="label label-pill label-success">{{ $ijin->status_ijin_kerja }}</span>
+                                        @elseif($ijin->status == 11)
+                                            <span class="label label-pill label-warning">{{ $ijin->status_ijin_kerja }}</span>
                                         @endif
                                         </td>
                                         <td>

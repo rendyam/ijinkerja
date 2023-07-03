@@ -87,8 +87,8 @@
                                 <div class="col-sm-10">
                                     <p class="form-control-static">
                                         @if($sebelum_cutoff)
-                                            @if(json_decode($lihat_ijin_pemohon[0]->dokumen_pendukung) != null)
-                                            @foreach(json_decode($lihat_ijin_pemohon[0]->dokumen_pendukung) as $dokumen_pendukung)
+                                            @if(json_decode($lihat_ijin[0]->dokumen_pendukung) != null)
+                                            @foreach(json_decode($lihat_ijin[0]->dokumen_pendukung) as $dokumen_pendukung)
                                             <a target="_blank" href="{{ asset('storage/'.$dokumen_pendukung) }}">
                                                 <!-- <embed src=" {{ asset('storage/'.$dokumen_pendukung) }} " width="20%" height="100%" /> -->
                                                 {{ $dokumen_pendukung }}

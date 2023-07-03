@@ -45,6 +45,15 @@
                     </div>
                     @endif
 
+                    <form action="{{route('indexIjinKerjaAdmin')}}">
+                        <div class="input-group">
+                            <input name="cari_lik" type="text" value="{{Request::get('cari_lik')}}"class="form-control" placeholder="Cari berdasarkan nomor LIK, perihal surat, perusahaan, nama pemohon">
+                            <div class="input-group-append">
+                            <input type="submit" value="Cari" class="btn btn-primary">
+                            </div>
+                        </div>
+                    </form>
+
                     @if(Auth::guard('admin')->check())
                     <table id="example" class="display table table-bordered table-striped">
                         <thead>
@@ -73,16 +82,12 @@
                         </tfoot>
                         <tbody>
                             @php $i = 1; @endphp
-                            @foreach($list_ijin_admin as $ijin)
+                            @foreach($list_ijin_admin as $key => $ijin)
                             <tr>
-                                <td>{{ $i++ }}</td>
+                                <td>{{ $list_ijin_admin->firstItem() + $key }}</td>
                                 <td>{{ $ijin->nomor_lik ? $ijin->nomor_lik : '-' }}</td>
                                 <td>{{ $ijin->created_at }}</td>
-                                @if($ijin->perihal == null)
-                                <td>-</td>
-                                @else
-                                <td>{{ $ijin->perihal }}</td>
-                                @endif
+                                <td>{{ $ijin->perihal ? $ijin->perihal : '-' }}</td>
                                 <td>{{ $ijin->nama_perusahaan }}</td>
                                 <td>{{ $ijin->nama_pemohon }}</td>
                                 <td>
@@ -98,6 +103,8 @@
                                     <span class="label label-pill label-info">{{ $ijin->status_ijin_kerja }}</span>
                                     @elseif($ijin->status == 8)
                                     <span class="label label-pill label-success">{{ $ijin->status_ijin_kerja }}</span>
+                                    @elseif($ijin->status == 11)
+                                    <span class="label label-pill label-warning">{{ $ijin->status_ijin_kerja }}</span>
                                     @endif
                                 </td>
                                 <td>
@@ -109,6 +116,7 @@
                                 </td>
                             </tr>
                             @endforeach
+                            {{ $list_ijin_admin->appends(['cari_surat' => request()->cari_surat, 'per_page' => 10])->links() }}
                         </tbody>
                     </table>
                     @elseif(in_array("KADISK3LH", json_decode(Auth::user()->roles)))
@@ -124,11 +132,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php $i = 1; @endphp
-                            @foreach($list_ijin_admin as $ijin)
+                            @foreach($list_ijin_admin as $key => $ijin)
                             @if($ijin->status >= 7)
                             <tr>
-                                <td>{{ $i++ }}</td>
+                                <td>{{ $list_ijin_admin->firstItem() + $key }}</td>
                                 <td>{{ $ijin->created_at }}</td>
                                 @if($ijin->perihal == null)
                                 <td>-</td>
@@ -161,6 +168,7 @@
                             </tr>
                             @endif
                             @endforeach
+                            {{ $list_ijin_admin->appends(['cari_surat' => request()->cari_surat, 'per_page' => 10])->links() }}
                         </tbody>
                         <tfoot>
                             <tr>
@@ -188,8 +196,8 @@
 <!-- DataTables -->
 <script src="{{ asset('startui/js/lib/datatables-net/datatables.min.js') }}"></script>
 <script>
-    $(function() {
-        $('#example').DataTable();
-    });
+    // $(function() {
+    //     $('#example').DataTable();
+    // });
 </script>
 @endpush
