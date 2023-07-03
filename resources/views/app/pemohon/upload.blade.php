@@ -263,24 +263,36 @@
     });
 
     function uploadDokumen(){
-      if (confirm('Anda yakin ingin mengupload?')) {
-          $.blockUI({
-              overlayCSS: {
-                  background: 'rgba(142, 159, 167, 0.3)',
-                  opacity: 1,
-                  cursor: 'wait'
-              },
-              css: {
-                  width: 'auto',
-                  top: '45%',
-                  left: '45%'
-              },
-              message: '<div class="blockui-default-message">Mohon tunggu...</div>',
-              blockMsgClass: 'block-msg-message-loader'
-          });
-      } else {
-          return false
-      }
+
+        let kategori_vendor = document.getElementById("kategori_vendor");
+
+        if(kategori_vendor.value !== 'Pilih') {
+
+            if (confirm('Anda yakin ingin mengupload?')) {
+
+                $.blockUI({
+                    overlayCSS: {
+                        background: 'rgba(142, 159, 167, 0.3)',
+                        opacity: 1,
+                        cursor: 'wait'
+                    },
+                    css: {
+                        width: 'auto',
+                        top: '45%',
+                        left: '45%'
+                    },
+                    message: '<div class="blockui-default-message">Mohon tunggu...</div>',
+                    blockMsgClass: 'block-msg-message-loader'
+                });
+            } else {
+
+                return false
+            }
+        } else {
+            
+            alert("Pilih kategori terlebih dahulu!");
+            return false;
+        }
     }
 
     $('.swal-btn-submit').click(function(e) {
@@ -359,6 +371,7 @@
     // } else {
     //     alert("your browser doesn't support to file API")
     // }
+
 </script>
 
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js"></script> -->
