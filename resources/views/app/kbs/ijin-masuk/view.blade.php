@@ -1,348 +1,267 @@
 @extends('home')
 
-@section('menu_name') Lihat Ijin Masuk @endsection
-@section('title') Lihat Ijin Masuk @endsection
+    @section('menu_name') Lihat Ijin Kerja Diajukan @endsection
+    @section('title') Lihat Ijin Kerja Diajukan @endsection
 
-@push('upload-css')
-<style>
-    input[type=file] {
-        display: block;
-    }
-
-    .imageThumb {
-        /* max-height: 75px; */
-        border: 2px solid;
-        padding: 1px;
-        cursor: pointer;
-    }
-
-    .pip {
-        display: inline-block;
-        margin: 10px 10px 0 0;
-    }
-
-    .remove {
-        display: block;
-        background: #444;
-        border: 1px solid black;
-        color: white;
-        text-align: center;
-        cursor: pointer;
-    }
-
-    .remove:hover {
-        background: white;
-        color: black;
-    }
-
-    #dokumen_preview {
-        border: 1px solid black;
-        padding: 10px;
-    }
-
-    #dokumen_preview img {
-        width: 200px;
-        padding: 5px;
-    }
-</style>
-<link rel="stylesheet" href=" {{ asset('startui/css/lib/bootstrap-sweetalert/sweetalert.css') }} ">
-<link rel="stylesheet" href="{{ asset('startui/css/separate/vendor/sweet-alert-animations.min.css') }}">
-<link href="{{asset('plugins/bootstrap-fileinput-master/css/fileinput.css')}}" media="all" rel="stylesheet" type="text/css" />
-<link rel="stylesheet" href="{{ asset('startui/css/separate/vendor/blockui.min.css') }}">
-
+@push('lihat-dokumen-diajukan-css')
+    <link rel="stylesheet" href=" {{ asset('startui/css/lib/bootstrap-sweetalert/sweetalert.css') }} ">
+    <link rel="stylesheet" href="{{ asset('startui/css/separate/vendor/sweet-alert-animations.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('startui/css/separate/vendor/blockui.min.css') }}">
 @endpush
 
 @section('content')
-<div class="page-content">
-</div>
+    <div class="page-content">
+    </div>
 
-<div class="container-fluid">
-    <header class="section-header">
-        <div class="tbl">
-            <div class="tbl-row">
-                <div class="tbl-cell">
-                    <h3>@yield('menu_name')</h3>
-                    <!-- <ol class="breadcrumb breadcrumb-simple">
+    <div class="container-fluid">
+        <header class="section-header">
+            <div class="tbl">
+                <div class="tbl-row">
+                    <div class="tbl-cell">
+                        <h3>@yield('menu_name')</h3>
+                        <!-- <ol class="breadcrumb breadcrumb-simple">
                             <li class="active">@yield('menu_name')</li>
                         </ol> -->
-                    <div class="subtitle">
-
-                    </div>
-                    <div class="pull-right">
-
+                        <div class="subtitle">
+                            Silakan periksa dan tinjau ulang kembali sebelum membuatkan ijin kerja berdasarkan dokumen pendukung yang telah diupload
+                        </div>
+                        <div class="pull-right">
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header"></div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header"></div>
-
-                <div class="card-body">
-                    @if (session('status'))
-                    <div class="alert alert-success" role="alert">
-                        {{ session('status') }}
-                    </div>
-                    @endif
-
-                    <form action=" {{ route('updateIjinMasukKbs', ) }} " method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <div class="form-group row">
-                            <label class="col-sm-2 form-control-label" for="exampleInput">Perihal</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control maxlength-simple" id="perihal" name="perihal" placeholder="Tuliskan perihal Anda" maxlength="100" required value="{{$data_ijin_masuk->subject}}" disabled>
-                                <small class="text-muted">Max karakter 100</small>
+                    <div class="card-body">
+                        @if (session('status'))
+                            <div class="alert alert-success" role="alert">
+                                {{ session('status') }}
                             </div>
-						</div>
-
-                        <div class="form-group row">
-                            <label class="col-sm-12 form-control-label">Upload Dokumen Anda
-                                <small class="text-muted">Pastikan untuk mengupload file sesuai kolom tersedia</small>
-                            </label>
-                        </div>
-                        @for($i=0; $i<count($docs) ; $i++)
-                            {{ $i+1 }} . {{ $docs[$i]->name }}
-                            <input type="hidden" name="doc_type[]" value="{{$docs[$i]->id}}">
-                            <br>
-                            Dokumen yang diupload:
-                            @php
-                                $doc = json_decode($data_ijin_masuk->docs);
-                            @endphp
-
-                            @for($i_doc=0; $i_doc<count($doc[$i]->files); $i_doc++)
-                                <a href="{{ asset('storage/'.$doc[$i]->files[$i_doc]) }}" target="_blank" >
-                                    {{ $doc[$i]->files[$i_doc] }}
-                                </a> <br>
-                            @endfor
-                            <div class="form-group row">
-                                <div class="col-sm-12">
-                                    <p class="form-control-static"><input type="file" id="file-1" type="file" name="dokumen_pendukung_{{$docs[$i]->id}}[]" multiple class="file" data-msg-placeholder="Format file .jpg, .jpeg, .pdf, .zip" disabled></p>
-                                </div>
-                            </div>
-                        @endfor
-
-                        <div class="form-group row">
-                            <label for="exampleSelect" class="col-sm-2 form-control-label">Catatan</label>
-                            <div class="col-sm-10">
-                                <textarea rows="2" name="catatan" class="form-control maxlength-simple" placeholder="Sampaikan catatan Anda" maxlength="500" required disabled>{{$data_ijin_masuk->message}}</textarea>
-                                <small class="text-muted">Max karakter 500</small>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="form-group row">
-                            <label for="exampleSelect" class="col-sm-2 form-control-label">Alasan Penolakan</label>
-                            <div class="col-sm-10">
-                                <textarea rows="2" name="remark" id="remark" class="form-control maxlength-simple" placeholder="Sampaikan catatan Anda" maxlength="500">@if(!is_null($data_ijin_masuk->remark)) {{ $data_ijin_masuk->remark }}@endif</textarea>
-                                <small class="text-muted"><b>Wajib diisi jika pilih Tolak</b>. Max karakter 500</small>
-                            </div>
-                        </div>
-                        <input type="hidden" name="id" value="{{$data_ijin_masuk->id}}">
-
-                        <!-- <div id="dokumen_preview"></div> -->
-                        <br>
-                        @if($data_ijin_masuk->status >= 2)
-                        <div class="form-group row">
-                            <div class="col-sm-12">
-                                <div class="pull-right">
-                                    <!-- <input type="submit" class="btn btn-primary swal-btn-draft" name="draft" value="Simpan Draft">
-                                    <input type="submit" class="btn btn-success swal-btn-submit" name="submit" value="Submit Ijin Masuk"> -->
-                                    <button type="submit" name="submit" title="Klik untuk menolak" value="tolak" class="btn btn-danger tolak" onclick="submitClick('tolak')">Tolak</button>
-                                    <button type="submit" name="submit" title="Klik untuk approve" value="approve" class="btn btn-success approve" onclick="submitClick('approve')">Approve</button>
-                                </div>
-                            </div>
-                        </div>
                         @endif
-                    </form>
 
-                </div>
-            </div>
-            <!--card -->
-        </div>
-        <!--col-md-8-->
-    </div> <!-- row -->
-</div>
-<!--container-fluid-->
+                            <div class="form-group row">
+                                <label class="col-sm-2 form-control-label">Tanggal Upload</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static"><input type="text" class="form-control" id="inputPassword" value=" {{ $lihat_ijin[0]->created_at }} " disabled></p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 form-control-label">Perihal</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static"><input type="text" class="form-control" id="inputPassword" value=" @if($lihat_ijin[0]->perihal == null) - @else {{ $lihat_ijin[0]->perihal }} @endif" disabled></p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 form-control-label">Perusahaan</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static"><input type="text" class="form-control" id="inputPassword" value=" {{ $lihat_ijin[0]->nama_perusahaan }} " disabled></p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 form-control-label">Nama Pemohon</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static"><input type="text" class="form-control" id="inputPassword" value=" {{ $lihat_ijin[0]->name }} " disabled></p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 form-control-label">Status</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static"><input type="text" class="form-control" id="inputPassword" value=" {{ $lihat_ijin[0]->status_ijin_kerja }} " disabled></p>
+                                </div>
+                            </div>
+                            @if($lihat_ijin[0]->status == 4)
+                            <div class="form-group row">
+                                <label class="col-sm-2 form-control-label">Catatan Penolakan</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static">
+                                        {{ $lihat_ijin[0]->note_reject }}
+                                    </p>
+                                </div>
+                            </div>
+                            @endif
+                            <div class="form-group row">
+                                <label class="col-sm-2 form-control-label">Dokumen Pendukung</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control-static">
+                                    @if($sebelum_cutoff)
+                                        @if(json_decode($lihat_ijin[0]->dokumen_pendukung) != null)
+                                        @foreach(json_decode($lihat_ijin[0]->dokumen_pendukung) as $dokumen_pendukung)
+                                        <a target="_blank" href="{{ asset('storage/'.$dokumen_pendukung) }}">
+                                            <!-- <embed src=" {{ asset('storage/'.$dokumen_pendukung) }} " width="20%" height="100%" /> -->
+                                            {{ $dokumen_pendukung }}
+                                        </a>
+                                        @endforeach
+                                        @else
+                                        -- Tidak ada dokumen pendukung --
+                                        @endif
+                                    @else
+                                        Kategori Vendor: {{$list_documents[0]->vendor_category_name}} 
+                                        <table class="table table-hover">
+                                        @foreach($list_documents as $doc)
+                                            <tr>
+                                                <td>{{$doc->nama_dokumen}}</td>
+                                                <td><a class="button btn" href="{{ asset('storage/' . $doc->attachment) }}"><i class="fa fa-download"></i> Download</a></td>
+                                            </tr>
+                                        @endforeach
+                                        </table>
+                                    @endif
+                                    </p>
+                                </div>
+                            </div>
+                            @if($lihat_ijin[0]->status == 11)
+                            <form action="{{route('publishToPemohon', $id)}}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                
+                                <input type="hidden" name="status" value="8">
+                                <input type="hidden" name="role" value="{{ Auth::user()->role_ijinkerja }}">
+                                
+                                <div class="form-group row">
+                                    <div class="col-sm-12">
+                                        <div class="pull-right">
+                                            <input type="submit" class="btn btn-success swal-btn-submit-approve btn-inline" name="submitDokumen" value="Setujui">
+                                            <button class="btn btn-inline btn-danger swal-btn-input">Tolak Pengajuan</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            @endif
+                    </div>
+                </div><!--card -->
+            </div><!--col-md-8-->
+        </div> <!-- row -->
+    </div>
+
 @endsection
 
+@push('lihat-dokumen-diajukan-js')
+    <script src="{{ asset('startui/js/lib/bootstrap-sweetalert/sweetalert.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('startui/js/lib/blockUI/jquery.blockUI.js') }}"></script>
+    <script>
+        $('.swal-btn-input').click(function(e){
+            e.preventDefault();
+            swal({
+                title: "Anda yakin?",
+                text: "Jika ya, beri tahu alasan secara singkat:",
+                type: "input",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                inputPlaceholder: "Write something"
+            }, function (inputValue) {
+                if (inputValue === false) return false;
+                if (inputValue === "") {
+                    swal.showInputError("You need to write something!");
+                    return false
+                }
+                $.ajax({
+                    method: 'post',
+                    url: " {{ route('rejectIjinKerjaKbs', $id) }} ",
+                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    data: { rejectValue: inputValue } ,
+                    success: function(response){
+                            if(response.d == true){
+                            }
+                                console.log(response)
+                            setTimeout(function(){
+                                $('.swal-btn-input').hide();
+                            },10000);
+                        //--------------------------
+                    }
+                });
+                swal("Terima kasih!", "Alasan: " + inputValue, "success");
+            })
+        });
 
-@push('upload-js')
-<script src="{{ asset('startui/js/lib/bootstrap-sweetalert/sweetalert.min.js') }}"></script>
-<script src="{{asset('plugins/jquery-3.2.1.min.js')}}"></script>
-<script src="{{asset('plugins/bootstrap-fileinput-master/js/fileinput.js')}}" type="text/javascript"></script>
-<script src="{{asset('plugins/theme.js')}}" type="text/javascript"></script>
-<script src="{{asset('plugins/popper.min.js')}}" type="text/javascript"></script>
-<script src="{{asset('plugins/bootstrap.min.js')}}" type="text/javascript"></script>
+        $('.swal-btn-submit-approve').click(function(e){
+            e.preventDefault();
+            // console.log(input.files.length);
 
-<script src="{{ asset('startui/js/lib/bootstrap-maxlength/bootstrap-maxlength.js') }}"></script>
-<script src="{{ asset('startui/js/lib/bootstrap-maxlength/bootstrap-maxlength-init.js') }}"></script>
-<script src="{{ asset('startui/js/lib/blockUI/jquery.blockUI.js') }}" type="text/javascript"></script>
+            var form = $(this).parents('form')
 
-<script>
+            swal({
+                title: "Setujui Ijin Kerja?",
+                text: "Anda akan menyetujui Ijin Kerja dan menerbitkan Ijin Kerja.",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-success",
+                confirmButtonText: "Ya, setujui",
+                cancelButtonText: "Kembali",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            },
+            function(isConfirm) {
+                if(isConfirm){
+                    form.submit()
+                    $.blockUI({
+                        overlayCSS: {
+                            background: 'rgba(142, 159, 167, 0.3)',
+                            opacity: 1,
+                            cursor: 'wait'
+                        },
+                        css: {
+                            width: 'auto',
+                            top: '45%',
+                            left: '45%'
+                        },
+                        message: '<div class="blockui-default-message">Mohon tunggu...</div>',
+                        blockMsgClass: 'block-msg-message-loader'
+                    });
+                    // swal({
+                    //     title: "Sukses!",
+                    //     text: "Ijin Kerja berhasil disetujui.",
+                    //     type: "success",
+                    //     confirmButtonClass: "btn-success"
+                    // })
+                    // const delay = t => new Promise(resolve => setTimeout(resolve, t));
+                    // delay(2000).then(function() {
+                    //     if (result.value){
+                    //         document.location.href = '{{ route("indexPemohon") }}'
+                    //     }
+                    // })
+                }
+            })
+        })
 
-    $(".file").fileinput({
-        showUpload: false,
-        showDelete: false,
-        showCaption: true,
-        theme: 'fa',
-        allowedFileExtensions: ['jpg', 'png', 'jpeg', 'pdf', 'zip'],
-        maxFileSize: 15000,
-        maxFileCount: 5,
-        slugCallback: function(filename) {
-            return filename.replace('(', '_').replace(']', '_');
-        },
-        dropZoneEnabled: false
-    });
+        $('.swal-btn-submit-approve-kadis').click(function(e){
+            e.preventDefault();
+            // console.log(input.files.length);
 
-    // $('.swal-btn-submit').click(function(e) {
-    //     e.preventDefault();
-    //     var input = document.getElementById('file-1');
-    //     // console.log(input.files.length);
+            var form = $(this).parents('form')
 
-    //     if (input.files.length === 0) {
-    //         swal({
-    //             title: "Anda belum memilih file dokumen pendukung!",
-    //             type: "warning",
-    //             confirmButtonText: "Baik, saya pilih terlebih dahulu"
-    //         });
-    //     } else {
-    //         var form = $(this).parents('form')
-
-    //         swal({
-    //                 title: "Anda yakin akan mengupload file yang telah dipilih?",
-    //                 text: "Jika masih ragu, silakan periksa kembali.",
-    //                 type: "warning",
-    //                 showCancelButton: true,
-    //                 confirmButtonClass: "btn-success",
-    //                 confirmButtonText: "Ya, upload sekarang",
-    //                 cancelButtonText: "Kembali!",
-    //                 closeOnConfirm: false,
-    //                 closeOnCancel: true
-    //             },
-    //             function(isConfirm) {
-    //                 if (isConfirm) {
-    //                     form.submit()
-    //                     swal({
-    //                         title: "Sukses!",
-    //                         text: "Dokumen Pendukung berhasil di-upload.",
-    //                         type: "success",
-    //                         confirmButtonClass: "btn-success"
-    //                     })
-    //                     const delay = t => new Promise(resolve => setTimeout(resolve, t));
-    //                     delay(2000).then(function() {
-    //                         if (result.value) {
-    //                             document.location.href = '{{ route("indexPemohon") }}'
-    //                         }
-    //                     })
-    //                 }
-
-    //             })
-    //     }
-    // })
-
-    // if (window.File && window.FileList && window.FileReader) {
-    //     $("#jsaFile").change(function(e){
-    //         $("#dokumen_preview").html("")
-    //         var files = e.target.files
-    //         var filesLength = files.length
-    // // var total_file = document.getElementById("jsaFile").files.length
-    // for(var i = 0; i<filesLength; i++){
-    //     var f = files[i]
-
-    // var fileReader = new FileReader()
-    // fileReader.onload = (function(e){
-    //     var file = e.target
-    //     $('#dokumen_preview').append("<span class=\"pip\">" +
-    //         "<img id=\"myImg\" class=\"imageThumb\" src= \"" + e.target.result  + "\" title=\"" + f.name + "\"/>" +
-    //         "<br/><span> "+f.name+" </span>").insertAfter("#jsaFile")
-    //     $(".remove").click(function(){
-    //         $(this).parent(".pip").remove();
-    //     })
-    // })
-    // fileReader.readAsDataURL(f);
-
-    // // $('#dokumen_preview').append(" <span class='pip'> <img src= '"+ URL.createObjectURL(event.target.files[i] ) +"' > </span> <span class='remove'> Hapus </span>")
-    // // $(".remove").click(function(){
-    // //     $(this).parent(".pip").remove();
-    // // });
-    //         }
-    //     })
-    // } else {
-    //     alert("your browser doesn't support to file API")
-    // }
-
-    // function submitClick(method){
-    //     if (confirm('Anda yakin akan men'+method+' SPD sebagai draft?')) {
-    //         method.preventDefault();
-    //         $.blockUI({
-    //             overlayCSS: {
-    //                 background: 'rgba(142, 159, 167, 0.3)',
-    //                 opacity: 1,
-    //                 cursor: 'wait'
-    //             },
-    //             css: {
-    //                 width: 'auto',
-    //                 top: '45%',
-    //                 left: '45%'
-    //             },
-    //             message: '<div class="blockui-default-message">Mohon tunggu...</div>',
-    //             blockMsgClass: 'block-msg-message-loader'
-    //         });
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-    // }
-
-    $('.tolak').click(function() {
-        if(document.getElementById("remark").value.length == 0){
-            alert("Mohon isi alasan penolakan");
-            return false;
-        }
-        if (confirm('Anda yakin akan menolak ijin masuk ini?')) {
-            $.blockUI({
-                overlayCSS: {
-                    background: 'rgba(142, 159, 167, 0.3)',
-                    opacity: 1,
-                    cursor: 'wait'
-                },
-                css: {
-                    width: 'auto',
-                    top: '45%',
-                    left: '45%'
-                },
-                message: '<div class="blockui-default-message">Mohon tunggu...</div>',
-                blockMsgClass: 'block-msg-message-loader'
-            });
-            return true;
-        } else {
-            return false;
-        }
-    })
-
-    $('.approve').click(function() {
-        if (confirm('Anda yakin akan approve ijin masuk ini?')) {
-            $.blockUI({
-                overlayCSS: {
-                    background: 'rgba(142, 159, 167, 0.3)',
-                    opacity: 1,
-                    cursor: 'wait'
-                },
-                css: {
-                    width: 'auto',
-                    top: '45%',
-                    left: '45%'
-                },
-                message: '<div class="blockui-default-message">Mohon tunggu...</div>',
-                blockMsgClass: 'block-msg-message-loader'
-            });
-            return true;
-        } else {
-            return false;
-        }
-    })
-</script>
-
+            swal({
+                title: "Setujui Ijin Kerja?",
+                text: "Anda akan menyetujui Ijin Kerja dan menerbitkan ke Pemohon terkait.",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-success",
+                confirmButtonText: "Ya, setujui",
+                cancelButtonText: "Kembali",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            },
+            function(isConfirm) {
+                if(isConfirm){
+                    form.submit()
+                    $.blockUI({
+                        overlayCSS: {
+                            background: 'rgba(142, 159, 167, 0.3)',
+                            opacity: 1,
+                            cursor: 'wait'
+                        },
+                        css: {
+                            width: 'auto',
+                            top: '45%',
+                            left: '45%'
+                        },
+                        message: '<div class="blockui-default-message">Mohon tunggu sebentar...</div>',
+                        blockMsgClass: 'block-msg-message-loader'
+                    });
+                }
+            })
+        })
+    </script>
+    
 @endpush
