@@ -180,7 +180,25 @@ class IjinKerjaController extends Controller
     
                     $save_dokumen_pendukung->save();
                 }
+            }
+
+            if(is_array($request->inputan_id)) { 
+
+                // foreach ($request->inputan_id as $key_input => $input) {
+                for ($i = 0; $i < count($request->inputan_id); $i++) {
+
+                    $parameter['inputan_id'] = $request->inputan_id[$i];
                 
+                    $save_text_field_input = new WorkPermitDocument;
+        
+                    $save_text_field_input["work_permit_id"] = $new_upload_dokumen->id;
+                    $save_text_field_input["document_id"] = $parameter['inputan_id'];
+                    $save_text_field_input["vendor_category_id"] = $request['kategori_vendor'];
+                    $save_text_field_input["attachment"] = $request->inputan[$i];
+                    $save_text_field_input["created_at"] = date('Y-m-d H:i:s');
+
+                    $save_text_field_input->save();
+                }
             }
 
             $this->sendToSo($request, $new_upload_dokumen->id);
@@ -470,7 +488,7 @@ class IjinKerjaController extends Controller
 
             $data['sebelum_cutoff'] = false;
             
-            $data['list_documents'] = UploadedDocument::where('id', $id)->get()->all();
+            $data['list_documents'] = UploadedDocument::where('id', $id)->orderBy('document_id', 'asc')->get()->all();
         }
 
         return $data;
@@ -493,6 +511,8 @@ class IjinKerjaController extends Controller
     {
         
         $id = $view_only == 1 ? Crypt::decryptString($id) : $id; // kalau view only, idnya terencrypt, sehingga harus didecrypt terlebih dahulu
+
+        $list_isian_text = UploadedDocument::select('document_id', 'attachment')->where('id', $id)->where('type', 'text')->orderBy('document_id', 'asc')->get()->all();
 
         $get_pemohon = DB::table('approvals as a')
             ->select('u.name', 'wp.nomor_lik', 'a.created_at')
@@ -576,7 +596,10 @@ class IjinKerjaController extends Controller
 
         $encrypted_id = Crypt::encryptString($id);
 
-        $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate(route('viewDocument', $encrypted_id)));
+        $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate(route('downloadImmediately', ['id' => $encrypted_id, 'is_view_only' => 1])));
+
+        $link = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate(route('downloadImmediately', ['id' => $encrypted_id, 'is_view_only' => 1])));
+        // $link = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate(url('download-ijin-kerjas/'.$id)));
 
         // $tglSuratRaw = $get_kadis_keamanan->created_at;
         $tglSuratRaw = $get_safety_officer->created_at;
@@ -606,6 +629,8 @@ class IjinKerjaController extends Controller
             $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $get_pemohon->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $get_pemohon->name . ' (pada tgl ' . $get_pemohon->created_at . ') sebagai Pemohon, ' . $get_safety_officer->name . ' sebagai Safety Officer (ttd. tgl ' . $get_safety_officer->created_at . ') dan Bapak ' . $get_kadis->name . ' sebagai Kadis K3LH (ttd. tgl ' . $get_kadis->created_at . ')'));
         }
 
+
+
         if ($view_only == 0) { // 0 = download
 
             $pdf = PDF::loadview('app.download-ijin-kerja', [
@@ -619,6 +644,8 @@ class IjinKerjaController extends Controller
                         'list_in_text'        => $list_in_text,
                         'tanggal_ijin_kerja'  => $tanggal_ijin_kerja,
                         'tanggal_cutoff'      => $tanggal_cutoff,
+                        'link'                => $link,
+                        'list_isian_text'     => $list_isian_text,
                     ]);
 
             return $pdf->setPaper('A4', 'portrait')->download('ijin-kerja-pdf.pdf');
@@ -636,7 +663,9 @@ class IjinKerjaController extends Controller
                 'tglSurat',
                 'list_in_text',
                 'tanggal_ijin_kerja',
-                'tanggal_cutoff'
+                'tanggal_cutoff',
+                'link',
+                'list_isian_text'
             ));
         }
     }
@@ -962,13 +991,25 @@ class IjinKerjaController extends Controller
             //                     </div>
             //                 </div>';
 
-            $doc_inputs .= '<tr>'. ($doc->is_required == 1 ? '<td>'. $doc->nama_dokumen .' <strong>(harus diisi)</strong></td>' : '<td>'. $doc->nama_dokumen .'</td>') . '
-                                <td>
-                                    <input type="file" type="file" name="dok_pendukung[]" data-document-id='.$doc->id_document.' class="file" data-msg-placeholder="Format file .jpg, .jpeg, .pdf, .zip" '. ($doc->is_required == 1 ? 'required="required"' : '') .'>
+            // <td>
+            //     <input type="file" type="file" name="dok_pendukung[]" data-document-id='.$doc->id_document.' class="file" data-msg-placeholder="Format file .jpg, .jpeg, .pdf, .zip" '. ($doc->is_required == 1 ? 'required="required"' : '') .'>
+            //     <input type="hidden" name="doc_id[]" value='.$doc->id_document.'>
+            // </td>
+
+            $doc_inputs .= '<tr>'. 
+                                ($doc->is_required == 1 ? '<td>'. $doc->nama_dokumen .' <strong>(harus diisi)</strong></td>' : '<td>'. $doc->nama_dokumen .'</td>') . '
+                                '. 
+                                ($doc->type == 'text' ? 
+                                '<td>
+                                    <input type="text" name="inputan[]" data-document-id='.$doc->id_document.' class="file" data-msg-placeholder="..." '. ($doc->is_required == 1 ? 'required="required"' : '') .'>
+                                    <input type="hidden" name="inputan_id[]" value='.$doc->id_document.'>
+                                </td>' 
+                                :
+                                '<td>
+                                    <input type="file" name="dok_pendukung[]" data-document-id='.$doc->id_document.' class="file" data-msg-placeholder="Format file .jpg, .jpeg, .pdf, .zip" '. ($doc->is_required == 1 ? 'required="required"' : '') .'>
                                     <input type="hidden" name="doc_id[]" value='.$doc->id_document.'>
-                                </td>
-                            </tr>
-                            ';
+                                </td>') . 
+                            '</tr>';
         }
 
         $doc_inputs .= '</table>';

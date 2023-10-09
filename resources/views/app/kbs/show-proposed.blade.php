@@ -102,10 +102,17 @@
                                         Kategori Vendor: {{$list_documents[0]->vendor_category_name}} 
                                         <table class="table table-hover">
                                         @foreach($list_documents as $doc)
+                                            @if($doc->type == 'text')
+                                            <tr>
+                                                <td>{{$doc->nama_dokumen}}</td>
+                                                <td>{{$doc->attachment}}</td>
+                                            </tr>
+                                            @else
                                             <tr>
                                                 <td>{{$doc->nama_dokumen}}</td>
                                                 <td><a class="button btn" href="{{ asset('storage/' . $doc->attachment) }}"><i class="fa fa-download"></i> Download</a></td>
                                             </tr>
+                                            @endif
                                         @endforeach
                                         </table>
                                     @endif
@@ -155,7 +162,7 @@
                                 </div>
                             </form>
                             @endif
-                            @if($lihat_ijin[0]->status == 11)
+                            @if($lihat_ijin[0]->status == 11 && Auth::user()->role_ijinkerja == 'KADISKEAMANAN')
                             <form action="{{route('publishToPemohon', $id)}}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 
