@@ -61,7 +61,7 @@
 <col style="width: 106px">
 </colgroup>
   <tr>
-    <th class="tg-0pky" colspan="2" rowspan="3"> <center> <img src="{{ asset('startui/img/KBS-logo.png') }}" height="50px" alt=""> </center> </th>
+    <th class="tg-0pky" colspan="2" rowspan="3"> <center> <img src="{{ asset('startui/img/KBS-logo.png') }}" height="40px" alt=""> </center> </th>
     <th class="tg-nxv2" colspan="3" rowspan="2"><span style="font-weight:bold">FORM</span></th>
     <th class="tg-rspx" colspan="2">No. Dok. : FMPS-DKWS-11-0</th>
     <th class="tg-rspx" rowspan="4"><img width="80px" src="data:image/png;base64, {!! $link !!}"></th>
@@ -217,10 +217,12 @@
       <li>Jumlah Personil PBM : @foreach($list_isian_text as $list) @if($list->document_id == 23) {{$list->attachment}} @endif @endforeach</li>
       <li>Jumlah Personil TKBM : @foreach($list_isian_text as $list) @if($list->document_id == 24) {{$list->attachment}} @endif @endforeach</li>
     </td>
-    <td class="tg-rspx" colspan="2">Jumlah Personil : @foreach($list_isian_text as $list) @if($list->document_id == 22) {{$list->attachment}} @endif @endforeach</td>
+    <td class="tg-rspx" colspan="2">
+      <li>Jumlah Personil : @foreach($list_isian_text as $list) @if($list->document_id == 22) {{$list->attachment}} @endif @endforeach</li>
+      <li>Jumlah Trucking : @foreach($list_isian_text as $list) @if($list->document_id == 26) {{$list->attachment}} @endif @endforeach</li>
+    </td>
     <td class="tg-rspx" colspan="3">
       <li>Alat berat yg di gunakan : @foreach($list_isian_text as $list) @if($list->document_id == 25) {{$list->attachment}} @endif @endforeach</li>
-      <li>Jumlah Trucking : @foreach($list_isian_text as $list) @if($list->document_id == 26) {{$list->attachment}} @endif @endforeach</li>
     </td>
   </tr>
   <tr>
