@@ -74,7 +74,7 @@
     <td class="tg-rspx" colspan="2">Tgl. Terbit : {{ $tglSurat }}<br></td>
   </tr>
   <tr>
-    <td class="tg-bxgz" colspan="2">Divisi Kawasan &amp; K3LH<br></td>
+    <td class="tg-bxgz" colspan="2">HSE Division<br></td>
     <td class="tg-rspx" colspan="2">Halaman 1 dari 1<br></td>
   </tr>
   <tr>
