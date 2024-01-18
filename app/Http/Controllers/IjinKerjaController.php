@@ -35,6 +35,7 @@ use Illuminate\Support\Arr;
 use Auth;
 use PDF;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Carbon\Carbon;
 
 
 class IjinKerjaController extends Controller
@@ -629,7 +630,7 @@ class IjinKerjaController extends Controller
             $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $get_pemohon->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $get_pemohon->name . ' (pada tgl ' . $get_pemohon->created_at . ') sebagai Pemohon, ' . $get_safety_officer->name . ' sebagai Safety Officer (ttd. tgl ' . $get_safety_officer->created_at . ') dan Bapak ' . $get_kadis->name . ' sebagai Kadis K3LH (ttd. tgl ' . $get_kadis->created_at . ')'));
         }
 
-
+        $expired = $this->checkExpiredMasaBerlaku(json_decode($ijin_kerja->masa_berlaku)->akhir);
 
         if ($view_only == 0) { // 0 = download
 
@@ -646,6 +647,7 @@ class IjinKerjaController extends Controller
                         'tanggal_cutoff'      => $tanggal_cutoff,
                         'link'                => $link,
                         'list_isian_text'     => $list_isian_text,
+                        'expired'             => $expired
                     ]);
 
             return $pdf->setPaper('A4', 'portrait')->download('ijin-kerja-pdf.pdf');
@@ -1022,6 +1024,25 @@ class IjinKerjaController extends Controller
         $download = $this->download($id, 1);
 
         return $download;
+    }
+
+    function checkExpiredMasaBerlaku($tanggal_akhir_masa_berlaku)
+    {
+
+        $expired = false;
+
+        $tanggal_akhir_masa_berlaku_raw = trim($tanggal_akhir_masa_berlaku);
+
+        $tanggal_objek = Carbon::createFromFormat('d/m/Y H:i', $tanggal_akhir_masa_berlaku_raw);
+
+        // Ubah ke dalam format yang diinginkan
+        $tanggal_akhir_masa_berlaku = $tanggal_objek->format('Y-m-d H:i:s');
+
+        $tanggal_sekarang = date("Y-m-d H:i:s");
+
+        if ($tanggal_akhir_masa_berlaku <= $tanggal_sekarang) $expired = true;
+
+        return $expired;
     }
 
     function getDocs($role){

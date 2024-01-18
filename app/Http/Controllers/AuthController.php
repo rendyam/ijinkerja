@@ -21,6 +21,8 @@ use App\Approval;
 use App\IjinKerja;
 use App\UploadedDocument;
 
+use Carbon\Carbon;
+
 class AuthController extends Controller
 {
     public function index()
@@ -209,6 +211,20 @@ class AuthController extends Controller
             $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $get_pemohon->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $get_pemohon->name . ' (pada tgl ' . $get_pemohon->created_at . ') sebagai Pemohon, ' . $get_safety_officer->name . ' sebagai Safety Officer (ttd. tgl ' . $get_safety_officer->created_at . ') dan Bapak ' . $get_kadis->name . ' sebagai Kadis K3LH (ttd. tgl ' . $get_kadis->created_at . ')'));
         }
 
+        $expired = app('App\Http\Controllers\IjinKerjaController')->checkExpiredMasaBerlaku(json_decode($ijin_kerja->masa_berlaku)->akhir);
+
+
+
+        $cutoff = app('App\Http\Controllers\IjinKerjaController')->cutoff();
+
+        $data = app('App\Http\Controllers\IjinKerjaController')->viewUploadedDocument($id, $cutoff);
+
+        $sebelum_cutoff = $data['sebelum_cutoff'];
+
+        $list_documents = $data['list_documents'];
+
+        $lihat_ijin = $data['lihat_ijin_pemohon'];
+        
         if ($view_only == 0) { // 0 = download
 
             $pdf = PDF::loadview('app.download-ijin-kerja', [
@@ -224,6 +240,7 @@ class AuthController extends Controller
                         'tanggal_cutoff'      => $tanggal_cutoff,
                         'link'                => $link,
                         'list_isian_text'     => $list_isian_text,
+                        'expired'             => $expired
                     ]);
 
             return $pdf->setPaper('A4', 'portrait')->download('ijin-kerja-pdf.pdf');
@@ -243,7 +260,11 @@ class AuthController extends Controller
                 'tanggal_ijin_kerja',
                 'tanggal_cutoff',
                 'link',
-                'list_isian_text'
+                'list_isian_text',
+                'expired',
+                'sebelum_cutoff',
+                'list_documents',
+                'lihat_ijin'
             ));
         }
     }

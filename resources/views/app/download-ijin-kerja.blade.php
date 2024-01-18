@@ -24,6 +24,16 @@
       .tg .tg-xwok{font-weight:bold;font-size:11px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:left;vertical-align:top}
       .tg .extra{font-weight:bold;font-size:11px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
       .tg .extra5{font-weight:bold;font-size:11px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:left;}
+
+      .tg-red  {border-collapse:collapse;border-spacing:0;}
+      .tg-red td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+        overflow:hidden;padding:10px 5px;word-break:normal;}
+      .tg-red th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+        font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+      .tg-red .tg-red-km2t{border-color:#ffffff;font-weight:bold;text-align:left;vertical-align:top}
+      .tg-red .tg-red-pe31{background-color:#fe0000;border-color:#ffffff;font-size:26px;text-align:center;vertical-align:top}
+      .tg-red .tg-red-zv4m{border-color:#ffffff;text-align:left;vertical-align:top}
+      
       .verticalTableHeader {
           text-align:center;
           white-space:nowrap;
@@ -49,6 +59,21 @@
     </style>
 </head>
     <body>
+    @if($expired)
+    <table class="tg-red" style="undefined;table-layout: fixed; width: 728px">
+      <colgroup>
+        <col style="width: 55.2px">
+        <col style="width: 48.2px">
+      </colgroup>
+      <thead>
+        <tr>
+          <th class="tg-red-pe31" colspan="3" rowspan="2"><span style="color:#FFF">LEMBAR IJIN KERJA INI SUDAH EXPIRED</span></th>
+        </tr>
+      </thead>
+      </tbody>
+    </table>
+    @endif
+
     <table class="tg" style="undefined;table-layout: fixed; width: 725px">
 <colgroup>
 <col style="width: 58px">

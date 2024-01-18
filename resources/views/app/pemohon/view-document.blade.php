@@ -24,6 +24,31 @@
       .tg .tg-xwok{font-weight:bold;font-size:11px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:left;vertical-align:top}
       .tg .extra{font-weight:bold;font-size:11px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:left;vertical-align:middle}
       .tg .extra5{font-weight:bold;font-size:11px;font-family:"Times New Roman", Times, serif !important;;border-color:inherit;text-align:left;}
+
+      .tg-red  {border-collapse:collapse;border-spacing:0;}
+      .tg-red td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+        overflow:hidden;padding:10px 5px;word-break:normal;}
+      .tg-red th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+        font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+      .tg-red .tg-red-km2t{border-color:#ffffff;font-weight:bold;text-align:left;vertical-align:top}
+      .tg-red .tg-red-pe31{background-color:#fe0000;border-color:#ffffff;font-size:26px;text-align:center;vertical-align:top}
+      .tg-red .tg-red-zv4m{border-color:#ffffff;text-align:left;vertical-align:top}
+
+      .tg-list-document  {border-collapse:collapse;border-spacing:5;}
+      .tg-list-document td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+        overflow:hidden;padding:10px 5px;word-break:normal;}
+      .tg-list-document th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+        font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+      .tg-list-document .tg-list-document-km2t{border-color:#ffffff;font-weight:bold;text-align:left;vertical-align:top}
+      .tg-list-document .tg-list-document-zv4m{border-color:#000;text-align:left;vertical-align:top}
+      .tg-list-document .tg-list-document-9si6{background-color:#ffffff;border-color:#000;font-size:15px;text-align:left;vertical-align:top}
+      .tg-list-document .tg-list-document-aw21{border-color:#ffffff;font-weight:bold;text-align:center;vertical-align:top}
+      
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+
       .verticalTableHeader {
           text-align:center;
           white-space:nowrap;
@@ -49,6 +74,23 @@
     </style>
 </head>
     <body>
+    @if($expired)
+    <table class="tg-red" style="undefined;table-layout: fixed; width: 820px">
+      <colgroup>
+      </colgroup>
+      <thead>
+        <tr>
+          <th class="tg-red-pe31" colspan="8" rowspan="2"><span style="color:#FFF">LEMBAR IJIN KERJA INI SUDAH EXPIRED</span></th>
+          <th class="tg-red-zv4m"></th>
+        </tr>
+        <tr>
+          <th class="tg-red-zv4m"></th>
+        </tr>
+      </thead>
+      </tbody>
+    </table>
+    @endif
+
     <table class="tg" style="undefined;table-layout: fixed; width: 725px">
 <colgroup>
 <col style="width: 58px">
@@ -274,5 +316,28 @@
     <td class="tg-rspx" colspan="2">Nama :</td>
   </tr>
 </table>
-    </body>
+<tr></tr>
+<table class="tg-list-document" style="undefined;table-layout: fixed; width: 725px">
+  <colgroup>
+  </colgroup>
+  <thead>
+    <tr>
+      <th colspan="4">List Dokumen yang Dilampirkan</th>
+    </tr>
+    @foreach($list_documents as $doc)
+      @if($doc->type == 'text')
+      <tr>
+        <th class="tg-list-document-9si6" colspan="2">{{$doc->nama_dokumen}}</th>
+        <th class="tg-list-document-zv4m" colspan="2">{{$doc->attachment}}</th>
+      </tr>
+      @else
+      <tr>
+        <th class="tg-list-document-9si6" colspan="2">{{$doc->nama_dokumen}}</th>
+        <th class="tg-list-document-zv4m" colspan="2"><a target="_blank" class="button btn" href="{{ asset('storage/' . $doc->attachment) }}">Lihat</a></th>
+      </tr>
+      @endif
+    @endforeach
+  </thead>
+  </table>
+  </body>
 </html>
