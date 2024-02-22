@@ -63,17 +63,25 @@
                     <table id="example" class="display table table-bordered table-striped">
                         <thead>
                             <tr>
-                                <th rowspan="2">No.</th>
-                                <th rowspan="2">Uraian Kegiatan</th>
-                                <th rowspan="2">Uraian Singkat Pekerjaan</th>
-                                <th rowspan="2">Pelaksana</th>
-                                <th rowspan="1" colspan="2" style="text-align:center">Waktu</th>
-                                <th rowspan="2">Lokasi</th>
-                                <th rowspan="2">No. Ijin Kerja</th>
-                            </tr>
-                            <tr>
-                                <th rowspan="1">Mulai</th>
-                                <th rowspan="1">Akhir</th>
+                                <th>No.</th>
+                                <th>No. Ijin Kerja</th>
+                                <th>Jenis Resiko</th>
+                                <th>Kategori Ijin Kerja</th>
+                                <th>No PO/PPJ/Kontrak</th>
+                                <th>Perusahaan</th>
+                                <th>Penanggung Jawab</th>
+                                <th>Waktu Mulai</th>
+                                <th>Waktu Akhir</th>
+                                <th>Uraian Singkat Pekerjaan</th>
+                                <th>Lokasi</th>
+                                <th>Uraian Kegiatan</th>
+                                <th>Jenis Bahaya</th>
+                                <th>Alat Pelindung Diri</th>
+                                <th>Jumlah Personil</th>
+                                <th>Jumlah Personil PBM</th>
+                                <th>Jumlah Personil TKBM</th>
+                                <th>Alat Berat</th>
+                                <th>Jumlah Trucking</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -145,13 +153,24 @@
             },
             "columns" : [
                 { data: 'id', name: 'id' },
-                { data: 'perihal', name: 'perihal' },
-                { data: 'uraian_singkat_pekerjaan', name: 'uraian_singkat_pekerjaan' },
+                { data: 'nomor_lik', name: 'nomor_lik' },
+                { data: 'jenis_resiko', name: 'jenis_resiko' },
+                { data: 'kategori', name: 'kategori' },
+                { data: 'no_po', name: 'no_po' }, 
                 { data: 'pelaksana', name: 'pelaksana' },
+                { data: 'nama_penanggungjawab', name: 'nama_penanggungjawab' },
                 { data: 'split_mulai', name: 'split_mulai' },
                 { data: 'split_akhir', name: 'split_akhir' },
                 { data: 'lokasi_pekerjaan', name: 'lokasi_pekerjaan' },
-                { data: 'nomor_lik', name: 'nomor_lik' }
+                { data: 'uraian_singkat_pekerjaan', name: 'uraian_singkat_pekerjaan' },
+                { data: 'jenis_bahaya', name: 'jenis_bahaya' },
+                { data: 'apd', name: 'apd' },
+                { data: 'perihal', name: 'perihal' },
+                { data: 'jumlah_personil', name: 'jumlah_personil' },
+                { data: 'jumlah_personil_pbm', name: 'jumlah_personil_pbm' },
+                { data: 'jumlah_personil_tkbm', name: 'jumlah_personil_tkbm' },
+                { data: 'alat_berat', name: 'alat_berat' },
+                { data: 'jumlah_trucking', name: 'jumlah_trucking' },
             ]
         });
     }
