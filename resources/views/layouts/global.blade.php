@@ -176,6 +176,14 @@
                     </span>
                 </a>
             </li>
+            <li class="grey-blue">
+                <a href="{{ route('indexLaporan') }}">
+                    <span>
+                        <i class="font-icon font-icon-list-square"></i>
+                        <span class="lbl">Laporan Ijin Kerja</span>
+                    </span>
+                </a>
+            </li>
             @endif
             @if(Auth::user()->role_ijinkerja == "KADISKEAMANAN" || Auth::user()->role_ijinkerja == "ADMINKBS")
             <li class="blue">

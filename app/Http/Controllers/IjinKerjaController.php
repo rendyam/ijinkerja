@@ -1026,6 +1026,93 @@ class IjinKerjaController extends Controller
         return $download;
     }
 
+    public function indexLaporanKbs()
+    {
+        return view('app.laporan');
+    }
+
+
+    public function listDataLaporan()
+    {
+        if(request()->ajax()){
+            if($_GET[0]['from_date'] != ""){
+                $laporan = DB::table('view_laporan_new as vl')
+                            ->whereBetween('split_mulai', [$_GET[0]['from_date'], $_GET[0]['to_date']])
+                            ->get();
+            } else {
+                $laporan = DB::table('view_laporan_new as vl')
+                            // ->whereBetween('split_mulai', ['2024-02-01', '2024-02-01'])
+                            ->get();
+            }
+
+            $laporanData = DataTables::of($laporan)
+                            ->addColumn('jumlah_personil', function ($data) {
+                                $nama_dokumen_array = explode('; ', $data->nama_dokumen);
+                                $index_jumlah_personil = array_search('Jumlah Personil', $nama_dokumen_array);
+                                
+                                if ($index_jumlah_personil !== false) {
+                                    $attachment_array = explode('; ', $data->attachment);
+                                    $jumlah_personil = $attachment_array[$index_jumlah_personil];
+                                    return $jumlah_personil;
+                                } else {
+                                    return null;
+                                }
+                            })
+                            ->addColumn('jumlah_personil_pbm', function ($data) {
+                                $nama_dokumen_array = explode('; ', $data->nama_dokumen);
+                                $index_jumlah_personil_pbm = array_search('Jumlah Personil PBM', $nama_dokumen_array);
+                                
+                                if ($index_jumlah_personil_pbm !== false) {
+                                    $attachment_array = explode('; ', $data->attachment);
+                                    $jumlah_personil_pbm = $attachment_array[$index_jumlah_personil_pbm];
+                                    return $jumlah_personil_pbm;
+                                } else {
+                                    return null;
+                                }
+                            })
+                            ->addColumn('jumlah_personil_tkbm', function ($data) {
+                                $nama_dokumen_array = explode('; ', $data->nama_dokumen);
+                                $index_jumlah_personil_tkbm = array_search('Jumlah Personil TKBM', $nama_dokumen_array);
+                                
+                                if ($index_jumlah_personil_tkbm !== false) {
+                                    $attachment_array = explode('; ', $data->attachment);
+                                    $jumlah_personil_tkbm = $attachment_array[$index_jumlah_personil_tkbm];
+                                    return $jumlah_personil_tkbm;
+                                } else {
+                                    return null;
+                                }
+                            })
+                            ->addColumn('alat_berat', function ($data) {
+                                $nama_dokumen_array = explode('; ', $data->nama_dokumen);
+                                $index_alat_berat = array_search('Alat Berat yang Digunakan', $nama_dokumen_array);
+                                
+                                if ($index_alat_berat !== false) {
+                                    $attachment_array = explode('; ', $data->attachment);
+                                    $alat_berat = $attachment_array[$index_alat_berat];
+                                    return $alat_berat;
+                                } else {
+                                    return null;
+                                }
+                            })
+                            ->addColumn('jumlah_trucking', function ($data) {
+                                $nama_dokumen_array = explode('; ', $data->nama_dokumen);
+                                $index_jumlah_trucking = array_search('Jumlah Trucking', $nama_dokumen_array);
+                                
+                                if ($index_jumlah_trucking !== false) {
+                                    $attachment_array = explode('; ', $data->attachment);
+                                    $jumlah_trucking = $attachment_array[$index_jumlah_trucking];
+                                    return $jumlah_trucking;
+                                } else {
+                                    return null;
+                                }
+                            })
+                            ->rawColumns(['jumlah_personil', 'jumlah_personil_pbm', 'jumlah_personil_tkbm', 'alat_berat', 'jumlah_trucking'])
+                            ->make(true);
+
+            return $laporanData;
+        }
+    }
+
     function checkExpiredMasaBerlaku($tanggal_akhir_masa_berlaku)
     {
 

@@ -98,7 +98,11 @@ Route::group(['prefix' => 'kbs'], function () {
 
     Route::get('/download-ijin-kerja/{id}', 'Kbs\IjinKerjaAdminController@download')->name('downloadIjinKerjaKbs');
 
-
+    
+    Route::group(["prefix" => "/laporan"], function () {
+        Route::get('', 'Kbs\IjinKerjaAdminController@indexLaporan')->name('indexLaporan');
+        Route::get('/list-data', 'Kbs\IjinKerjaAdminController@listDataLaporan')->name('listDataLaporan');
+    });
     //Ijin masuk Controllers untuk KADISKAM KBS dan Admin KBS (Rendy)
     Route::group(["prefix" => "/ijin-masuk"], function () {
         Route::get('/', 'Kbs\IjinKerjaAdminController@indexIjinMasukKbs')->name('indexIjinMasukKbs');
