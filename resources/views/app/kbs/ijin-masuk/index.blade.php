@@ -44,7 +44,16 @@
                             </div>
                         @endif
 
-                        <table id="example" class="display table table-bordered table-striped">
+                        <form action="{{route('indexIjinMasukKbs')}}">
+                            <div class="input-group">
+                                <input name="cari_lik" type="text" value="{{Request::get('cari_lik')}}"class="form-control" placeholder="Cari berdasarkan nomor LIK, perihal surat, perusahaan, nama pemohon">
+                                <div class="input-group-append">
+                                <input type="submit" value="Cari" class="btn btn-primary">
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <table id="" class="display table table-bordered table-striped">
                             <thead>
                                 <tr>
                                     <th>No.</th>
@@ -109,6 +118,7 @@
                                         </td>
                                     </tr>
                                 @endforeach
+                                {{ $list_ijin_kadis_keamanan->appends(['cari_surat' => request()->cari_surat, 'per_page' => 10])->links() }}
                             </tbody>
                         </table>
                     </div>
