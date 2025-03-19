@@ -240,7 +240,11 @@ class AuthController extends Controller
                         'tanggal_cutoff'      => $tanggal_cutoff,
                         'link'                => $link,
                         'list_isian_text'     => $list_isian_text,
-                        'expired'             => $expired
+                        'expired'             => $expired,
+                        'get_pemohon'         => $get_pemohon,
+                        'get_safety_officer'  => $get_safety_officer,
+                        'get_kadis'           => $get_kadis,
+                        'get_kadis_keamanan'  => $get_kadis_keamanan,
                     ]);
 
             return $pdf->setPaper('A4', 'portrait')->download('ijin-kerja-pdf.pdf');
@@ -264,7 +268,11 @@ class AuthController extends Controller
                 'expired',
                 'sebelum_cutoff',
                 'list_documents',
-                'lihat_ijin'
+                'lihat_ijin',
+                'get_pemohon',
+                'get_safety_officer',
+                'get_kadis',
+                'get_kadis_keamanan'
             ));
         }
     }

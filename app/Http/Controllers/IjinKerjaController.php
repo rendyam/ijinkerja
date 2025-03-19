@@ -647,7 +647,11 @@ class IjinKerjaController extends Controller
                         'tanggal_cutoff'      => $tanggal_cutoff,
                         'link'                => $link,
                         'list_isian_text'     => $list_isian_text,
-                        'expired'             => $expired
+                        'expired'             => $expired,
+                        'get_pemohon'         => $get_pemohon,
+                        'get_safety_officer'  => $get_safety_officer,
+                        'get_kadis'           => $get_kadis,
+                        'get_kadis_keamanan'  => $get_kadis_keamanan,
                     ]);
 
             return $pdf->setPaper('A4', 'portrait')->download('ijin-kerja-pdf.pdf');
@@ -667,7 +671,11 @@ class IjinKerjaController extends Controller
                 'tanggal_ijin_kerja',
                 'tanggal_cutoff',
                 'link',
-                'list_isian_text'
+                'list_isian_text',
+                'get_pemohon',
+                'get_safety_officer',
+                'get_kadis',
+                'get_kadis_keamanan'
             ));
         }
     }
@@ -1030,7 +1038,6 @@ class IjinKerjaController extends Controller
     {
         return view('app.laporan');
     }
-
 
     public function listDataLaporan()
     {

@@ -225,9 +225,9 @@
     <td class="tg-rspx" colspan="3">@if(count($get_dokumen_lainnya) > 0) ( X ) Lainnya: {{ $get_dokumen_lainnya[0] }} @else (( )) Lainnya @endif </td>
   </tr>
   <tr>
-    <td class="tg-bxgz" colspan="3" rowspan="3"> <img src="data:image/png;base64, {!! $qrcode !!}"><br> (Pemohon/Penanggung Jawab)</td>
-    <td class="tg-bxgz" colspan="2" rowspan="3"><img src="data:image/png;base64, {!! $qrcode !!}"><br> (Safety Officer)</td>
-    <td class="tg-bxgz" colspan="2" rowspan="3"><img src="data:image/png;base64, {!! $qrcode !!}"><br> (Kadis K3LH)</td>
+    <td class="tg-bxgz" colspan="3" rowspan="3"> <img src="data:image/png;base64, {!! $qrcode !!}"><br> (Pemohon/Penanggung Jawab) <br> {{$get_pemohon->created_at}}</td>
+    <td class="tg-bxgz" colspan="2" rowspan="3"><img src="data:image/png;base64, {!! $qrcode !!}"><br> (Safety Officer) <br> {{$get_safety_officer->created_at}}</td>
+    <td class="tg-bxgz" colspan="2" rowspan="3"><img src="data:image/png;base64, {!! $qrcode !!}"><br> (Kadis K3LH) <br> {{$get_kadis->created_at}}</td>
   </tr>
   @endif
   @if($tanggal_ijin_kerja >= $tanggal_cutoff)
@@ -254,9 +254,9 @@
     <td class="tg-rspx" colspan="7"> <br></td>
   </tr>
   <tr>
-    <td class="tg-bxgz" colspan="2" rowspan="3"> <img src="data:image/png;base64, {!! $qrcode !!}"><br> (Pemohon/Penanggung Jawab)</td>
-    <td class="tg-bxgz" colspan="2" rowspan="3"><img src="data:image/png;base64, {!! $qrcode !!}"><br> (Kadis K3LH)</td>
-    <td class="tg-bxgz" colspan="3" rowspan="3"><img src="data:image/png;base64, {!! $qrcode !!}"><br> (Kadis Keamanan)</td>
+    <td class="tg-bxgz" colspan="2" rowspan="3"> <img src="data:image/png;base64, {!! $qrcode !!}"><br> (Pemohon/Penanggung Jawab) <br> {{$get_pemohon->created_at}}</td>
+    <td class="tg-bxgz" colspan="2" rowspan="3"><img src="data:image/png;base64, {!! $qrcode !!}"><br> (Kadis K3LH) <br> {{$get_kadis->created_at}}</td>
+    <td class="tg-bxgz" colspan="3" rowspan="3"><img src="data:image/png;base64, {!! $qrcode !!}"><br> (Kadis Keamanan) <br> {{$get_kadis_keamanan->created_at}}</td>
   </tr>
   @endif
   <tr>
