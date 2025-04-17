@@ -88,7 +88,7 @@
   <tr>
     <th class="tg-0pky" colspan="2" rowspan="3"> <center> <img src="{{ asset('startui/img/KBS-logo.png') }}" height="40px" alt=""> </center> </th>
     <th class="tg-nxv2" colspan="3" rowspan="2"><span style="font-weight:bold">FORM</span></th>
-    <th class="tg-rspx" colspan="2">No. Dok. : FMPS-DKWS-11-0</th>
+    <th class="tg-rspx" colspan="2">No. Dok. : FMIK-KLK-01-07-01</th>
     <th class="tg-rspx" rowspan="4"><img width="80px" src="data:image/png;base64, {!! $link !!}"></th>
   </tr>
   <tr>
