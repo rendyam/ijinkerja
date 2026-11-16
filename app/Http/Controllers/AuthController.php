@@ -184,8 +184,8 @@ class AuthController extends Controller
         $link = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate(route('downloadImmediately', ['id' => $encrypted_id, 'is_view_only' => 1])));
 
         // $tglSuratRaw = $get_kadis_keamanan->created_at;
-        $tglSuratRaw = $get_safety_officer->created_at;
-        $tglSurat = date("d-m-Y", strtotime($tglSuratRaw));
+        $tglSuratRaw = $get_safety_officer->created_at ?? null;
+        $tglSurat = $tglSuratRaw ? date("d-m-Y", strtotime($tglSuratRaw)) : '-';
 
         $lihat_ijin = 0;
 
@@ -208,7 +208,13 @@ class AuthController extends Controller
             $get_dokumen_lainnya = array_diff(json_decode($ijin_kerja->list_dokumen), $compare_dokumen);
             $get_dokumen_lainnya = (array_values($get_dokumen_lainnya)); // remark per 3 Juli 2023 update ijin kerja
 
-            $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $get_pemohon->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $get_pemohon->name . ' (pada tgl ' . $get_pemohon->created_at . ') sebagai Pemohon, ' . $get_safety_officer->name . ' sebagai Safety Officer (ttd. tgl ' . $get_safety_officer->created_at . ') dan Bapak ' . $get_kadis->name . ' sebagai Kadis K3LH (ttd. tgl ' . $get_kadis->created_at . ')'));
+            $pesan_qrcode = 'Pesan sah elektronik: Ijin Kerja nomor ' . ($get_pemohon->nomor_lik ?? '-')
+                . ' telah ditandatangani oleh Bapak/Ibu ' . ($get_pemohon->name ?? '-')
+                . ' (pada tgl ' . ($get_pemohon->created_at ?? '-') . ') sebagai Pemohon, '
+                . ($get_safety_officer->name ?? '-') . ' sebagai Safety Officer (ttd. tgl ' . ($get_safety_officer->created_at ?? '-') . ')'
+                . ' dan Bapak ' . ($get_kadis->name ?? '-') . ' sebagai Kadis K3LH (ttd. tgl ' . ($get_kadis->created_at ?? '-') . ')';
+
+            $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate($pesan_qrcode));
         }
 
         $expired = app('App\Http\Controllers\IjinKerjaController')->checkExpiredMasaBerlaku(json_decode($ijin_kerja->masa_berlaku)->akhir);

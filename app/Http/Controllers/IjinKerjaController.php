@@ -146,6 +146,53 @@ class IjinKerjaController extends Controller
 
     public function uploadingDokumen(Request $request)
     {
+        // validasi panjang isian teks (maksimal 100 karakter per isian)
+        foreach ((array) $request->input('inputan', []) as $nilai) {
+            if (is_string($nilai) && mb_strlen(trim($nilai)) > 100) {
+                return redirect()->route('indexPemohon')
+                    ->with('error', 'Isian teks (jumlah personil / alat berat / jumlah trucking) maksimal 100 karakter. Mohon diperpendek lalu upload ulang.');
+            }
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $work_permit = $this->simpanDokumenPendukung($request);
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            report($e);
+
+            return redirect()->route('indexPemohon')
+                ->with('error', 'Dokumen gagal di-upload dan data belum tersimpan. Silakan ulangi. (' . $e->getMessage() . ')');
+        }
+
+        // email dikirim setelah transaksi commit supaya kegagalan email tidak membatalkan data
+        try {
+            $this->sendToSafetyOfficerMail($work_permit);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return redirect()->route('indexPemohon')->with('status', 'Dokumen Pendukung berhasil diupload');
+    }
+
+    private function simpanDokumenPendukung(Request $request)
+    {
+        // pastikan pasangan inputan_id[] dan inputan[] selalu sejajar
+        $inputan_id = array_values((array) $request->input('inputan_id', []));
+        $inputan    = array_values((array) $request->input('inputan', []));
+
+        if (count($inputan) < count($inputan_id)) {
+            $inputan = array_pad($inputan, count($inputan_id), '');
+        }
+
+        $request->merge([
+            'inputan_id' => $inputan_id,
+            'inputan'    => $inputan,
+        ]);
+
         // dd($request);
         $new_upload_dokumen = new \App\IjinKerja;
 
@@ -163,9 +210,12 @@ class IjinKerjaController extends Controller
                 $dokumen_pendukung = $request->file('dok_pendukung');
     
                 foreach ($dokumen_pendukung as $key => $doc) {
+                    if ($doc === null) {
+                        continue;
+                    }
                                 
-                    $parameter['document_id'] = $request->doc_id[$key];
-                    $parameter['id_ijin_kerja'] = $request->doc_id[$key];
+                    $parameter['document_id'] = $request->doc_id[$key] ?? null;
+                    $parameter['id_ijin_kerja'] = $request->doc_id[$key] ?? null;
                     // $atribut[] = str_replace('_', '', $matches[0]);
     
                     $move = $doc->store('dok_pendukung', 'public');
@@ -202,29 +252,12 @@ class IjinKerjaController extends Controller
                 }
             }
 
-            $this->sendToSo($request, $new_upload_dokumen->id);
-
-            return redirect()->route('indexPemohon')->with('status', 'Dokumen Pendukung berhasil diupload');
+            $this->createPemohonApproval($new_upload_dokumen->id);
         } else {
-
-            return response()->json(['message' => $exception->getMessage()], 500);
+            throw new \RuntimeException('Gagal menyimpan dokumen pendukung ke database.');
         }
 
-        // $pemohon = \App\User::where('id', $this->user_id)->get()->all();
-
-
-        // $data['id'] = $new_upload_dokumen->id;
-        // $data['perihal'] = $new_upload_dokumen->perihal;
-        // $data['created_at'] = $new_upload_dokumen->created_at;
-        // $data['pemohon'] = $request->name;
-
-        // $safety_officer_email = \App\Admin::select('email')->get();
-        // foreach ($safety_officer_email as $emails) {
-        //     $get_emails[] = $emails->email;
-        // }
-
-        // Mail::to($get_emails)->send(new EmailUploadDokumen($data));
-
+        return $new_upload_dokumen;
     }
 
     public function updateUploadedDok(Request $request, $id)
@@ -318,34 +351,77 @@ class IjinKerjaController extends Controller
 
     public function sendToSo(Request $request, $id) //send to safety officer
     {
-        // dd($request->role);
-        $insert_to_approval = new Approval();
-        $insert_to_approval->work_permit_id = $id;
-        $insert_to_approval->user_id = $this->user_id;
-        $insert_to_approval->user_status = $request->role;
-        $insert_to_approval->status = 3;
-
-        $insert_to_approval->save();
-
         $send_to_so = \App\IjinKerja::findOrFail($id);
-        // request perubahan alur
-        // $send_to_so->status = $request->status;
-        // $send_to_so->save();
 
+        DB::beginTransaction();
+
+        try {
+            $this->createPemohonApproval($id);
+
+            if ($request->filled('status')) {
+                $send_to_so->status = $request->status;
+                $send_to_so->save();
+            }
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            report($e);
+
+            return redirect()->route('indexPemohon')
+                ->with('error', 'Persetujuan Pemohon gagal disimpan. Silakan ulangi. (' . $e->getMessage() . ')');
+        }
+
+        try {
+            $this->sendToSafetyOfficerMail($send_to_so);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return redirect()->route('indexPemohon')->with('status', 'Dokumen Anda dengan perihal "' . $send_to_so->perihal . '" berhasil disetujui dan dikirimkan ke petugas Safety Officer untuk persetujuan');
+    }
+
+    /**
+     * Membuat baris approval PEMOHON bila belum ada.
+     *
+     * Role sengaja di-hardcode (tidak lagi mengambil $request->role dari form)
+     * karena hidden input role bisa kosong sehingga user_status tersimpan NULL
+     * dan dianggap sebagai "tidak ada approval".
+     */
+    private function createPemohonApproval($work_permit_id)
+    {
+        $sudah_ada = Approval::where('work_permit_id', $work_permit_id)
+                        ->where('user_status', 'PEMOHON')
+                        ->exists();
+
+        if ($sudah_ada) {
+            return;
+        }
+
+        $insert_to_approval = new Approval();
+        $insert_to_approval->work_permit_id = $work_permit_id;
+        $insert_to_approval->user_id = $this->user_id;
+        $insert_to_approval->user_status = 'PEMOHON';
+        $insert_to_approval->status = 3;
+        $insert_to_approval->save();
+    }
+
+    /**
+     * Email pemberitahuan ke Safety Officer. Dipanggil di luar transaksi,
+     * kegagalan kirim email tidak boleh membatalkan data yang sudah tersimpan.
+     */
+    private function sendToSafetyOfficerMail($send_to_so)
+    {
         $pemohon = \App\User::where('id', $this->user_id)->get()->all();
 
-        $safety_officer_email = $this->getSafetyOfficerEmail();
-        $data_send_email_safety_officer['id'] = $id;
+        $data_send_email_safety_officer['id'] = $send_to_so->id;
         $data_send_email_safety_officer['perihal'] = $send_to_so->perihal;
         $data_send_email_safety_officer['tanggal_dibuat'] = $send_to_so->created_at;
-        $data_send_email_safety_officer['pemohon'] = $pemohon[0]->name;
+        $data_send_email_safety_officer['pemohon'] = $pemohon[0]->name ?? '-';
         $data_send_email_safety_officer['status'] = "Menunggu Persetujuan Safety Officer";
-        $data_send_email_safety_officer['nama_perusahaan'] = $pemohon[0]->nama_perusahaan;
+        $data_send_email_safety_officer['nama_perusahaan'] = $pemohon[0]->nama_perusahaan ?? '-';
 
-        Mail::to($safety_officer_email)->send(new PersetujuanSafetyOfficer($data_send_email_safety_officer));
-
-        // request perubahan alur
-        // return redirect()->route('indexPemohon')->with('status', 'Dokumen Anda dengan perihal "' . $send_to_so->perihal . '" berhasil disetujui dan dikirimkan ke petugas Safety Officer untuk persetujuan');
+        Mail::to($this->getSafetyOfficerEmail())->send(new PersetujuanSafetyOfficer($data_send_email_safety_officer));
     }
 
     public function sendToKadis(Request $request, $id)
@@ -603,8 +679,8 @@ class IjinKerjaController extends Controller
         // $link = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate(url('download-ijin-kerjas/'.$id)));
 
         // $tglSuratRaw = $get_kadis_keamanan->created_at;
-        $tglSuratRaw = $get_safety_officer->created_at;
-        $tglSurat = date("d-m-Y", strtotime($tglSuratRaw));
+        $tglSuratRaw = $get_safety_officer->created_at ?? null;
+        $tglSurat = $tglSuratRaw ? date("d-m-Y", strtotime($tglSuratRaw)) : '-';
 
         $lihat_ijin = 0;
 
@@ -627,7 +703,13 @@ class IjinKerjaController extends Controller
             $get_dokumen_lainnya = array_diff(json_decode($ijin_kerja->list_dokumen), $compare_dokumen);
             $get_dokumen_lainnya = (array_values($get_dokumen_lainnya)); // remark per 3 Juli 2023 update ijin kerja
 
-            $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate('Pesan sah elektronik: Ijin Kerja nomor ' . $get_pemohon->nomor_lik . ' telah ditandatangani oleh Bapak/Ibu ' . $get_pemohon->name . ' (pada tgl ' . $get_pemohon->created_at . ') sebagai Pemohon, ' . $get_safety_officer->name . ' sebagai Safety Officer (ttd. tgl ' . $get_safety_officer->created_at . ') dan Bapak ' . $get_kadis->name . ' sebagai Kadis K3LH (ttd. tgl ' . $get_kadis->created_at . ')'));
+            $pesan_qrcode = 'Pesan sah elektronik: Ijin Kerja nomor ' . ($get_pemohon->nomor_lik ?? '-')
+                . ' telah ditandatangani oleh Bapak/Ibu ' . ($get_pemohon->name ?? '-')
+                . ' (pada tgl ' . ($get_pemohon->created_at ?? '-') . ') sebagai Pemohon, '
+                . ($get_safety_officer->name ?? '-') . ' sebagai Safety Officer (ttd. tgl ' . ($get_safety_officer->created_at ?? '-') . ')'
+                . ' dan Bapak ' . ($get_kadis->name ?? '-') . ' sebagai Kadis K3LH (ttd. tgl ' . ($get_kadis->created_at ?? '-') . ')';
+
+            $qrcode = base64_encode(QrCode::format('png')->size(5)->errorCorrection('H')->generate($pesan_qrcode));
         }
 
         $expired = $this->checkExpiredMasaBerlaku(json_decode($ijin_kerja->masa_berlaku)->akhir);
@@ -1011,7 +1093,7 @@ class IjinKerjaController extends Controller
                                 '. 
                                 ($doc->type == 'text' ? 
                                 '<td>
-                                    <input type="text" name="inputan[]" data-document-id='.$doc->id_document.' class="file" data-msg-placeholder="..." '. ($doc->is_required == 1 ? 'required="required"' : '') .'>
+                                    <input type="text" name="inputan[]" maxlength="100" data-document-id='.$doc->id_document.' class="file" data-msg-placeholder="..." '. ($doc->is_required == 1 ? 'required="required"' : '') .'>
                                     <input type="hidden" name="inputan_id[]" value='.$doc->id_document.'>
                                 </td>' 
                                 :

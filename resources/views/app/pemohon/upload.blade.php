@@ -268,9 +268,7 @@
 
         if(kategori_vendor.value !== 'Pilih') {
 
-            if (confirm('Anda yakin ingin mengupload?')) {
-
-                $.blockUI({
+            $.blockUI({
                     overlayCSS: {
                         background: 'rgba(142, 159, 167, 0.3)',
                         opacity: 1,
@@ -284,10 +282,8 @@
                     message: '<div class="blockui-default-message">Mohon tunggu...</div>',
                     blockMsgClass: 'block-msg-message-loader'
                 });
-            } else {
 
-                return false
-            }
+            return true;
         } else {
             
             alert("Pilih kategori terlebih dahulu!");
@@ -322,19 +318,14 @@
                 },
                 function(isConfirm) {
                     if (isConfirm) {
-                        form.submit()
-                        swal({
-                            title: "Sukses!",
-                            text: "Dokumen Pendukung berhasil di-upload.",
-                            type: "success",
-                            confirmButtonClass: "btn-success"
-                        })
-                        const delay = t => new Promise(resolve => setTimeout(resolve, t));
-                        delay(2000).then(function() {
-                            if (result.value) {
-                                document.location.href = '{{ route("indexPemohon") }}'
-                            }
-                        })
+                        // jangan tampilkan "Sukses" di sini: hasil sebenarnya
+                        // ditentukan response server (redirect + flash message)
+                        var formEl = form.get(0);
+                        if (formEl.requestSubmit) {
+                            formEl.requestSubmit(); // jalankan validasi HTML5 + onsubmit
+                        } else {
+                            formEl.submit();
+                        }
                     }
 
                 })
